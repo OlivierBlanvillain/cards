@@ -21,6 +21,20 @@ object Main {
   case class Hand(value: Int) extends AnyVal {
     def openInFour: Boolean = ???
     def jn3rd: Boolean = ???
+    def suites: Int = ???
+
+    def show(color: Color): String = {
+      val sb = new StringBuilder()
+      if (contains(cA << color)) sb.append("A ")
+      if (contains(c10 << color)) sb.append("10 ")
+      if (contains(cK << color)) sb.append("K ")
+      if (contains(cQ << color)) sb.append("Q ")
+      if (contains(cJ << color)) sb.append("J ")
+      if (contains(c9 << color)) sb.append("9 ")
+      if (contains(c8 << color)) sb.append("8 ")
+      if (contains(c7 << color)) sb.append("7 ")
+      sb.toString
+    }
 
     def aces: Int =
       (if (contains(cA << spade)) 1 else 0) +
@@ -54,10 +68,10 @@ object Main {
   case class System(bids: (Bid, Hand => Boolean, System)*)
 
   // As player 1
-  val biddingSystem = System(
+  def biddingSystem = System(
      (Pass, _.aces < 2, ???),
      (P10Sw, _.aces >= 2, ???),
-     (P10SA, _.aces >= 3, ???),
+     (P10S A, _.aces >= 3, ???),
      (P10TA, x => x.aces >= 1 && x.jacks >= 2, ???),
      (P20Sw, _ => true, ???),
      (P20SA, _.aces == 2, ???),
@@ -88,12 +102,12 @@ object Main {
           true
         case b :: _ :: bs =>
           val (bid, pred, subsystem) = system.bids.find(_._1 == b).get
-          assert(pred(h1))
+          pred(h1)
           // check0(h2, h1, bs, subsystem)
       }
     }
 
-    check0(h1, h2, bids, system)
+    check0(h1, h2, bids, biddingSystem)
   }
 
   def main(args: Array[String]): Unit = {
@@ -105,12 +119,44 @@ object Main {
      c7 << spade | cJ << diamond | cA << heart | cA << club |
      c10 << club | c10 << spade | c9 << club | cJ << spade)
 
-    val bid = List(
+    val bids = List(
       P10Sw, Pass, P10Rz, P10Sw,
       P10Rz, Pass, P30SA, Pass,
       Pass, Pass, Pass
     )
 
-    assert(check(h1, h2, true, bid))
+    // assert(check(h1, h2, true, bids))
+    println(show(h1, h1, h2, Hand(c7 << spade), bids))
+  }
+
+  def show(x: Hand, name: String): List[String] = {
+    val s = x.show(spade)
+    val d = x.show(diamond)
+    val h = x.show(heart)
+    val c = x.show(club)
+    val m = s.size max d.size max h.size max c.size
+    "╔══" + "".padTo(m, "═").mkString + "═╗   " ::
+    "║ ♠ " + s.padTo(m, " ").mkString + "║ " + name ::
+    "║ ♥ " + d.padTo(m, " ").mkString + "║   " ::
+    "║ ♣ " + h.padTo(m, " ").mkString + "║   " ::
+    "║ ♦ " + c.padTo(m, " ").mkString + "║   " ::
+    "╚══" + "".padTo(m, "═").mkString + "═╝   " :: Nil
+  }
+
+  def show(h1: Hand, h2: Hand, h3: Hand, h4: Hand, bids: List[Bid]): String = {
+    val s1 = show(h1, "P1")
+    val s2 = show(h2, "P2")
+    val s3 = show(h3, "P3")
+    val s4 = show(h4, "P4")
+    (
+      s3.map(" " * s2.head.length + _) ++
+      s2.map(_ + " " * s1.head.length.max(s3.head.length))
+        .zip(s4)
+        .map { case (x, y) => x + y } ++
+      s1.map(" " * s2.head.length + _)
+    ).zipAll(
+      bids.scan
+      , "", ""
+    ).mkString("\n")
   }
 }
