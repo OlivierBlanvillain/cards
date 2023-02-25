@@ -41,7 +41,7 @@ object Main {
   }
 
   sealed trait RawBid
-  case class ValueBid(n: Int, c: Char) extends RawBid
+  case class ValueBid(n: Int, s: String) extends RawBid
   case object Passs extends RawBid
   case object Doubles extends RawBid
   case object Redoubles extends RawBid
@@ -92,7 +92,7 @@ object Main {
       bids match {
         case Pass :: Pass :: Pass :: Pass =>
           true
-        case b :: _ :: bs =>
+        case b :: _ =>
           val (bid, pred, subsystem) = system.bids.find(_._1 == b).get
           pred(h1)
           // check0(h2, h1, bs, subsystem)
@@ -107,13 +107,60 @@ object Main {
   def main(args: Array[String]): Unit = {
     args.foreach { path =>
       val round = Round.read(path)
-      if (!check(round.h1, round.h3, normalize(round.bids)))
+      val normalized = normalize(round.bids)
+      println(normalized)
+      if (!check(round.h1, round.h3, normalized))
         println(round)
     }
   }
 
+  // val P10Rz, P10Sw, P10SA, P10TA,
+  //     P20Rz, P20Sw, P20SA, P20TA,
+  //     P30Rz, P30Sw, P30SA, P30TA,
+  //     P40Rz, P40Sw, P40SA, P40TA,
+  //     P50Rz, P50Sw, P50SA, P50TA,
+  //     P60Rz, P60Sw, P60SA, P60TA,
+  //     P70Rz, P70Sw, P70SA, P70TA,
+  //     Pass = Value
+  def normaliz(bids: List[RawBid]): List[Bid] = Nil
   def normalize(bids: List[RawBid]): List[Bid] = {
-    return Nil
+    def Sw(n: Int) = n match {
+      case 82 => P10Sw
+      case 90 => P20Sw
+      case 100 => P30Sw
+      case 110 => P40Sw
+      case 120 => P50Sw
+      case 130 => P60Sw
+    }
+    def TA(n: Int) = n match {
+      case 82 => P10TA
+      case 90 => P20TA
+      case 100 => P30TA
+      case 110 => P40TA
+      case 120 => P50TA
+      case 130 => P60TA
+    }
+    def SA(n: Int) = n match {
+      case 82 => P10SA
+      case 90 => P20SA
+      case 100 => P30SA
+      case 110 => P40SA
+      case 120 => P50SA
+      case 130 => P60SA
+    }
+    bids match {
+      case Passs :: Passs :: Passs :: Passs :: _ => Nil
+      case Passs :: xs => Pass :: normaliz(xs)
+      case ValueBid(n, "♠") :: xs => Sw(n) :: normaliz(xs)
+      case ValueBid(n, "♥") :: xs => Sw(n) :: normaliz(xs)
+      case ValueBid(n, "♣") :: xs => Sw(n) :: normaliz(xs)
+      case ValueBid(n, "♦") :: xs => Sw(n) :: normaliz(xs)
+      case ValueBid(n, "TA") :: xs => TA(n) :: normaliz(xs)
+      case ValueBid(n, "SA") :: xs => SA(n) :: normaliz(xs)
+      case Doubles :: _ => Nil
+      case Redoubles :: _ => Nil
+      case _ => ???
+    }
   }
 
   case class Round(h1: Hand, h2: Hand, h3: Hand, h4: Hand, bids: List[RawBid]) {
@@ -160,12 +207,7 @@ object Main {
         case (Passs, p) => s"║ $p passes"
         case (Doubles, p) => s"║ $p doubles"
         case (Redoubles, p) => s"║ $p redoubles"
-        case (ValueBid(n, c), p) =>
-          val s = c match {
-            case '1' => "♠" case '2' => "♥" case '3' => "♣"
-            case '4' => "♦" case '5' => "TA" case '6' => "SA"
-          }
-          s"║ $p bids $n $s"
+        case (ValueBid(n, s), p) => s"║ $p bids $n $s"
       }.foreach(s => bidLog ::= s.padTo(17, " ").mkString + "║")
       bidLog ::= "╚════════════════╝"
       bidLog = bidLog.reverse
@@ -228,7 +270,12 @@ object Main {
 
       Source.fromFile(path).getLines.foreach {
         case pass() => xs ::= Passs
-        case bids(n, c) => xs ::= ValueBid(n.toInt, c.head)
+        case bids(n, c) =>
+          val s = c.head match {
+            case '1' => "♠" case '2' => "♥" case '3' => "♣"
+            case '4' => "♦" case '5' => "TA" case '6' => "SA"
+          }
+          xs ::= ValueBid(n.toInt, s)
         case p1plays(c, s) => h1 |= parseCard(c) << parseSuite(s)
         case p2plays(c, s) => h2 |= parseCard(c) << parseSuite(s)
         case p3plays(c, s) => h3 |= parseCard(c) << parseSuite(s)
