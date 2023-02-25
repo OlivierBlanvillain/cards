@@ -1,57 +1,57 @@
-stoufff bids 90 3 (club)
-Socialistic bids 100 5 (all trump)
-Reg44 bids 110 3 (club)
-Sp33dTurtl3 bids 120 2 (heart)
-stoufff bids 130 3 (club)
-Socialistic bids 140 2 (heart)
-Reg44 passes
-Sp33dTurtl3 passes
-stoufff passes
-Socialistic passes
-Everybody passes, 140 2 for Socialistic
-0stoufff plays 7 diamond
-0Socialistic plays J diamond
-0Reg44 plays A diamond
-0Sp33dTurtl3 plays K diamond
-0Reg44 wins the trick
-1Reg44 plays 10 diamond
-1Sp33dTurtl3 plays 8 heart
-1stoufff plays 8 diamond
-1Socialistic plays Q diamond
-1Sp33dTurtl3 wins the trick
-2Sp33dTurtl3 plays 10 heart
-2stoufff plays A heart
-2Socialistic plays J heart
-2Reg44 plays Q heart
-2Socialistic wins the trick
-3Socialistic plays 9 diamond
-3Reg44 plays 10 spade
-3Sp33dTurtl3 plays 9 heart
-3stoufff plays 7 spade
-3Sp33dTurtl3 wins the trick
-4Sp33dTurtl3 plays A spade
-4stoufff plays J spade
-4Socialistic plays 9 spade
-4Reg44 plays 7 club
-4Sp33dTurtl3 wins the trick
-5Sp33dTurtl3 plays Q spade
-5stoufff plays 9 club
-5Socialistic plays 8 spade
-5Reg44 plays 8 club
-5Sp33dTurtl3 wins the trick
-6Sp33dTurtl3 plays K club
-6stoufff plays A club
-6Socialistic plays 7 heart
-6Reg44 plays Q club
-6Socialistic wins the trick
-7Socialistic plays K heart
-7Reg44 plays 10 club
-7Sp33dTurtl3 plays K spade
-7stoufff plays J club
-Socialistic wins the last trick (+10 pts)
+P1 bids 90 3 (club)
+P2 bids 100 5 (all trump)
+P3 bids 110 3 (club)
+P4 bids 120 2 (heart)
+P1 bids 130 3 (club)
+P2 bids 140 2 (heart)
+P3 passes
+P4 passes
+P1 passes
+P2 passes
+Everybody passes, 140 2 for P2
+0P1 plays 7 diamond
+0P2 plays J diamond
+0P3 plays A diamond
+0P4 plays K diamond
+0P3 wins the trick
+1P3 plays 10 diamond
+1P4 plays 8 heart
+1P1 plays 8 diamond
+1P2 plays Q diamond
+1P4 wins the trick
+2P4 plays 10 heart
+2P1 plays A heart
+2P2 plays J heart
+2P3 plays Q heart
+2P2 wins the trick
+3P2 plays 9 diamond
+3P3 plays 10 spade
+3P4 plays 9 heart
+3P1 plays 7 spade
+3P4 wins the trick
+4P4 plays A spade
+4P1 plays J spade
+4P2 plays 9 spade
+4P3 plays 7 club
+4P4 wins the trick
+5P4 plays Q spade
+5P1 plays 9 club
+5P2 plays 8 spade
+5P3 plays 8 club
+5P4 wins the trick
+6P4 plays K club
+6P1 plays A club
+6P2 plays 7 heart
+6P3 plays Q club
+6P2 wins the trick
+7P2 plays K heart
+7P3 plays 10 club
+7P4 plays K spade
+7P1 plays J club
+P2 wins the last trick (+10 pts)
 Bid successful, 145 to 17!
-Sp33dTurtl3 scores 285 points
-stoufff scores 17 points
-Socialistic scores 285 points
-Reg44 scores 17 points
-Socialistic is now the first player
+P4 scores 285 points
+P1 scores 17 points
+P2 scores 285 points
+P3 scores 17 points
+P2 is now the first player

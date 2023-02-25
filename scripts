@@ -40,3 +40,7 @@ mv src/* snd/
 (cd fst; ls * | xargs -P8 -i sh -c "grep plays {} | sed -n 3p | egrep -qv 'Overcompensated|Freemasons|Unanimity|Solderz|Schnauzers|Naheca|Havanaa|Sumerias|Keoght|Kniffe|Pantheons|Sp33dTurtl3|Socialistic|Tildes' && echo {}")
 (cd snd; ls | xargs -P8 -i sh -c "grep plays {} | sed -n 2p | egrep -qv 'Overcompensated|Freemasons|Unanimity|Solderz|Schnauzers|Naheca|Havanaa|Sumerias|Keoght|Kniffe|Pantheons|Sp33dTurtl3|Socialistic|Tildes' && echo {}")
 (cd snd; ls | xargs -P8 -i sh -c "grep plays {} | sed -n 4p | egrep -qv 'Overcompensated|Freemasons|Unanimity|Solderz|Schnauzers|Naheca|Havanaa|Sumerias|Keoght|Kniffe|Pantheons|Sp33dTurtl3|Socialistic|Tildes' && echo {}")
+
+# Normalization
+
+for i in 1 2 3 4; do ls * | xargs -P8 -i sh -c 'grep -Po "\d\K.*(?= plays )" {} | sed -n "'$i'p" | xargs -iXY sed -i "s/XY/P'$i'/g" {}'; done

@@ -1,56 +1,56 @@
-lagrangealice bids 100 2 (heart)
-Havanaa bids 120 1 (spade)
-jccotedazur bids 130 4 (diamond)
-Socialistic bids 140 1 (spade)
-lagrangealice passes
-Havanaa passes
-jccotedazur bids 150 4 (diamond)
-Socialistic doubles!
+P1 bids 100 2 (heart)
+P2 bids 120 1 (spade)
+P3 bids 130 4 (diamond)
+P4 bids 140 1 (spade)
+P1 passes
+P2 passes
+P3 bids 150 4 (diamond)
+P4 doubles!
 Waiting for redouble
-jccotedazur redoubles!
-0lagrangealice plays 7 diamond
-0Havanaa plays 10 diamond
-0jccotedazur plays J diamond
-0Socialistic plays Q diamond
-0jccotedazur wins the trick
-1jccotedazur plays 9 diamond
-1Socialistic plays J spade
-1lagrangealice plays 8 club
-1Havanaa plays A diamond
-1jccotedazur wins the trick
-2jccotedazur plays A heart
-2Socialistic plays 8 heart
-2lagrangealice plays Q heart
-2Havanaa plays 9 club
-2jccotedazur wins the trick
-3jccotedazur plays 10 heart
-3Socialistic plays K heart
-3lagrangealice plays J heart
-3Havanaa plays 7 spade
-3jccotedazur wins the trick
-4jccotedazur plays 7 heart
-4Socialistic plays Q spade
-4lagrangealice plays 9 heart
-4Havanaa plays 8 spade
-4lagrangealice wins the trick
-5lagrangealice plays A club
-5Havanaa plays 9 spade
-5jccotedazur plays J club
-5Socialistic plays 7 club
-5lagrangealice wins the trick
-6lagrangealice plays 10 club
-6Havanaa plays K spade
-6jccotedazur plays 8 diamond
-6Socialistic plays Q club
-6jccotedazur wins the trick
-7jccotedazur plays K diamond
-7Socialistic plays K club
-7lagrangealice plays A spade
-7Havanaa plays 10 spade
-jccotedazur wins the last trick (+10 pts)
+P3 redoubles!
+0P1 plays 7 diamond
+0P2 plays 10 diamond
+0P3 plays J diamond
+0P4 plays Q diamond
+0P3 wins the trick
+1P3 plays 9 diamond
+1P4 plays J spade
+1P1 plays 8 club
+1P2 plays A diamond
+1P3 wins the trick
+2P3 plays A heart
+2P4 plays 8 heart
+2P1 plays Q heart
+2P2 plays 9 club
+2P3 wins the trick
+3P3 plays 10 heart
+3P4 plays K heart
+3P1 plays J heart
+3P2 plays 7 spade
+3P3 wins the trick
+4P3 plays 7 heart
+4P4 plays Q spade
+4P1 plays 9 heart
+4P2 plays 8 spade
+4P1 wins the trick
+5P1 plays A club
+5P2 plays 9 spade
+5P3 plays J club
+5P4 plays 7 club
+5P1 wins the trick
+6P1 plays 10 club
+6P2 plays K spade
+6P3 plays 8 diamond
+6P4 plays Q club
+6P3 wins the trick
+7P3 plays K diamond
+7P4 plays K club
+7P1 plays A spade
+7P2 plays 10 spade
+P3 wins the last trick (+10 pts)
 Bid successful, 250 to 0!
-Havanaa scores no point
-jccotedazur scores 1600 points
-Socialistic scores no point
-lagrangealice scores 1600 points
-The end of the game: jccotedazur wins!
+P2 scores no point
+P3 scores 1600 points
+P4 scores no point
+P1 scores 1600 points
+The end of the game: P3 wins!

@@ -1,60 +1,60 @@
-isoleucine0 bids 82 1 (spade)
-Havanaa bids 90 5 (all trump)
-Léopard bids 100 4 (diamond)
-Socialistic bids 120 3 (club)
-isoleucine0 passes
-Havanaa passes
-Léopard bids 130 4 (diamond)
-Socialistic passes
-isoleucine0 passes
-Havanaa passes
-Léopard passes
-Everybody passes, 130 4 for Léopard
-0isoleucine0 plays A spade
-0Havanaa plays J spade
-0Léopard plays K spade
-0Socialistic plays 9 spade
-0isoleucine0 wins the trick
-1isoleucine0 plays 7 spade
-1Havanaa plays 9 diamond
-1Léopard plays J diamond
-1Socialistic plays 10 diamond
-1Léopard wins the trick
-2Léopard plays 8 club
-2Socialistic plays A club
-2isoleucine0 plays 7 club
-2Havanaa plays 10 club
-2Socialistic wins the trick
-3Socialistic plays K club
-3isoleucine0 plays J club
-3Havanaa plays A heart
-Léopard says Belote!
-3Léopard plays K diamond
-3Léopard wins the trick
-4Léopard plays A diamond
-4Socialistic plays 9 club
-4isoleucine0 plays K heart
-4Havanaa plays 7 diamond
-4Léopard wins the trick
-Léopard says Rebelote!
-5Léopard plays Q diamond
-5Socialistic plays 9 heart
-5isoleucine0 plays 10 spade
-5Havanaa plays 7 heart
-5Léopard wins the trick
-6Léopard plays 8 heart
-6Socialistic plays Q heart
-6isoleucine0 plays Q spade
-6Havanaa plays 10 heart
-6Havanaa wins the trick
-7Havanaa plays J heart
-7Léopard plays 8 diamond
-7Socialistic plays Q club
-7isoleucine0 plays 8 spade
-Léopard wins the last trick (+10 pts)
+P1 bids 82 1 (spade)
+P2 bids 90 5 (all trump)
+P3 bids 100 4 (diamond)
+P4 bids 120 3 (club)
+P1 passes
+P2 passes
+P3 bids 130 4 (diamond)
+P4 passes
+P1 passes
+P2 passes
+P3 passes
+Everybody passes, 130 4 for P3
+0P1 plays A spade
+0P2 plays J spade
+0P3 plays K spade
+0P4 plays 9 spade
+0P1 wins the trick
+1P1 plays 7 spade
+1P2 plays 9 diamond
+1P3 plays J diamond
+1P4 plays 10 diamond
+1P3 wins the trick
+2P3 plays 8 club
+2P4 plays A club
+2P1 plays 7 club
+2P2 plays 10 club
+2P4 wins the trick
+3P4 plays K club
+3P1 plays J club
+3P2 plays A heart
+P3 says Belote!
+3P3 plays K diamond
+3P3 wins the trick
+4P3 plays A diamond
+4P4 plays 9 club
+4P1 plays K heart
+4P2 plays 7 diamond
+4P3 wins the trick
+P3 says Rebelote!
+5P3 plays Q diamond
+5P4 plays 9 heart
+5P1 plays 10 spade
+5P2 plays 7 heart
+5P3 wins the trick
+6P3 plays 8 heart
+6P4 plays Q heart
+6P1 plays Q spade
+6P2 plays 10 heart
+6P2 wins the trick
+7P2 plays J heart
+7P3 plays 8 diamond
+7P4 plays Q club
+7P1 plays 8 spade
+P3 wins the last trick (+10 pts)
 Bid successful, 145 to 37!
-Havanaa scores 37 points
-Léopard scores 275 points
-Socialistic scores 37 points
-isoleucine0 scores 275 points
-Havanaa is now the first player
+P2 scores 37 points
+P3 scores 275 points
+P4 scores 37 points
+P1 scores 275 points
+P2 is now the first player

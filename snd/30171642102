@@ -1,55 +1,55 @@
-c3cile bids 90 5 (all trump)
-Keoght bids 110 3 (club)
-yoyoshield bids 120 4 (diamond)
-Pantheons bids 130 3 (club)
-c3cile passes
-Keoght passes
-yoyoshield passes
-Pantheons passes
-Everybody passes, 130 3 for Pantheons
-0c3cile plays J spade
-0Keoght plays 9 spade
-0yoyoshield plays A spade
-0Pantheons plays Q spade
-0yoyoshield wins the trick
-1yoyoshield plays A heart
-1Pantheons plays 7 heart
-1c3cile plays 10 heart
-1Keoght plays K heart
-1yoyoshield wins the trick
-2yoyoshield plays 8 spade
-2Pantheons plays 10 spade
-2c3cile plays 7 spade
-2Keoght plays A diamond
-2Pantheons wins the trick
-3Pantheons plays 9 club
-3c3cile plays 9 heart
-3Keoght plays J club
-3yoyoshield plays Q club
-3Keoght wins the trick
-4Keoght plays 10 diamond
-4yoyoshield plays 8 diamond
-4Pantheons plays Q heart
-4c3cile plays 7 diamond
-4Keoght wins the trick
-5Keoght plays Q diamond
-5yoyoshield plays 10 club
-5Pantheons plays A club
-5c3cile plays 9 diamond
-5Pantheons wins the trick
-6Pantheons plays J heart
-6c3cile plays K diamond
-6Keoght plays 7 club
-6yoyoshield plays 8 heart
-6Keoght wins the trick
-7Keoght plays K club
-7yoyoshield plays K spade
-7Pantheons plays 8 club
-7c3cile plays J diamond
-Keoght wins the last trick (+10 pts)
+P1 bids 90 5 (all trump)
+P2 bids 110 3 (club)
+P3 bids 120 4 (diamond)
+P4 bids 130 3 (club)
+P1 passes
+P2 passes
+P3 passes
+P4 passes
+Everybody passes, 130 3 for P4
+0P1 plays J spade
+0P2 plays 9 spade
+0P3 plays A spade
+0P4 plays Q spade
+0P3 wins the trick
+1P3 plays A heart
+1P4 plays 7 heart
+1P1 plays 10 heart
+1P2 plays K heart
+1P3 wins the trick
+2P3 plays 8 spade
+2P4 plays 10 spade
+2P1 plays 7 spade
+2P2 plays A diamond
+2P4 wins the trick
+3P4 plays 9 club
+3P1 plays 9 heart
+3P2 plays J club
+3P3 plays Q club
+3P2 wins the trick
+4P2 plays 10 diamond
+4P3 plays 8 diamond
+4P4 plays Q heart
+4P1 plays 7 diamond
+4P2 wins the trick
+5P2 plays Q diamond
+5P3 plays 10 club
+5P4 plays A club
+5P1 plays 9 diamond
+5P4 wins the trick
+6P4 plays J heart
+6P1 plays K diamond
+6P2 plays 7 club
+6P3 plays 8 heart
+6P2 wins the trick
+7P2 plays K club
+7P3 plays K spade
+7P4 plays 8 club
+7P1 plays J diamond
+P2 wins the last trick (+10 pts)
 Bid fails, 121 to 41!
-Pantheons scores no point
-c3cile scores 292 points
-Keoght scores no point
-yoyoshield scores 292 points
-Keoght is now the first player
+P4 scores no point
+P1 scores 292 points
+P2 scores no point
+P3 scores 292 points
+P2 is now the first player
