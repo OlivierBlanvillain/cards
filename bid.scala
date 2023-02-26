@@ -1,43 +1,48 @@
 import scala.io.Source
+import collection.mutable
 
 object Main {
-  type Card = Int
-  val cA  = 0x80
-  val c10 = 0x40
-  val cK  = 0x20
-  val cQ  = 0x10
-  val cJ  = 0x08
-  val c9  = 0x04
-  val c8  = 0x02
-  val c7  = 0x01
+  case class Card(v: Int) extends AnyVal
 
-  type Suite = Int
-  val notrump  = 40
-  val alltrump = 32
-  val spade    = 24
-  val diamond  = 16
-  val heart    = 8
-  val club     = 0
+  case class CardValue(v: Int) extends AnyVal {
+    def of(s: Suite): Card = Card(v << s.v)
+  }
+  val cA  = CardValue(0x80)
+  val c10 = CardValue(0x40)
+  val cK  = CardValue(0x20)
+  val cQ  = CardValue(0x10)
+  val cJ  = CardValue(0x08)
+  val c9  = CardValue(0x04)
+  val c8  = CardValue(0x02)
+  val c7  = CardValue(0x01)
 
-  case class Hand(value: Int) extends AnyVal {
+  case class Suite(v: Int) extends AnyVal
+  val notrump  = Suite(26)
+  val alltrump = Suite(25)
+  val spade    = Suite(24)
+  val diamond  = Suite(16)
+  val heart    = Suite(8)
+  val club     = Suite(0)
+
+  case class Hand(v: Int) extends AnyVal {
     def openInFour: Boolean = ???
     def jn3rd: Boolean = ???
     def suites: Int = ???
 
     def aces: Int =
-      (if (contains(cA << spade)) 1 else 0) +
-      (if (contains(cA << diamond)) 1 else 0) +
-      (if (contains(cA << heart)) 1 else 0) +
-      (if (contains(cA << club)) 1 else 0)
+      (if (contains(cA of spade)) 1 else 0) +
+      (if (contains(cA of diamond)) 1 else 0) +
+      (if (contains(cA of heart)) 1 else 0) +
+      (if (contains(cA of club)) 1 else 0)
 
     def jacks: Int =
-      (if (contains(cJ << spade)) 1 else 0) +
-      (if (contains(cJ << diamond)) 1 else 0) +
-      (if (contains(cJ << heart)) 1 else 0) +
-      (if (contains(cJ << club)) 1 else 0)
+      (if (contains(cJ of spade)) 1 else 0) +
+      (if (contains(cJ of diamond)) 1 else 0) +
+      (if (contains(cJ of heart)) 1 else 0) +
+      (if (contains(cJ of club)) 1 else 0)
 
     def contains(card: Card): Boolean =
-      (value & card) != 0
+      (v & card.v) != 0
   }
 
   sealed trait RawBid
@@ -163,19 +168,26 @@ object Main {
     }
   }
 
-  case class Round(h1: Hand, h2: Hand, h3: Hand, h4: Hand, bids: List[RawBid]) {
+  case class Round(
+    h1: Hand,
+    h2: Hand,
+    h3: Hand,
+    h4: Hand,
+    bids: List[RawBid],
+    path: String
+  ) {
     override def toString: String = {
       def show(x: Hand): List[String] = {
         def shov(suite: Suite): String = {
           val sb = new StringBuilder()
-          if (x.contains(cA << suite)) sb.append("A ")
-          if (x.contains(c10 << suite)) sb.append("10 ")
-          if (x.contains(cK << suite)) sb.append("K ")
-          if (x.contains(cQ << suite)) sb.append("Q ")
-          if (x.contains(cJ << suite)) sb.append("J ")
-          if (x.contains(c9 << suite)) sb.append("9 ")
-          if (x.contains(c8 << suite)) sb.append("8 ")
-          if (x.contains(c7 << suite)) sb.append("7 ")
+          if (x.contains(cA of suite)) sb.append("A ")
+          if (x.contains(c10 of suite)) sb.append("10 ")
+          if (x.contains(cK of suite)) sb.append("K ")
+          if (x.contains(cQ of suite)) sb.append("Q ")
+          if (x.contains(cJ of suite)) sb.append("J ")
+          if (x.contains(c9 of suite)) sb.append("9 ")
+          if (x.contains(c8 of suite)) sb.append("8 ")
+          if (x.contains(c7 of suite)) sb.append("7 ")
           sb.toString
         }
         val s = shov(spade)
@@ -190,17 +202,8 @@ object Main {
         "║ ♦ " + d.padTo(m, " ").mkString + "║" ::
         "╚══" + "".padTo(m, "═").mkString + "═╝" :: Nil
       }
-      def p(i: Int, lines: List[String]): List[String] =
-        lines.zipWithIndex.map {
-          case (l, 1) => l + " P" + i
-          case (l, _) => l + "   "
-        }.toList
-      val s1 = p(1, show(h1))
-      val s2 = p(2, show(h2))
-      val s3 = p(3, show(h3))
-      val s4 = p(4, show(h4))
 
-      var bidLog = "╔════════════════╗" :: "Bidding rounds:" :: Nil
+      var bidLog = "╔════════════════╗" :: s"$path:" :: Nil
       bids.zipWithIndex.map {
         case (x, i) => (x, "P" + (i % 4 + 1))
       }.map {
@@ -212,12 +215,27 @@ object Main {
       bidLog ::= "╚════════════════╝"
       bidLog = bidLog.reverse
 
+      val s1 = mutable.Stack.from(show(h1))
+      val s2 = mutable.Stack.from(show(h2))
+      val s3 = mutable.Stack.from(show(h3))
+      val s4 = mutable.Stack.from(show(h4))
+      val players = List("P1", "P2", "P3", "P4")
+      val marginMid = s1.head.length max s3.head.length + 4
+      val marginLeft = s2.head.length + 2
+      val marginRight = s4.head.length
       val board =
-        s3.map(" " * s2.head.length + _) ++
-        s2.map(_ + " " * s1.head.length.max(s3.head.length))
-          .zip(s4)
-          .map { case (x, y) => x + y } ++
-        s1.map(" " * s2.head.length + _)
+        (1 to 14).map { i => i match {
+          case 1     => " " * marginLeft + s3.pop() + " " + players(2)
+          case 2|3   => " " * marginLeft + s3.pop()
+          case 4     => players(1).padTo(marginLeft, " ").mkString + s3.pop()
+          case 5|6   => s2.pop() + "  " + s3.pop().padTo(marginMid, " ").mkString + s4.pop()
+          case 7|8   => s2.pop() + " " * (marginMid + 2) + s4.pop()
+          case 9|10  => s2.pop() + "  " + s1.pop().padTo(marginMid, " ").mkString + s4.pop()
+          case 11    => " " * marginLeft + s1.pop() + " " * marginRight + players(3)
+          case 12|13 => " " * marginLeft + s1.pop()
+          case 14    => " " * (marginLeft - 3) + players(0) + " " + s1.pop()
+        }}
+      assert(s1.isEmpty && s2.isEmpty && s3.isEmpty && s4.isEmpty)
 
       board
         .map(_.padTo(board.maxBy(_.size).size, " ").mkString)
@@ -254,19 +272,18 @@ object Main {
       val skipC = raw"Bid fails, \d+ to \d+!".r
       val skipD = raw"Waiting for redouble".r
       val skipE = raw"P\d does not redouble.".r
-      val wat = raw"The end of the game: P1, P2 and P4 win!".r
 
-      def parseCard(c: String): Card = c match {
+      def parseCard(c: String): Int = (c match {
         case "A" => cA case "10" => c10 case "K" => cK case "Q" => cQ
         case "J" => cJ case "9"  => c9  case "8" => c8 case "7" => c7
         case _ => println("Unknown card? " + path); cA
-      }
+      }).v
 
-      def parseSuite(s: String): Suite = s match {
+      def parseSuite(s: String): Int = (s match {
         case "spade" => spade case "diamond" => diamond
         case "heart" => heart case "club" => club
         case _ => println("Unknown suite? " + path); club
-      }
+      }).v
 
       Source.fromFile(path).getLines.foreach {
         case pass() => xs ::= Passs
@@ -286,12 +303,10 @@ object Main {
         case skip5() => case skip6() => case skip7() => case skip8() =>
         case skip9() => case skipA() => case skipB() => case skipC() =>
         case skipD() => case skipE() =>
-        case wat() => println(s"Unknown: '$path'")
         case s => println(s"Unknown: '$s'")
       }
 
-      Round(Hand(h1), Hand(h2), Hand(h3), Hand(h4), xs.reverse)
+      Round(Hand(h1), Hand(h2), Hand(h3), Hand(h4), xs.reverse, path)
     }
   }
-
 }
