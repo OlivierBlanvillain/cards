@@ -7,6 +7,7 @@ from cards import (
     get_trick_points,
     solve_dd_minimax,
     trick_winner,
+    iter_bits,
 )
 
 # === TEST FIXTURES AND HELPERS ===
@@ -150,6 +151,7 @@ def test_get_playable_cards_forced_play_no_choice():
     hand = c("J♠,8♠")
     assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
 
+
 # === SOLVER (Double-Dummy) TESTS ===
 
 def trace_play(hands, path):
@@ -158,6 +160,7 @@ def trace_play(hands, path):
     points_b = 0
     trick = []
     trick_leader = 0
+
     for i, (player, card) in enumerate(path):
         trick.append(card)
         if len(trick) == 4:
@@ -215,13 +218,16 @@ def test_solver_provided_scenario():
     solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
 
-    # The original assertion was that Team A scores 94.
+    # The solver should find that Team A can achieve a score of 94.
     assert score == 94
 
     # Verify the calculated score by replaying the game with the solver's path.
     traced_a, traced_b = trace_play(hands, path)
     assert traced_a == score
-    assert traced_b == (152 - 94)
+
+    # The total points in this specific deal are 109, not 152.
+    total_points_in_deal = sum(get_points(card) for hand in hands for card in iter_bits(hand))
+    assert traced_b == (total_points_in_deal - traced_a)
 
     # Optional: Print the optimal line of play for review.
     print("\n--- Optimal Play for Provided Scenario ---")
@@ -238,4 +244,5 @@ def test_solver_provided_scenario():
             trick = []
             trick_leader = winner_absolute
     print(f"Final Score: Team A = {traced_a}, Team B = {traced_b}")
+    print(f"Total Points in Deal: {total_points_in_deal}")
     print("----------------------------------------")

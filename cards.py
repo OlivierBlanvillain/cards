@@ -186,7 +186,10 @@ def solve_dd_minimax(trick: list[int], hands: list[int], turn: int, leader: int)
         next_player = (turn + 1) % 4
         sub_path = []
 
-        if len(new_trick) == 4:
+        # A trick is over if it has 4 cards
+        is_trick_over = len(new_trick) == 4
+
+        if is_trick_over:
             winner_player = (leader + trick_winner(new_trick)) % 4
             points = get_trick_points(new_trick)
             score_for_team_a, sub_path = solve_dd_minimax([], new_hands, winner_player, winner_player)
@@ -207,4 +210,3 @@ def solve_dd_minimax(trick: list[int], hands: list[int], turn: int, leader: int)
 
 # Initialize the cache for the solver.
 solve_dd_minimax.cache = {}
-
