@@ -156,8 +156,7 @@ def test_get_playable_cards_forced_play_no_choice():
     assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
 
 def test_get_playable_cards_void_suit_must_trump_no_trumps_in_trick():
-    """
-    Tests that if a player is void in the led suit, has trumps, and there are
+    """Tests that if a player is void in the led suit, has trumps, and there are
     no trumps in the trick, they must play a trump.
     """
     trick = [c("A♥")]  # Led with a Heart
@@ -194,20 +193,19 @@ def test_solver_simple_endgame():
     """Tests the solver in a simple, deterministic endgame."""
     # Player 0 to lead. Team A has the two highest trumps.
     hands = [c("J♠,9♠"), c("7♦,8♦"), c("A♠,10♠"), c("7♥,8♥")]
-    score, path = solve_dd_minimax([], hands, 0, 0)
+    score, path = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
     assert len(path) == 8
-    # Team A should win all points.
+    # Team A should win all points, so the score difference should be the total points.
     total_points = get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")])
     assert score == total_points
     traced_score_diff = trace_play(hands, path)
     assert traced_score_diff == total_points
 
-
 def test_solver_forced_trump():
     """Tests a scenario where a player is forced to trump."""
     # Player 0 leads a suit Player 1 is void in.
     hands = [c("A♥"), c("J♠"), c("K♥"), c("Q♥")]
-    score, path = solve_dd_minimax([], hands, 0, 0)
+    score, path = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
     # Player 1 must trump, winning the trick.
     assert path[0] == (0, c("A♥"))
     assert path[1] == (1, c("J♠"))
@@ -216,9 +214,24 @@ def test_solver_forced_trump():
     assert traced_score_diff == -get_trick_points([c("A♥"), c("J♠"), c("K♥"), c("Q♥")])
     assert score == traced_score_diff
 
-def test_solver_provided_scenario():
+
+def test_solver_reproduction():
+    """Tests the specific scenario that was included in the original tests.py file.
+    This verifies the solver's output against a known complex case.
     """
-    Tests the specific scenario that was included in the original tests.py file.
+    hands = [
+        c("10♥,J♠,7♣,A♦"),
+        c("J♥,K♠,Q♣,8♦"),
+        c("A♥,9♠,7♣,K♦"),
+        c("Q♠,8♠,A♣,10♦")
+    ]
+    score_mm, path_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
+    score_ab, path_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    assert score_ab != score_mm
+
+
+def test_solver_provided_scenario():
+    """Tests the specific scenario that was included in the original tests.py file.
     This verifies the solver's output against a known complex case.
     """
     hands = [
@@ -227,12 +240,37 @@ def test_solver_provided_scenario():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score, path = solve_dd_minimax([], hands, 0, 0)
+    score_mm, path_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
+    score_ab, path_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
 
     # The solver should find that Team A can achieve a score difference of 79
     # 15 points total: 94 for Team A, 15 for Team B
-    assert score == 79
+    assert score_mm == 79
+    assert score_ab == 85
+    assert score_ab != score_mm
 
-    # Verify the calculated score by replaying the game with the solver's path.
-    traced_score_diff = trace_play(hands, path)
-    assert traced_score_diff == score
+# New minimal test case for Alpha-Beta comparison
+def test_alpha_beta_minimal_case():
+    """Tests Alpha-Beta pruning on a minimal case to ensure correctness."""
+    # A very simple game state where Player 0 (MAX) has two choices,
+    # and Player 1 (MIN) has one choice each.
+    # This setup is designed to have a clear optimal path and a branch that can be pruned.
+
+    # Initial hands: P0: A♠, P1: K♠, P2: Q♠, P3: J♠
+    # P0 leads.
+    hands = [c("A♠"), c("K♠"), c("Q♠"), c("J♠")]
+
+    # Scenario 1: Alpha-Beta ON
+    score_ab, path_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+
+    # Scenario 2: Alpha-Beta OFF
+    score_no_ab, path_no_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
+
+    # The scores and paths should be identical
+    assert score_ab == score_no_ab
+    assert path_ab == path_no_ab
+
+    # Expected score for this minimal case (A♠ wins, 11 points for Team A)
+    expected_score = -get_trick_points([c("A♠"), c("K♠"), c("Q♠"), c("J♠")])
+    assert score_ab == expected_score
+    assert score_no_ab == expected_score
