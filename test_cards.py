@@ -151,6 +151,20 @@ def test_get_playable_cards_forced_play_no_choice():
     hand = c("J♠,8♠")
     assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
 
+    trick = [c("9♣"), c("K♠"), c("8♠")]
+    hand = c("J♠,Q♠")
+    assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
+
+def test_get_playable_cards_void_suit_must_trump_no_trumps_in_trick():
+    """
+    Tests that if a player is void in the led suit, has trumps, and there are
+    no trumps in the trick, they must play a trump.
+    """
+    trick = [c("A♥")]  # Led with a Heart
+    hand = c("J♠,7♠,A♣") # Player has trumps (J♠, 7♠) and a discard (A♣)
+    # Expected: Only trumps are playable
+    assert get_playable_cards(trick, hand) == c("J♠,7♠")
+
 
 # === SOLVER (Double-Dummy) TESTS ===
 

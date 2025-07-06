@@ -48,16 +48,15 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
 
     led_suit = suit_of(trick[0])
     trick_mask = sum(trick)
-    cards_in_led_suit = hand & led_suit
+    trumps_in_trick = trick_mask & S
+    if trumps_in_trick:
+        highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
+        overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
+        if overtrumps:
+           hand = (hand & ~S) | overtrumps
 
+    cards_in_led_suit = hand & led_suit
     if cards_in_led_suit:
-        if led_suit == S:
-            trumps_in_trick = trick_mask & S
-            if trumps_in_trick:
-                highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
-                overtrumps = cards_in_led_suit & ~((highest_trump_in_trick << 1) - 1)
-                if overtrumps:
-                    return overtrumps
         return cards_in_led_suit
 
     trumps_in_hand = hand & S
@@ -68,13 +67,6 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
     partner_is_winning = (current_winner_index == (len(trick) - 2))
     if partner_is_winning:
         return hand
-
-    trumps_in_trick = trick_mask & S
-    if trumps_in_trick:
-        highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
-        overtrumps = trumps_in_hand & ~((highest_trump_in_trick << 1) - 1)
-        if overtrumps:
-            return overtrumps
 
     return trumps_in_hand
 
