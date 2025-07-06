@@ -170,8 +170,8 @@ def test_get_playable_cards_void_suit_must_trump_no_trumps_in_trick():
 
 def trace_play(hands, path):
     """Helper to trace the score of a game path for verification."""
-    points_a = 0
-    points_b = 0
+    score_a = 0
+    score_b = 0
     trick = []
     trick_leader = 0
 
@@ -183,12 +183,12 @@ def trace_play(hands, path):
             pts = get_trick_points(trick)
 
             if winner_absolute % 2 == 0: # Team A
-                points_a += pts
+                score_a += pts
             else: # Team B
-                points_b += pts
+                score_b += pts
             trick = []
             trick_leader = winner_absolute
-    return points_a, points_b
+    return score_a - score_b
 
 def test_solver_simple_endgame():
     """Tests the solver in a simple, deterministic endgame."""
@@ -199,9 +199,9 @@ def test_solver_simple_endgame():
     # Team A should win all points.
     total_points = get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")])
     assert score == total_points
-    traced_a, traced_b = trace_play(hands, path)
-    assert traced_a == total_points
-    assert traced_b == 0
+    traced_score_diff = trace_play(hands, path)
+    assert traced_score_diff == total_points
+
 
 def test_solver_forced_trump():
     """Tests a scenario where a player is forced to trump."""
@@ -211,10 +211,10 @@ def test_solver_forced_trump():
     # Player 1 must trump, winning the trick.
     assert path[0] == (0, c("A♥"))
     assert path[1] == (1, c("J♠"))
-    traced_a, traced_b = trace_play(hands, path)
-    assert traced_a == 0
-    assert traced_b == get_trick_points([c("A♥"), c("J♠"), c("K♥"), c("Q♥")])
-    assert score == 0 # Solver returns score for team A
+    traced_score_diff = trace_play(hands, path)
+    # Team B wins the trick, so the score difference (A - B) should be negative.
+    assert traced_score_diff == -get_trick_points([c("A♥"), c("J♠"), c("K♥"), c("Q♥")])
+    assert score == traced_score_diff
 
 def test_solver_provided_scenario():
     """
@@ -229,31 +229,10 @@ def test_solver_provided_scenario():
     ]
     score, path = solve_dd_minimax([], hands, 0, 0)
 
-    # The solver should find that Team A can achieve a score of 94.
-    assert score == 94
+    # The solver should find that Team A can achieve a score difference of 79
+    # 15 points total: 94 for Team A, 15 for Team B
+    assert score == 79
 
     # Verify the calculated score by replaying the game with the solver's path.
-    traced_a, traced_b = trace_play(hands, path)
-    assert traced_a == score
-
-    # The total points in this specific deal are 109, not 152.
-    total_points_in_deal = sum(get_points(card) for hand in hands for card in iter_bits(hand))
-    assert traced_b == (total_points_in_deal - traced_a)
-
-    # Optional: Print the optimal line of play for review.
-    print("\n--- Optimal Play for Provided Scenario ---")
-    trick = []
-    trick_leader = 0
-    for i, (player, card) in enumerate(path):
-        print(f"Player {player} plays {d(card)}")
-        trick.append(card)
-        if len(trick) == 4:
-            winner_relative = trick_winner(trick)
-            winner_absolute = (trick_leader + winner_relative) % 4
-            pts = get_trick_points(trick)
-            print(f"  -> Trick won by Player {winner_absolute} for {pts} points.")
-            trick = []
-            trick_leader = winner_absolute
-    print(f"Final Score: Team A = {traced_a}, Team B = {traced_b}")
-    print(f"Total Points in Deal: {total_points_in_deal}")
-    print("----------------------------------------")
+    traced_score_diff = trace_play(hands, path)
+    assert traced_score_diff == score

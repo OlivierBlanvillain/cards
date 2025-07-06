@@ -71,41 +71,52 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
     return trumps_in_hand
 
 
+import math
+
 def solve_dd_minimax(
   trick: list[int], hands: list[int], curr_player: int, leading_player: int
 ) -> tuple[int, list[tuple[int, int]]]:
     if all(h == 0 for h in hands):
-        return 0, []
+        return 0, [] # Base case: no cards left, score difference is 0
 
     playable_cards = get_playable_cards(trick, hands[curr_player])
     best_path = []
-    best_score = -9999
-    best_result = (0, [])
+
+    if curr_player % 2 == 0:  # Current player is on Team A (MAX)
+        best_score = -math.inf
+        compare_func = lambda new_score, current_best: new_score > current_best
+    else:  # Current player is on Team B (MIN)
+        best_score = math.inf
+        compare_func = lambda new_score, current_best: new_score < current_best
+
+    best_result = (0, []) # Initialize with a default value
 
     for card in iter_bits(playable_cards):
         new_hands = list(hands)
         new_hands[curr_player] ^= card
         new_trick = trick + [card]
 
-        score_for_team_a = 0
+        score_difference_from_sub_call = 0
         sub_path = []
 
         is_trick_over = len(new_trick) == 4
         if is_trick_over:
             winner_player = (leading_player + trick_winner(new_trick)) % 4
             points = get_trick_points(new_trick)
-            score_for_team_a, sub_path = solve_dd_minimax([], new_hands, winner_player, winner_player)
+            # Recursive call for the next state after a trick is won
+            score_from_next_state, sub_path = solve_dd_minimax([], new_hands, winner_player, winner_player)
             if winner_player % 2 == 0:  # Team A wins trick
-                score_for_team_a += points
+                score_difference_from_sub_call = score_from_next_state + points
+            else: # Team B wins trick
+                score_difference_from_sub_call = score_from_next_state - points
         else:
             next_player = (curr_player + 1) % 4
-            score_for_team_a, sub_path = solve_dd_minimax(new_trick, new_hands, next_player, leading_player)
+            # Recursive call for the next player in the current trick
+            score_difference_from_sub_call, sub_path = solve_dd_minimax(new_trick, new_hands, next_player, leading_player)
 
-        current_player_score = score_for_team_a if curr_player % 2 == 0 else -score_for_team_a
-
-        if current_player_score > best_score:
-            best_score = current_player_score
+        if compare_func(score_difference_from_sub_call, best_score):
+            best_score = score_difference_from_sub_call
             best_path = [(curr_player, card)] + sub_path
-            best_result = (score_for_team_a, best_path)
+            best_result = (best_score, best_path)
 
     return best_result
