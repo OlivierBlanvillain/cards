@@ -179,10 +179,10 @@ def trace_play(hands, path):
 def test_solver_simple_endgame():
     """Tests the solver in a simple, deterministic endgame."""
     # Player 0 to lead. Team A has the two highest trumps.
-    hands = [c("J♠,9♠"), 0, c("A♠,10♠"), 0]
-    solve_dd_minimax.cache.clear()
+    hands = [c("J♠,9♠"), c("7♦,8♦"), c("A♠,10♠"), c("7♥,8♥")]
+    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
-    assert len(path) == 4
+    assert len(path) == 8
     # Team A should win all points.
     total_points = get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")])
     assert score == total_points
@@ -194,7 +194,7 @@ def test_solver_forced_trump():
     """Tests a scenario where a player is forced to trump."""
     # Player 0 leads a suit Player 1 is void in.
     hands = [c("A♥"), c("J♠"), c("K♥"), c("Q♥")]
-    solve_dd_minimax.cache.clear()
+    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
     # Player 1 must trump, winning the trick.
     assert path[0] == (0, c("A♥"))
@@ -215,7 +215,7 @@ def test_solver_provided_scenario():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    solve_dd_minimax.cache.clear()
+    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
 
     # The solver should find that Team A can achieve a score of 94.
