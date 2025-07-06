@@ -10,7 +10,7 @@ run: venv/activate FORCE
 - venv/bin/python3 cards.py
 
 test: venv/activate FORCE
-- venv/bin/python3 tests.py
+- venv/bin/python3 -m pytest test_cards.py
 
 watch: venv/activate FORCE
 - git ls-files | entr make test
