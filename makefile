@@ -1,0 +1,23 @@
+MAKEFLAGS += --no-builtin-rules
+.ONESHELL:
+.RECIPEPREFIX=-
+.PHONY: FORCE
+
+help/page:
+- @grep -Po '^[a-z]+(?=:)' makefile | paste -sd"|" | xargs echo make
+
+run: venv/activate FORCE
+- venv/bin/python3 cards.py
+
+test: venv/activate FORCE
+- venv/bin/python3 tests.py
+
+watch: venv/activate FORCE
+- git ls-files | entr make test
+
+venv/activate:
+- @echo "creating a new venv..."
+- rm -rf venv __pycache__
+- python3 -m venv venv
+- venv/bin/pip install -r requirements.txt
+- touch $@
