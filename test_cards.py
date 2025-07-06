@@ -108,7 +108,7 @@ def test_get_playable_cards_following_suit():
     hand = c("K♦,A♣,J♠")
     assert get_playable_cards(trick, hand) == c("K♦")
 
-def test_get_playable_cards_no_suit_can_trump():
+def test_get_playable_cards_no_suit_must_trump():
     """Tests trumping when unable to follow suit."""
     trick = [c("A♥")]
     hand = c("J♠,7♠,9♣")
@@ -118,6 +118,10 @@ def test_get_playable_cards_must_overtrump():
     """Tests that players must play a higher trump if possible."""
     trick = [c("A♥"), c("9♠")]
     hand = c("J♠,8♠,A♣")
+    assert get_playable_cards(trick, hand) == c("J♠")
+
+    trick = [c("9♣"), c("K♠"), c("8♠")]
+    hand = c("J♠,Q♠")
     assert get_playable_cards(trick, hand) == c("J♠")
 
 def test_get_playable_cards_cannot_overtrump():
@@ -149,10 +153,6 @@ def test_get_playable_cards_forced_play_no_choice():
 
     trick = [c("9♠"), c("7♠")]
     hand = c("J♠,8♠")
-    assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
-
-    trick = [c("9♣"), c("K♠"), c("8♠")]
-    hand = c("J♠,Q♠")
     assert get_playable_cards(trick, hand) == c("J♠") # Must over-trump
 
 def test_get_playable_cards_void_suit_must_trump_no_trumps_in_trick():
@@ -194,7 +194,6 @@ def test_solver_simple_endgame():
     """Tests the solver in a simple, deterministic endgame."""
     # Player 0 to lead. Team A has the two highest trumps.
     hands = [c("J♠,9♠"), c("7♦,8♦"), c("A♠,10♠"), c("7♥,8♥")]
-    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
     assert len(path) == 8
     # Team A should win all points.
@@ -208,7 +207,6 @@ def test_solver_forced_trump():
     """Tests a scenario where a player is forced to trump."""
     # Player 0 leads a suit Player 1 is void in.
     hands = [c("A♥"), c("J♠"), c("K♥"), c("Q♥")]
-    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
     # Player 1 must trump, winning the trick.
     assert path[0] == (0, c("A♥"))
@@ -229,7 +227,6 @@ def test_solver_provided_scenario():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    # solve_dd_minimax.cache.clear()
     score, path = solve_dd_minimax([], hands, 0, 0)
 
     # The solver should find that Team A can achieve a score of 94.
