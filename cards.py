@@ -168,8 +168,8 @@ def double_dummy_solver1(
   hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
-  alpha: int = -999,
-  beta: int = 999,
+  alpha: int,
+  beta: int,
 ) -> int:
     cache_key = (sum(hands), curr_player, alpha, beta)
     if (x := _cache.get(cache_key)) is not None:
@@ -209,8 +209,8 @@ def double_dummy_solver2(
   hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
-  alpha: int = -999,
-  beta: int = 999,
+  alpha: int,
+  beta: int,
 ) -> int:
     cache_key = (sum(hands), curr_player, alpha, beta)
     if (x := _cache.get(cache_key)) is not None:
@@ -252,8 +252,8 @@ def double_dummy_solver3(
   hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
-  alpha: int = -999,
-  beta: int = 999,
+  alpha: int,
+  beta: int,
 ) -> int:
     cache_key = (sum(hands), curr_player, alpha, beta)
     if (x := _cache.get(cache_key)) is not None:

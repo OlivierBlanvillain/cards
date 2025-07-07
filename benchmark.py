@@ -9,14 +9,14 @@ from test_utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 
 def test_benchmark_full_game():
     hands = [
-        c("J♠,9♠,A♠,10♠,K♠,Q♠,8♠,7♠"),
-        c("A♥,10♥,K♥,Q♥,J♥,9♥,8♥,7♥"),
-        c("A♦,10♦,K♦,Q♦,J♦,9♦,8♦,7♦"),
-        c("A♣,10♣,K♣,Q♣,J♣,9♣,8♣,7♣"),
+        c("10♠,A♥,10♥,9♥,7♥,10♦,J♦,10♣"),
+        c("A♠,9♠,Q♥,J♥,8♥,8♦,A♣,7♣"),
+        c("K♠,J♠,K♥,K♦,9♦,7♦,K♣,Q♣"),
+        c("Q♠,8♠,7♠,A♦,Q♦,J♣,9♣,8♣"),
     ]
 
     def run_solver():
-        double_dummy_solver0(hands, 0, use_alpha_beta=True, alpha=-999, beta=999)
+        double_dummy_solver0(hands, 0, use_alpha_beta=True)
 
     num_trials = 30
     times = []
