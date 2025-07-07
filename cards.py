@@ -81,9 +81,6 @@ def double_dummy_solver(
     if sum(hands) == 0:
         return 0
 
-    leading_player = (4 + curr_player - len(trick)) % 4
-
-
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards(trick, hands[curr_player])
@@ -97,7 +94,7 @@ def double_dummy_solver(
         current_move_value: int
         if len(new_trick) == 4:
             winner_idx_in_trick = trick_winner(new_trick)
-            winner_player = (leading_player + winner_idx_in_trick) % 4
+            winner_player = (curr_player + winner_idx_in_trick + 1) % 4
             points = get_trick_points(new_trick)
 
             points_this_trick = 0
