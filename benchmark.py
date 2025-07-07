@@ -1,4 +1,4 @@
-from cards import double_dummy_solver
+from cards import double_dummy_solver0, double_dummy_solver1, double_dummy_solver2, double_dummy_solver3
 import timeit
 import statistics
 import math
@@ -14,12 +14,15 @@ def test_benchmark_full_game():
     )
 
     def run_solver():
-        double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True, alpha=-999, beta=999)
+        double_dummy_solver0(tuple(hands), 0, use_alpha_beta=True, alpha=-999, beta=999)
 
     num_trials = 30
     times = []
     for _ in range(num_trials):
-        double_dummy_solver.cache_clear()
+        double_dummy_solver0.cache_clear()
+        double_dummy_solver1.cache_clear()
+        double_dummy_solver2.cache_clear()
+        double_dummy_solver3.cache_clear()
         times.append(timeit.timeit(run_solver, number=10))
 
     mean_time = statistics.mean(times)
