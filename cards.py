@@ -31,11 +31,7 @@ def get_suite(card: int) -> int:
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
     return get_points(card1) + get_points(card2) + get_points(card3) + get_points(card4)
 
-def iter_bits(mask: int):
-    while mask:
-        b = mask & -mask
-        yield b
-        mask ^= b
+
 
 @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
@@ -77,7 +73,7 @@ def get_playable_cards1(card1: int, hand: int) -> int:
 @functools.lru_cache(maxsize=None)
 def get_playable_cards2(card1: int, card2: int, hand: int) -> int:
     # if there is a trump in the trick, players cannot purposefully undertrump
-    trumps_in_trick = (card1 + card2) & S
+    trumps_in_trick = (card1 | card2) & S
     if trumps_in_trick:
         highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
         overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
@@ -101,7 +97,7 @@ def get_playable_cards2(card1: int, card2: int, hand: int) -> int:
 @functools.lru_cache(maxsize=None)
 def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
     # if there is a trump in the trick, players cannot purposefully undertrump
-    trumps_in_trick = (card1 + card2 + card3) & S
+    trumps_in_trick = (card1 | card2 | card3) & S
     if trumps_in_trick:
         highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
         overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
@@ -142,7 +138,10 @@ def double_dummy_solver0(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = hands[curr_player]
-    for card in iter_bits(playable_cards):
+    mask = playable_cards
+    while mask:
+        card = mask & -mask
+        mask ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver1(
             card1=card,
@@ -178,7 +177,10 @@ def double_dummy_solver1(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards1(card1, hands[curr_player])
-    for card in iter_bits(playable_cards):
+    mask = playable_cards
+    while mask:
+        card = mask & -mask
+        mask ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver2(
             card1=card1,
@@ -216,7 +218,10 @@ def double_dummy_solver2(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
-    for card in iter_bits(playable_cards):
+    mask = playable_cards
+    while mask:
+        card = mask & -mask
+        mask ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver3(
             card1=card1,
@@ -257,7 +262,10 @@ def double_dummy_solver3(
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
     assert playable_cards != 0
-    for card in iter_bits(playable_cards):
+    mask = playable_cards
+    while mask:
+        card = mask & -mask
+        mask ^= card
         current_move_value: int
         winner_idx_in_trick = trick_winner(card1, card2, card3, card)
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
