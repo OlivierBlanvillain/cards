@@ -1,3 +1,5 @@
+import functools
+
 C = 0x000000FF  # Clubs
 D = 0x0000FF00  # Diamonds
 H = 0x00FF0000  # Hearts
@@ -12,10 +14,12 @@ POINTS_TABLE = [
     0, 0, 3, 4, 10, 11, 14, 20,  # Spades
 ]
 
+@functools.lru_cache(maxsize=None)
 def get_points(card: int) -> int:
     return POINTS_TABLE[card.bit_length() - 1]
 
-def get_trick_points(trick: list[int]) -> int:
+@functools.lru_cache(maxsize=None)
+def get_trick_points(trick: tuple[int]) -> int:
     return sum(get_points(card) for card in trick)
 
 def iter_bits(mask: int):
@@ -24,14 +28,17 @@ def iter_bits(mask: int):
         yield b
         mask ^= b
 
-def suit_of(card: int) -> int:
-    if card & C: return C
-    if card & D: return D
-    if card & H: return H
-    if card & S: return S
-    raise ValueError("Invalid card value")
+BIT_TO_SUIT = {}
+for i in range(8): BIT_TO_SUIT[i] = C
+for i in range(8, 16): BIT_TO_SUIT[i] = D
+for i in range(16, 24): BIT_TO_SUIT[i] = H
+for i in range(24, 32): BIT_TO_SUIT[i] = S
 
-def trick_winner(trick: list[int]) -> int:
+def suit_of(card: int) -> int:
+    return BIT_TO_SUIT[card.bit_length() - 1]
+
+@functools.lru_cache(maxsize=None)
+def trick_winner(trick: tuple[int]) -> int:
     led_suit = suit_of(trick[0])
     trick_mask = sum(trick)
     potential_winners = trick_mask & (S | led_suit)
@@ -57,14 +64,15 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
 
     # otherwise, players must play trump (unless their partner is winning)
     trumps_in_hand = hand & S
-    if trumps_in_hand and (trick_winner(trick) != (len(trick) - 2)):
+    if trumps_in_hand and (trick_winner(tuple(trick)) != (len(trick) - 2)):
         return trumps_in_hand
 
     return hand
 
+@functools.lru_cache(maxsize=None)
 def solve_dd_minimax(
-  trick: list[int],
-  hands: list[int],
+  trick: tuple[int],
+  hands: tuple[int],
   curr_player: int,
   leading_player: int,
   use_alpha_beta: bool,
@@ -82,13 +90,13 @@ def solve_dd_minimax(
     for card in iter_bits(playable_cards):
         new_hands = list(hands)
         new_hands[curr_player] ^= card
-        new_trick = trick + [card]
+        new_trick = trick + (card,)
 
         current_move_value: int
         if len(new_trick) == 4:
-            winner_idx_in_trick = trick_winner(new_trick)
+            winner_idx_in_trick = trick_winner(tuple(new_trick))
             winner_player = (leading_player + winner_idx_in_trick) % 4
-            points = get_trick_points(new_trick)
+            points = get_trick_points(tuple(new_trick))
 
             points_this_trick = 0
             if winner_player % 2 == 0:
@@ -99,8 +107,8 @@ def solve_dd_minimax(
             new_beta = beta - points_this_trick
 
             sub_game_value = solve_dd_minimax(
-                trick=[],
-                hands=new_hands,
+                trick=tuple([]),
+                hands=tuple(new_hands),
                 curr_player=winner_player,
                 leading_player=winner_player,
                 use_alpha_beta=use_alpha_beta,
@@ -111,8 +119,8 @@ def solve_dd_minimax(
         else:
             next_player = (curr_player + 1) % 4
             current_move_value = solve_dd_minimax(
-                trick=new_trick,
-                hands=new_hands,
+                trick=tuple(new_trick),
+                hands=tuple(new_hands),
                 curr_player=next_player,
                 leading_player=leading_player,
                 use_alpha_beta=use_alpha_beta,
@@ -165,8 +173,8 @@ def test_solver_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    score_mm = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm
 
 
@@ -177,6 +185,6 @@ def test_solver_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    score_mm = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm

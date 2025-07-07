@@ -12,6 +12,9 @@ run: venv/activate FORCE
 test: venv/activate FORCE
 - venv/bin/python3 -m pytest test_cards.py -v --capture=no
 
+bench: venv/activate FORCE
+- venv/bin/python3 -m pytest benchmark.py -v --capture=no
+
 watch: venv/activate FORCE
 - git ls-files | entr make test
 
