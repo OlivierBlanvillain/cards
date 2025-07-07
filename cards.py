@@ -37,12 +37,6 @@ def iter_bits(mask: int):
         yield b
         mask ^= b
 
-BIT_TO_SUIT = {}
-for i in range(8): BIT_TO_SUIT[i] = C
-for i in range(8, 16): BIT_TO_SUIT[i] = D
-for i in range(16, 24): BIT_TO_SUIT[i] = H
-for i in range(24, 32): BIT_TO_SUIT[i] = S
-
 @functools.lru_cache(maxsize=None)
 def trick_winner(trick: tuple[int]) -> int:
     led_suit = get_suite(trick[0])
@@ -102,9 +96,9 @@ def double_dummy_solver(
 
         current_move_value: int
         if len(new_trick) == 4:
-            winner_idx_in_trick = trick_winner(tuple(new_trick))
+            winner_idx_in_trick = trick_winner(new_trick)
             winner_player = (leading_player + winner_idx_in_trick) % 4
-            points = get_trick_points(tuple(new_trick))
+            points = get_trick_points(new_trick)
 
             points_this_trick = 0
             if winner_player % 2 == 0:
@@ -115,7 +109,7 @@ def double_dummy_solver(
             new_beta = beta - points_this_trick
 
             sub_game_value = double_dummy_solver(
-                trick=tuple([]),
+                trick=(),
                 hands=tuple(new_hands),
                 curr_player=winner_player,
                 use_alpha_beta=use_alpha_beta,
@@ -126,7 +120,7 @@ def double_dummy_solver(
         else:
             next_player = (curr_player + 1) % 4
             current_move_value = double_dummy_solver(
-                trick=tuple(new_trick),
+                trick=new_trick,
                 hands=tuple(new_hands),
                 curr_player=next_player,
                 use_alpha_beta=use_alpha_beta,
@@ -179,8 +173,8 @@ def test_solver_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver((), tuple(hands), 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver((), tuple(hands), 0, use_alpha_beta=True)
     assert score_ab == score_mm
 
 
@@ -191,6 +185,6 @@ def test_solver_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver((), tuple(hands), 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver((), tuple(hands), 0, use_alpha_beta=True)
     assert score_ab == score_mm

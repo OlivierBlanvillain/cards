@@ -4,7 +4,6 @@ from cards import (
     get_trick_points,
     double_dummy_solver,
     trick_winner,
-    iter_bits,
 )
 
 from test_utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
@@ -62,7 +61,7 @@ def test_get_playable_cards():
     """Tests the logic for playable cards."""
     # all cards are playable when leading a trick
     hand = c("7♦,K♦,A♣,J♠")
-    assert get_playable_cards(tuple([]), hand) == hand
+    assert get_playable_cards((), hand) == hand
 
     # players must follow suit
     trick = (c("A♦"),)
