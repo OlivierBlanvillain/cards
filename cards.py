@@ -6,16 +6,26 @@ H = 0x00FF0000  # Hearts
 S = 0xFF000000  # Spades (trump suit)
 
 POINTS_TABLE = [
-    # 7, 8, 9, J, Q, K, 10, A
-    0, 0, 0, 2, 3, 4, 10, 11,  # Clubs
-    0, 0, 0, 2, 3, 4, 10, 11,  # Diamonds
-    0, 0, 0, 2, 3, 4, 10, 11,  # Hearts
-    # 7, 8, Q, K, 10, A, 9, J
-    0, 0, 3, 4, 10, 11, 14, 20,  # Spades
+    -1, # unused
+    0, 0, 0, 2, 3, 4, 10, 11,
+    0, 0, 0, 2, 3, 4, 10, 11,
+    0, 0, 0, 2, 3, 4, 10, 11,
+    0, 0, 3, 4, 10, 11, 14, 20,
+]
+
+SUITE_TABLE = [
+    -1, # unused
+    C, C, C, C, C, C, C, C,
+    D, D, D, D, D, D, D, D,
+    H, H, H, H, H, H, H, H,
+    S, S, S, S, S, S, S, S,
 ]
 
 def get_points(card: int) -> int:
-    return POINTS_TABLE[card.bit_length() - 1]
+    return POINTS_TABLE[card.bit_length()]
+
+def get_suite(card: int) -> int:
+    return SUITE_TABLE[card.bit_length()]
 
 @functools.lru_cache(maxsize=None)
 def get_trick_points(trick: tuple[int]) -> int:
@@ -33,12 +43,9 @@ for i in range(8, 16): BIT_TO_SUIT[i] = D
 for i in range(16, 24): BIT_TO_SUIT[i] = H
 for i in range(24, 32): BIT_TO_SUIT[i] = S
 
-def suit_of(card: int) -> int:
-    return BIT_TO_SUIT[card.bit_length() - 1]
-
 @functools.lru_cache(maxsize=None)
 def trick_winner(trick: tuple[int]) -> int:
-    led_suit = suit_of(trick[0])
+    led_suit = get_suite(trick[0])
     trick_mask = sum(trick)
     potential_winners = trick_mask & (S | led_suit)
     winning_card_mask = 1 << (potential_winners.bit_length() - 1)
@@ -57,7 +64,7 @@ def get_playable_cards(trick: tuple[int], hand: int) -> int:
             hand = (hand & ~S) | overtrumps  # remove undertrumps
 
     # players must follow suite
-    cards_in_led_suit = hand & suit_of(trick[0])
+    cards_in_led_suit = hand & get_suite(trick[0])
     if cards_in_led_suit:
         return cards_in_led_suit
 
