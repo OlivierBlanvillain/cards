@@ -151,16 +151,12 @@ def double_dummy_solver0(
         )
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
-            if use_alpha_beta:
-                alpha = max(alpha, best_score)
-                if beta <= alpha:
-                    break
+            alpha = max(alpha, best_score)
         else:
             best_score = min(best_score, current_move_value)
-            if use_alpha_beta:
-                beta = min(beta, best_score)
-                if beta <= alpha:
-                    break
+            beta = min(beta, best_score)
+        if use_alpha_beta and beta <= alpha:
+            break
     return best_score
 
 @functools.lru_cache(maxsize=None)
@@ -189,16 +185,12 @@ def double_dummy_solver1(
         )
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
-            if use_alpha_beta:
-                alpha = max(alpha, best_score)
-                if beta <= alpha:
-                    break
+            alpha = max(alpha, best_score)
         else:
             best_score = min(best_score, current_move_value)
-            if use_alpha_beta:
-                beta = min(beta, best_score)
-                if beta <= alpha:
-                    break
+            beta = min(beta, best_score)
+        if use_alpha_beta and beta <= alpha:
+            break
     return best_score
 
 @functools.lru_cache(maxsize=None)
@@ -229,16 +221,12 @@ def double_dummy_solver2(
         )
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
-            if use_alpha_beta:
-                alpha = max(alpha, best_score)
-                if beta <= alpha:
-                    break
+            alpha = max(alpha, best_score)
         else:
             best_score = min(best_score, current_move_value)
-            if use_alpha_beta:
-                beta = min(beta, best_score)
-                if beta <= alpha:
-                    break
+            beta = min(beta, best_score)
+        if use_alpha_beta and beta <= alpha:
+            break
     return best_score
 
 @functools.lru_cache(maxsize=None)
@@ -263,9 +251,10 @@ def double_dummy_solver3(
         winner_idx_in_trick = trick_winner(card1, card2, card3, card)
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
         points = get_trick_points(card1, card2, card3, card)
-        points_this_trick = 0
         if winner_player % 2 == 0:
             points_this_trick = points
+        else:
+            points_this_trick = 0
         new_alpha, new_beta = alpha, beta
         new_alpha = alpha - points_this_trick
         new_beta = beta - points_this_trick
@@ -279,14 +268,10 @@ def double_dummy_solver3(
         current_move_value = points_this_trick + sub_game_value
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
-            if use_alpha_beta:
-                alpha = max(alpha, best_score)
-                if beta <= alpha:
-                    break
+            alpha = max(alpha, best_score)
         else:
             best_score = min(best_score, current_move_value)
-            if use_alpha_beta:
-                beta = min(beta, best_score)
-                if beta <= alpha:
-                    break
+            beta = min(beta, best_score)
+        if use_alpha_beta and beta <= alpha:
+            break
     return best_score
