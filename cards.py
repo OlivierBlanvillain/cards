@@ -4,7 +4,7 @@ H = 0x00FF0000  # Hearts
 S = 0xFF000000  # Spades (trump suit)
 
 POINTS_TABLE = [
-    # 7, 8, 9, J,  Q,  K,  10, A
+    # 7, 8, 9, J, Q, K, 10, A
     0, 0, 0, 2, 3, 4, 10, 11,  # Clubs
     0, 0, 0, 2, 3, 4, 10, 11,  # Diamonds
     0, 0, 0, 2, 3, 4, 10, 11,  # Hearts
@@ -36,105 +36,147 @@ def trick_winner(trick: list[int]) -> int:
     trick_mask = sum(trick)
     potential_winners = trick_mask & (S | led_suit)
     winning_card_mask = 1 << (potential_winners.bit_length() - 1)
-    for i, card in enumerate(trick):
-        if card == winning_card_mask:
-            return i
-    assert False, "unreachable"
-
+    return trick.index(winning_card_mask)
 
 def get_playable_cards(trick: list[int], hand: int) -> int:
     if not trick:
         return hand
 
-    led_suit = suit_of(trick[0])
-    trick_mask = sum(trick)
-    trumps_in_trick = trick_mask & S
+    # if there is a trump in the trick, players cannot purposefully undertrump
+    trumps_in_trick = sum(trick) & S
     if trumps_in_trick:
         highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
         overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
         if overtrumps:
-           hand = (hand & ~S) | overtrumps
+            hand = (hand & ~S) | overtrumps  # remove undertrumps
 
-    cards_in_led_suit = hand & led_suit
+    # players must follow suite
+    cards_in_led_suit = hand & suit_of(trick[0])
     if cards_in_led_suit:
         return cards_in_led_suit
 
+    # otherwise, players must play trump (unless their partner is winning)
     trumps_in_hand = hand & S
-    if not trumps_in_hand:
-        return hand
+    if trumps_in_hand and (trick_winner(trick) != (len(trick) - 2)):
+        return trumps_in_hand
 
-    current_winner_index = trick_winner(trick)
-    partner_is_winning = (current_winner_index == (len(trick) - 2))
-    if partner_is_winning:
-        return hand
-
-    return trumps_in_hand
-
-
-import math
+    return hand
 
 def solve_dd_minimax(
-  trick: list[int], hands: list[int], curr_player: int, leading_player: int, alpha: float = -math.inf, beta: float = math.inf, use_alpha_beta: bool = True
-) -> tuple[int, list[tuple[int, int]]]:
-    if all(h == 0 for h in hands):
-        return 0, [] # Base case: no cards left, score difference is 0
+  trick: list[int],
+  hands: list[int],
+  curr_player: int,
+  leading_player: int,
+  use_alpha_beta: bool,
+  alpha: int = -999,
+  beta: int = 999,
+) -> int:
+    if sum(hands) == 0:
+        return 0
 
+    is_maximizing_player = (curr_player % 2 == 0)
+    best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards(trick, hands[curr_player])
-    best_path = []
-
-    if not playable_cards: # No playable cards, return worst score for current player
-        if curr_player % 2 == 0: # MAX player
-            return -math.inf, []
-        else: # MIN player
-            return math.inf, []
-
-    if curr_player % 2 == 0:  # Current player is on Team A (MAX)
-        best_score = -math.inf
-        best_result = (-math.inf, []) # Initialize with worst score for MAX
-    else:  # Current player is on Team B (MIN)
-        best_score = math.inf
-        best_result = (math.inf, []) # Initialize with worst score for MIN
+    assert playable_cards != 0
 
     for card in iter_bits(playable_cards):
         new_hands = list(hands)
         new_hands[curr_player] ^= card
         new_trick = trick + [card]
 
-        score_difference_from_sub_call = 0
-        sub_path = []
-
-        is_trick_over = len(new_trick) == 4
-        if is_trick_over:
-            winner_player = (leading_player + trick_winner(new_trick)) % 4
+        current_move_value: int
+        if len(new_trick) == 4:
+            winner_idx_in_trick = trick_winner(new_trick)
+            winner_player = (leading_player + winner_idx_in_trick) % 4
             points = get_trick_points(new_trick)
-            score_from_next_state, sub_path = solve_dd_minimax([], new_hands, winner_player, winner_player, alpha, beta, use_alpha_beta)
-            if winner_player % 2 == 0:  # Team A wins trick
-                score_difference_from_sub_call = score_from_next_state + points
-            else: # Team B wins trick
-                score_difference_from_sub_call = score_from_next_state - points
+
+            points_this_trick = 0
+            if winner_player % 2 == 0:
+                points_this_trick = points
+
+            new_alpha, new_beta = alpha, beta
+            new_alpha = alpha - points_this_trick
+            new_beta = beta - points_this_trick
+
+            sub_game_value = solve_dd_minimax(
+                trick=[],
+                hands=new_hands,
+                curr_player=winner_player,
+                leading_player=winner_player,
+                use_alpha_beta=use_alpha_beta,
+                alpha=new_alpha,
+                beta=new_beta,
+            )
+            current_move_value = points_this_trick + sub_game_value
         else:
             next_player = (curr_player + 1) % 4
-            score_difference_from_sub_call, sub_path = solve_dd_minimax(new_trick, new_hands, next_player, leading_player, alpha, beta, use_alpha_beta)
+            current_move_value = solve_dd_minimax(
+                trick=new_trick,
+                hands=new_hands,
+                curr_player=next_player,
+                leading_player=leading_player,
+                use_alpha_beta=use_alpha_beta,
+                alpha=alpha,
+                beta=beta,
+            )
 
-        if curr_player % 2 == 0:  # MAX player
-            if score_difference_from_sub_call > best_score:
-                best_score = score_difference_from_sub_call
-                best_path = [(curr_player, card)] + sub_path
-                best_result = (best_score, best_path)
-            alpha = max(alpha, best_score) # Update alpha for the current MAX node
-        else:  # MIN player
-            if score_difference_from_sub_call < best_score:
-                best_score = score_difference_from_sub_call
-                best_path = [(curr_player, card)] + sub_path
-                best_result = (best_score, best_path)
-            beta = min(beta, best_score) # Update beta for the current MIN node
+        if is_maximizing_player:
+            best_score = max(best_score, current_move_value)
+            if use_alpha_beta:
+                alpha = max(alpha, best_score)
+                if beta <= alpha:
+                    break
+        else:
+            best_score = min(best_score, current_move_value)
+            if use_alpha_beta:
+                beta = min(beta, best_score)
+                if beta <= alpha:
+                    break
 
-        # Debugging prints
-        # Debugging prints
-        # print(f"Player {curr_player}, Card {card}: score_diff={score_difference_from_sub_call}, best_score={best_score}, alpha={alpha}, beta={beta}")
+    return best_score
 
-        if use_alpha_beta and alpha >= beta:
-            # print(f"Pruning: alpha={alpha}, beta={beta}")
-            break # Prune the remaining branches
 
-    return best_result
+RANKS_TRUMP = ['J', '9', 'A', '10', 'K', 'Q', '8', '7']
+RANKS_PLAIN = ['A', '10', 'K', 'Q', 'J', '9', '8', '7']
+CARD_TO_BIT = {}
+
+bit = 31
+for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
+    ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
+    for rank in ranks:
+        CARD_TO_BIT[(suit, rank)] = bit
+        bit -= 1
+
+def c(desc: str) -> int:
+    total = 0
+    if not desc:
+        return total
+    for token in desc.split(','):
+        rank = token[:-1]
+        suit_char = token[-1]
+        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
+        total |= 1 << CARD_TO_BIT[(suit, rank)]
+    return total
+
+def test_solver_1():
+    hands = [
+        c("10♥,J♠,7♣,A♦"),
+        c("J♥,K♠,Q♣,8♦"),
+        c("A♥,9♠,7♣,K♦"),
+        c("Q♠,8♠,A♣,10♦")
+    ]
+    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    assert score_ab == score_mm
+
+
+def test_solver_2():
+    hands = [
+        c("10♥,J♠,7♣,A♦"),
+        c("J♥,Q♣,K♠,8♦"),
+        c("9♠,A♥,7♥,10♣"),
+        c("Q♠,A♣,8♠,10♦")
+    ]
+    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    assert score_ab == score_mm
