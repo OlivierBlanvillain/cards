@@ -101,24 +101,24 @@ def test_get_playable_cards():
 
 
 def test_minmax_alphabeta_consistency_1():
-    hands = (
+    hands = [
         c("10♥,J♠,7♣,A♦"),
         c("J♥,K♠,Q♣,8♦"),
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
-    )
+    ]
     score_mm = double_dummy_solver0(hands, 0, use_alpha_beta=False)
     score_ab = double_dummy_solver0(hands, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 63
 
 
 def test_minmax_alphabeta_consistency_2():
-    hands = (
+    hands = [
         c("10♥,J♠,7♣,A♦"),
         c("J♥,Q♣,K♠,8♦"),
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
-    )
+    ]
     score_mm = double_dummy_solver0(hands, 0, use_alpha_beta=False)
     score_ab = double_dummy_solver0(hands, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 94

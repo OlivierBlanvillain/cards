@@ -125,30 +125,34 @@ def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
 
     return hand
 
-@functools.lru_cache(maxsize=None)
+_cache = {}
+
 def double_dummy_solver0(
-  hands: tuple[int],
+  hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
+    cache_key = (sum(hands), curr_player, alpha, beta)
+    if (x := _cache.get(cache_key)) is not None:
+        return x
     if sum(hands) == 0:
         return 0
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = hands[curr_player]
     for card in iter_bits(playable_cards):
-        new_hands = list(hands)
-        new_hands[curr_player] ^= card
+        hands[curr_player] ^= card
         current_move_value = double_dummy_solver1(
             card1=card,
-            hands=tuple(new_hands),
+            hands=hands,
             curr_player=(curr_player + 1) % 4,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
+        hands[curr_player] ^= card
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
             alpha = max(alpha, best_score)
@@ -157,32 +161,35 @@ def double_dummy_solver0(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
+    _cache[cache_key] = best_score
     return best_score
 
-@functools.lru_cache(maxsize=None)
 def double_dummy_solver1(
   card1: int,
-  hands: tuple[int],
+  hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
+    cache_key = (sum(hands), curr_player, alpha, beta)
+    if (x := _cache.get(cache_key)) is not None:
+        return x
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards1(card1, hands[curr_player])
     for card in iter_bits(playable_cards):
-        new_hands = list(hands)
-        new_hands[curr_player] ^= card
+        hands[curr_player] ^= card
         current_move_value = double_dummy_solver2(
             card1=card1,
             card2=card,
-            hands=tuple(new_hands),
+            hands=hands,
             curr_player=(curr_player + 1) % 4,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
+        hands[curr_player] ^= card
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
             alpha = max(alpha, best_score)
@@ -191,34 +198,37 @@ def double_dummy_solver1(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
+    _cache[cache_key] = best_score
     return best_score
 
-@functools.lru_cache(maxsize=None)
 def double_dummy_solver2(
   card1: int,
   card2: int,
-  hands: tuple[int],
+  hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
+    cache_key = (sum(hands), curr_player, alpha, beta)
+    if (x := _cache.get(cache_key)) is not None:
+        return x
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
     for card in iter_bits(playable_cards):
-        new_hands = list(hands)
-        new_hands[curr_player] ^= card
+        hands[curr_player] ^= card
         current_move_value = double_dummy_solver3(
             card1=card1,
             card2=card2,
             card3=card,
-            hands=tuple(new_hands),
+            hands=hands,
             curr_player=(curr_player + 1) % 4,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
+        hands[curr_player] ^= card
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
             alpha = max(alpha, best_score)
@@ -227,26 +237,27 @@ def double_dummy_solver2(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
+    _cache[cache_key] = best_score
     return best_score
 
-@functools.lru_cache(maxsize=None)
 def double_dummy_solver3(
   card1: int,
   card2: int,
   card3: int,
-  hands: tuple[int],
+  hands: list[int],
   curr_player: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
+    cache_key = (sum(hands), curr_player, alpha, beta)
+    if (x := _cache.get(cache_key)) is not None:
+        return x
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
     assert playable_cards != 0
     for card in iter_bits(playable_cards):
-        new_hands = list(hands)
-        new_hands[curr_player] ^= card
         current_move_value: int
         winner_idx_in_trick = trick_winner(card1, card2, card3, card)
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
@@ -258,13 +269,15 @@ def double_dummy_solver3(
         new_alpha, new_beta = alpha, beta
         new_alpha = alpha - points_this_trick
         new_beta = beta - points_this_trick
+        hands[curr_player] ^= card
         sub_game_value = double_dummy_solver0(
-            hands=tuple(new_hands),
+            hands=hands,
             curr_player=winner_player,
             use_alpha_beta=use_alpha_beta,
             alpha=new_alpha,
             beta=new_beta,
         )
+        hands[curr_player] ^= card
         current_move_value = points_this_trick + sub_game_value
         if is_maximizing_player:
             best_score = max(best_score, current_move_value)
@@ -274,4 +287,5 @@ def double_dummy_solver3(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
+    _cache[cache_key] = best_score
     return best_score
