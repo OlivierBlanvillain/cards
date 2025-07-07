@@ -40,7 +40,7 @@ def classify_game(game):
     # Ensure hands_as_int is a tuple of tuples for memoization
     hands_as_tuple = tuple(hands_as_int)
 
-    optimal_score = cards.solve_dd_minimax(tuple([]), hands_as_tuple, 0, 0, use_alpha_beta=True)
+    optimal_score = cards.double_dummy_solver(tuple([]), hands_as_tuple, 0, 0, use_alpha_beta=True)
 
     bidding_team = get_bidding_team(game.bids)
     actual_score = get_actual_score(game.path, bidding_team)
@@ -54,7 +54,7 @@ def classify_game(game):
 
 if __name__ == "__main__":
     fst_dir = "/home/olivier/workspace/cards/fst"
-    
+
     results = {
         "perfect play": 0,
         "suboptimal play": 0,
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             if not game.h1.cards or not game.h2.cards or not game.h3.cards or not game.h4.cards:
                 print(f"Skipping {path}: Incomplete hand data.")
                 continue
-            
+
             # Validate that cards.c can process the hand strings
             test_hands_as_str = []
             for hand in [game.h1, game.h2, game.h3, game.h4]:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 for card in hand.cards:
                     card_strs.append(f"{card.value}{card.suite.value}")
                 test_hands_as_str.append(",".join(card_strs))
-            
+
             # Attempt to convert to int to catch errors early
             try:
                 [cards.c(s) for s in test_hands_as_str]

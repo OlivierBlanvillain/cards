@@ -69,7 +69,7 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
     return hand
 
 @functools.lru_cache(maxsize=None)
-def solve_dd_minimax(
+def double_dummy_solver(
   trick: tuple[int],
   hands: tuple[int],
   curr_player: int,
@@ -105,7 +105,7 @@ def solve_dd_minimax(
             new_alpha = alpha - points_this_trick
             new_beta = beta - points_this_trick
 
-            sub_game_value = solve_dd_minimax(
+            sub_game_value = double_dummy_solver(
                 trick=tuple([]),
                 hands=tuple(new_hands),
                 curr_player=winner_player,
@@ -117,7 +117,7 @@ def solve_dd_minimax(
             current_move_value = points_this_trick + sub_game_value
         else:
             next_player = (curr_player + 1) % 4
-            current_move_value = solve_dd_minimax(
+            current_move_value = double_dummy_solver(
                 trick=tuple(new_trick),
                 hands=tuple(new_hands),
                 curr_player=next_player,
@@ -172,8 +172,8 @@ def test_solver_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score_mm = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm
 
 
@@ -184,6 +184,6 @@ def test_solver_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score_mm = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm

@@ -2,7 +2,7 @@ from cards import (
     get_playable_cards,
     get_points,
     get_trick_points,
-    solve_dd_minimax,
+    double_dummy_solver,
     trick_winner,
     iter_bits,
 )
@@ -141,7 +141,7 @@ def test_get_playable_cards():
 #     """Tests the solver in a simple, deterministic endgame."""
 #     # Player 0 to lead. Team A has the two highest trumps.
 #     hands = [c("J♠,9♠"), c("7♦,8♦"), c("A♠,10♠"), c("7♥,8♥")]
-#     score, path = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+#     score, path = double_dummy_solver([], hands, 0, 0, use_alpha_beta=True)
 #     assert len(path) == 8
 #     # Team A should win all points, so the score difference should be the total points.
 #     total_points = get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")])
@@ -153,7 +153,7 @@ def test_get_playable_cards():
 #     """Tests a scenario where a player is forced to trump."""
 #     # Player 0 leads a suit Player 1 is void in.
 #     hands = [c("A♥"), c("J♠"), c("K♥"), c("Q♥")]
-#     score, path = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+#     score, path = double_dummy_solver([], hands, 0, 0, use_alpha_beta=True)
 #     # Player 1 must trump, winning the trick.
 #     assert path[0] == (0, c("A♥"))
 #     assert path[1] == (1, c("J♠"))
@@ -170,8 +170,8 @@ def test_minmax_alphabeta_consistency_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     )
-    score_mm = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), hands, 0, 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), hands, 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 63
 
 
@@ -182,6 +182,6 @@ def test_minmax_alphabeta_consistency_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     )
-    score_mm = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), hands, 0, 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), hands, 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 94
