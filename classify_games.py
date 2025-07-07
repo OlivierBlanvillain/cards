@@ -40,7 +40,7 @@ def classify_game(game):
     # Ensure hands_as_int is a tuple of tuples for memoization
     hands_as_tuple = tuple(hands_as_int)
 
-    optimal_score = cards.double_dummy_solver(tuple([]), hands_as_tuple, 0, 0, use_alpha_beta=True)
+    optimal_score = cards.double_dummy_solver(tuple([]), hands_as_tuple, 0, use_alpha_beta=True)
 
     bidding_team = get_bidding_team(game.bids)
     actual_score = get_actual_score(game.path, bidding_team)

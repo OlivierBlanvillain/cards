@@ -44,7 +44,7 @@ def trick_winner(trick: tuple[int]) -> int:
     winning_card_mask = 1 << (potential_winners.bit_length() - 1)
     return trick.index(winning_card_mask)
 
-def get_playable_cards(trick: list[int], hand: int) -> int:
+def get_playable_cards(trick: tuple[int], hand: int) -> int:
     if not trick:
         return hand
 
@@ -63,7 +63,7 @@ def get_playable_cards(trick: list[int], hand: int) -> int:
 
     # otherwise, players must play trump (unless their partner is winning)
     trumps_in_hand = hand & S
-    if trumps_in_hand and (trick_winner(tuple(trick)) != (len(trick) - 2)):
+    if trumps_in_hand and (trick_winner(trick) != (len(trick) - 2)):
         return trumps_in_hand
 
     return hand
@@ -73,13 +73,15 @@ def double_dummy_solver(
   trick: tuple[int],
   hands: tuple[int],
   curr_player: int,
-  leading_player: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
     if sum(hands) == 0:
         return 0
+
+    leading_player = (4 + curr_player - len(trick)) % 4
+
 
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
@@ -109,7 +111,6 @@ def double_dummy_solver(
                 trick=tuple([]),
                 hands=tuple(new_hands),
                 curr_player=winner_player,
-                leading_player=winner_player,
                 use_alpha_beta=use_alpha_beta,
                 alpha=new_alpha,
                 beta=new_beta,
@@ -121,7 +122,6 @@ def double_dummy_solver(
                 trick=tuple(new_trick),
                 hands=tuple(new_hands),
                 curr_player=next_player,
-                leading_player=leading_player,
                 use_alpha_beta=use_alpha_beta,
                 alpha=alpha,
                 beta=beta,
@@ -172,8 +172,8 @@ def test_solver_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True)
     assert score_ab == score_mm
 
 
@@ -184,6 +184,6 @@ def test_solver_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True)
+    score_mm = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=False)
+    score_ab = double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True)
     assert score_ab == score_mm

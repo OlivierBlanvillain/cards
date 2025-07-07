@@ -14,7 +14,7 @@ def test_benchmark_full_game():
     )
 
     def run_solver():
-        double_dummy_solver(tuple([]), tuple(hands), 0, 0, use_alpha_beta=True, alpha=-999, beta=999)
+        double_dummy_solver(tuple([]), tuple(hands), 0, use_alpha_beta=True, alpha=-999, beta=999)
 
     num_trials = 30
     times = []
