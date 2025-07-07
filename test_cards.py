@@ -112,56 +112,6 @@ def test_get_playable_cards():
     assert get_playable_cards(trick, hand) == c("J♠,7♠")
 
 
-# === SOLVER (Double-Dummy) TESTS ===
-
-# def trace_play(hands, path):
-#     """Helper to trace the score of a game path for verification."""
-#     score_a = 0
-#     score_b = 0
-#     trick = []
-#     trick_leader = 0
-
-#     for i, (player, card) in enumerate(path):
-#         trick.append(card)
-#         if len(trick) == 4:
-#             winner_relative = trick_winner(trick)
-#             winner_absolute = (trick_leader + winner_relative) % 4
-#             pts = get_trick_points(trick)
-
-#             if winner_absolute % 2 == 0: # Team A
-#                 score_a += pts
-#             else: # Team B
-#                 score_b += pts
-#             trick = []
-#             trick_leader = winner_absolute
-#     return score_a - score_b
-
-# def test_solver_simple_endgame():
-#     """Tests the solver in a simple, deterministic endgame."""
-#     # Player 0 to lead. Team A has the two highest trumps.
-#     hands = [c("J♠,9♠"), c("7♦,8♦"), c("A♠,10♠"), c("7♥,8♥")]
-#     score, path = double_dummy_solver([], hands, 0, use_alpha_beta=True)
-#     assert len(path) == 8
-#     # Team A should win all points, so the score difference should be the total points.
-#     total_points = get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")])
-#     assert score == total_points
-#     traced_score_diff = trace_play(hands, path)
-#     assert traced_score_diff == total_points
-
-# def test_solver_forced_trump():
-#     """Tests a scenario where a player is forced to trump."""
-#     # Player 0 leads a suit Player 1 is void in.
-#     hands = [c("A♥"), c("J♠"), c("K♥"), c("Q♥")]
-#     score, path = double_dummy_solver([], hands, 0, use_alpha_beta=True)
-#     # Player 1 must trump, winning the trick.
-#     assert path[0] == (0, c("A♥"))
-#     assert path[1] == (1, c("J♠"))
-#     traced_score_diff = trace_play(hands, path)
-#     # Team B wins the trick, so the score difference (A - B) should be negative.
-#     assert traced_score_diff == -get_trick_points([c("A♥"), c("J♠"), c("K♥"), c("Q♥")])
-#     assert score == traced_score_diff
-
-
 def test_minmax_alphabeta_consistency_1():
     hands = (
         c("10♥,J♠,7♣,A♦"),
