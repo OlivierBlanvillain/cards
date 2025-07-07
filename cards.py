@@ -37,6 +37,7 @@ def iter_bits(mask: int):
         yield b
         mask ^= b
 
+@functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
     led_suit = get_suite(card1)
     led_mask = S | led_suit

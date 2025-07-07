@@ -1,3 +1,5 @@
+#!venv/bin/python3
+
 from cards import double_dummy_solver0, double_dummy_solver1, double_dummy_solver2, double_dummy_solver3
 import timeit
 import statistics
@@ -41,3 +43,6 @@ def test_benchmark_full_game():
     print("\nIndividual experiment outputs (sorted):")
     for t in sorted(times):
         print(f"- {t:.4f} s")
+
+if __name__ == "__main__":
+    test_benchmark_full_game()
