@@ -14,7 +14,6 @@ POINTS_TABLE = [
     0, 0, 3, 4, 10, 11, 14, 20,  # Spades
 ]
 
-@functools.lru_cache(maxsize=None)
 def get_points(card: int) -> int:
     return POINTS_TABLE[card.bit_length() - 1]
 

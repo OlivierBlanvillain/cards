@@ -1,5 +1,4 @@
 from cards import (
-    C, D, H, S,
     get_playable_cards,
     get_points,
     get_trick_points,
@@ -8,38 +7,7 @@ from cards import (
     iter_bits,
 )
 
-RANKS_TRUMP = ['J', '9', 'A', '10', 'K', 'Q', '8', '7']
-RANKS_PLAIN = ['A', '10', 'K', 'Q', 'J', '9', '8', '7']
-CARD_TO_BIT = {}
-BIT_TO_CARD = {}
-
-bit = 31
-for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
-    ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
-    for rank in ranks:
-        CARD_TO_BIT[(suit, rank)] = bit
-        BIT_TO_CARD[bit] = (suit, rank, suit_name)
-        bit -= 1
-
-def c(desc: str) -> int:
-    """Converts a comma-separated string of cards (e.g., 'A♠,K♥') to a bitmask."""
-    total = 0
-    if not desc:
-        return total
-    for token in desc.split(','):
-        rank = token[:-1]
-        suit_char = token[-1]
-        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
-        total |= 1 << CARD_TO_BIT[(suit, rank)]
-    return total
-
-def d(card_mask: int) -> str:
-    """Converts a single card bitmask back to its string representation (e.g., 'A♠')."""
-    if card_mask == 0:
-        return ""
-    bit_pos = card_mask.bit_length() - 1
-    suit, rank, suit_char = BIT_TO_CARD[bit_pos]
-    return rank + suit_char
+from test_utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 
 
 def test_cards_representation():
@@ -66,29 +34,29 @@ def test_get_points():
 
 def test_get_trick_points():
     """Tests the total points of a trick."""
-    assert get_trick_points([c("A♥"), c("K♥"), c("Q♥"), c("10♥")]) == 28
-    assert get_trick_points([c("J♠"), c("9♠"), c("A♠"), c("10♠")]) == 55
-    assert get_trick_points([c("7♣"), c("8♦"), c("9♥"), c("8♠")]) == 0
-    assert get_trick_points([1 << i for i in range(32)]) == 152
+    assert get_trick_points(tuple([c("A♥"), c("K♥"), c("Q♥"), c("10♥")])) == 28
+    assert get_trick_points(tuple([c("J♠"), c("9♠"), c("A♠"), c("10♠")])) == 55
+    assert get_trick_points(tuple([c("7♣"), c("8♦"), c("9♥"), c("8♠")])) == 0
+    assert get_trick_points(tuple([1 << i for i in range(32)])) == 152
 
 def test_trick_winner():
     """Tests the logic for determining the winner of a trick."""
     # Basic cases
-    assert trick_winner([c("10♦"), c("K♦"), c("A♦")]) == 2
-    assert trick_winner([c("10♦"), c("7♣"), c("K♦")]) == 0 # Player 1 did not follow suit
+    assert trick_winner(tuple([c("10♦"), c("K♦"), c("A♦")])) == 2
+    assert trick_winner(tuple([c("10♦"), c("7♣"), c("K♦")])) == 0 # Player 1 did not follow suit
 
     # Trumping
-    assert trick_winner([c("A♥"), c("7♠"), c("Q♥"), c("10♥")]) == 1
-    assert trick_winner([c("A♥"), c("K♥"), c("7♠"), c("10♥")]) == 2
-    assert trick_winner([c("A♥"), c("K♥"), c("Q♥"), c("7♠")]) == 3
+    assert trick_winner(tuple([c("A♥"), c("7♠"), c("Q♥"), c("10♥")])) == 1
+    assert trick_winner(tuple([c("A♥"), c("K♥"), c("7♠"), c("10♥")])) == 2
+    assert trick_winner(tuple([c("A♥"), c("K♥"), c("Q♥"), c("7♠")])) == 3
 
     # Over-trumping
-    assert trick_winner([c("A♥"), c("7♠"), c("8♠"), c("10♥")]) == 2
-    assert trick_winner([c("A♥"), c("8♠"), c("7♠"), c("10♥")]) == 1
+    assert trick_winner(tuple([c("A♥"), c("7♠"), c("8♠"), c("10♥")])) == 2
+    assert trick_winner(tuple([c("A♥"), c("8♠"), c("7♠"), c("10♥")])) == 1
 
     # All-trump tricks
-    assert trick_winner([c("7♠"), c("8♠"), c("9♠"), c("J♠")]) == 3
-    assert trick_winner([c("J♠"), c("9♠"), c("8♠"), c("7♠")]) == 0
+    assert trick_winner(tuple([c("7♠"), c("8♠"), c("9♠"), c("J♠")])) == 3
+    assert trick_winner(tuple([c("J♠"), c("9♠"), c("8♠"), c("7♠")])) == 0
 
 def test_get_playable_cards():
     """Tests the logic for playable cards."""
@@ -196,24 +164,24 @@ def test_get_playable_cards():
 
 
 def test_minmax_alphabeta_consistency_1():
-    hands = [
+    hands = (
         c("10♥,J♠,7♣,A♦"),
         c("J♥,K♠,Q♣,8♦"),
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
-    ]
-    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    )
+    score_mm = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 63
 
 
 def test_minmax_alphabeta_consistency_2():
-    hands = [
+    hands = (
         c("10♥,J♠,7♣,A♦"),
         c("J♥,Q♣,K♠,8♦"),
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
-    ]
-    score_mm = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=False)
-    score_ab = solve_dd_minimax([], hands, 0, 0, use_alpha_beta=True)
+    )
+    score_mm = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=False)
+    score_ab = solve_dd_minimax(tuple([]), hands, 0, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 94
