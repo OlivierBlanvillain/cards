@@ -136,12 +136,13 @@ def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
 def double_dummy_solver0(
   hands: list[int],
   curr_player: int,
+  remaining_cards: int,
   use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
     initial_alpha = alpha
-    state_key = (sum(hands), curr_player)
+    state_key = (remaining_cards, curr_player)
 
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
@@ -149,7 +150,7 @@ def double_dummy_solver0(
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
 
-    if sum(hands) == 0:
+    if remaining_cards == 0:
         return 0
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
@@ -163,6 +164,7 @@ def double_dummy_solver0(
             card1=card,
             hands=hands,
             curr_player=(curr_player + 1) % 4,
+            remaining_cards=remaining_cards ^ card,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
@@ -187,12 +189,13 @@ def double_dummy_solver1(
   card1: int,
   hands: list[int],
   curr_player: int,
+  remaining_cards: int,
   use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
-    state_key = (card1, sum(hands), curr_player)
+    state_key = (card1, remaining_cards, curr_player)
 
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
@@ -213,6 +216,7 @@ def double_dummy_solver1(
             card2=card,
             hands=hands,
             curr_player=(curr_player + 1) % 4,
+            remaining_cards=remaining_cards ^ card,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
@@ -238,12 +242,13 @@ def double_dummy_solver2(
   card2: int,
   hands: list[int],
   curr_player: int,
+  remaining_cards: int,
   use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
-    state_key = (card1, card2, sum(hands), curr_player)
+    state_key = (card1, card2, remaining_cards, curr_player)
 
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
@@ -265,6 +270,7 @@ def double_dummy_solver2(
             card3=card,
             hands=hands,
             curr_player=(curr_player + 1) % 4,
+            remaining_cards=remaining_cards ^ card,
             use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
@@ -291,12 +297,13 @@ def double_dummy_solver3(
   card3: int,
   hands: list[int],
   curr_player: int,
+  remaining_cards: int,
   use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
-    state_key = (card1, card2, card3, sum(hands), curr_player)
+    state_key = (card1, card2, card3, remaining_cards, curr_player)
 
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
@@ -327,6 +334,7 @@ def double_dummy_solver3(
         sub_game_value = double_dummy_solver0(
             hands=hands,
             curr_player=winner_player,
+            remaining_cards=remaining_cards ^ card,
             use_alpha_beta=use_alpha_beta,
             alpha=new_alpha,
             beta=new_beta,
@@ -350,9 +358,16 @@ def double_dummy_solver3(
 
 def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
     transposition_table.clear()
+    assert not hands[0] & hands[1]
+    assert not hands[0] & hands[2]
+    assert not hands[0] & hands[3]
+    assert not hands[1] & hands[2]
+    assert not hands[1] & hands[3]
+    assert not hands[2] & hands[3]
     return double_dummy_solver0(
         hands=hands,
         curr_player=0,
+        remaining_cards=sum(hands),
         use_alpha_beta=use_alpha_beta,
         alpha=-999,
         beta=999,

@@ -96,7 +96,7 @@ def test_minmax_alphabeta_consistency_1():
     hands = [
         c("10♥,J♠,7♣,A♦"),
         c("J♥,K♠,Q♣,8♦"),
-        c("A♥,9♠,7♣,K♦"),
+        c("A♥,9♠,8♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
     score_mm = solve_deal(hands, use_alpha_beta=False)
