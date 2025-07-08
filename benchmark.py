@@ -1,6 +1,6 @@
 #!venv/bin/python3
 
-from cards import double_dummy_solver0, _cache
+from cards import double_dummy_solver0, transposition_table
 import timeit
 import statistics
 import math
@@ -21,7 +21,7 @@ def test_benchmark_full_game():
     num_trials = 30
     times = []
     for _ in range(num_trials):
-        _cache.clear()
+        transposition_table.clear()
         times.append(timeit.timeit(run_solver, number=10))
 
     mean_time = statistics.mean(times)

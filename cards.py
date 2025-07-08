@@ -1,4 +1,16 @@
 import functools
+from dataclasses import dataclass
+
+FLAG_EXACT = 0
+FLAG_LOWER_BOUND = 1
+FLAG_UPPER_BOUND = 2
+
+@dataclass(slots=True)
+class TranspositionTableEntry:
+  score: int
+  flag: int
+
+transposition_table: dict[tuple, TranspositionTableEntry]  = {}
 
 C = 0x000000FF  # Clubs
 D = 0x0000FF00  # Diamonds
@@ -121,8 +133,6 @@ def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
 
     return hand
 
-_cache = {}
-
 def double_dummy_solver0(
   hands: list[int],
   curr_player: int,
@@ -130,9 +140,15 @@ def double_dummy_solver0(
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
-    cache_key = (sum(hands), curr_player, alpha, beta)
-    if (x := _cache.get(cache_key)) is not None:
-        return x
+    initial_alpha = alpha
+    state_key = (sum(hands), curr_player)
+
+    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+        if entry.flag == FLAG_EXACT: return entry.score
+        elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
+        elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
+        if alpha >= beta: return entry.score
+
     if sum(hands) == 0:
         return 0
     is_maximizing_player = (curr_player % 2 == 0)
@@ -160,7 +176,11 @@ def double_dummy_solver0(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    _cache[cache_key] = best_score
+    if use_alpha_beta:
+        flag = FLAG_EXACT
+        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
+        elif best_score >= beta: flag = FLAG_LOWER_BOUND
+        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver1(
@@ -171,9 +191,15 @@ def double_dummy_solver1(
   alpha: int,
   beta: int,
 ) -> int:
-    cache_key = (sum(hands), curr_player, alpha, beta)
-    if (x := _cache.get(cache_key)) is not None:
-        return x
+    initial_alpha = alpha
+    state_key = (card1, sum(hands), curr_player)
+
+    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+        if entry.flag == FLAG_EXACT: return entry.score
+        elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
+        elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
+        if alpha >= beta: return entry.score
+
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards1(card1, hands[curr_player])
@@ -200,7 +226,11 @@ def double_dummy_solver1(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    _cache[cache_key] = best_score
+    if use_alpha_beta:
+        flag = FLAG_EXACT
+        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
+        elif best_score >= beta: flag = FLAG_LOWER_BOUND
+        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver2(
@@ -212,9 +242,15 @@ def double_dummy_solver2(
   alpha: int,
   beta: int,
 ) -> int:
-    cache_key = (sum(hands), curr_player, alpha, beta)
-    if (x := _cache.get(cache_key)) is not None:
-        return x
+    initial_alpha = alpha
+    state_key = (card1, card2, sum(hands), curr_player)
+
+    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+        if entry.flag == FLAG_EXACT: return entry.score
+        elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
+        elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
+        if alpha >= beta: return entry.score
+
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
@@ -242,7 +278,11 @@ def double_dummy_solver2(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    _cache[cache_key] = best_score
+    if use_alpha_beta:
+        flag = FLAG_EXACT
+        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
+        elif best_score >= beta: flag = FLAG_LOWER_BOUND
+        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver3(
@@ -255,9 +295,15 @@ def double_dummy_solver3(
   alpha: int,
   beta: int,
 ) -> int:
-    cache_key = (sum(hands), curr_player, alpha, beta)
-    if (x := _cache.get(cache_key)) is not None:
-        return x
+    initial_alpha = alpha
+    state_key = (card1, card2, card3, sum(hands), curr_player)
+
+    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+        if entry.flag == FLAG_EXACT: return entry.score
+        elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
+        elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
+        if alpha >= beta: return entry.score
+
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
@@ -295,5 +341,9 @@ def double_dummy_solver3(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    _cache[cache_key] = best_score
+    if use_alpha_beta:
+        flag = FLAG_EXACT
+        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
+        elif best_score >= beta: flag = FLAG_LOWER_BOUND
+        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
