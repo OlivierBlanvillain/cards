@@ -314,12 +314,11 @@ def double_dummy_solver3(
         winner_idx_in_trick = trick_winner(card1, card2, card3, card)
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
         points = get_trick_points(card1, card2, card3, card)
+        if remaining_cards == card:
+            points += 10
+        points_this_trick = 0
         if winner_player % 2 == 0:
             points_this_trick = points
-            if remaining_cards == card:
-                points_this_trick += 10
-        else:
-            points_this_trick = 0
         new_alpha, new_beta = alpha, beta
         new_alpha = alpha - points_this_trick
         new_beta = beta - points_this_trick
