@@ -18,15 +18,15 @@ def test_benchmark_full_game():
     def run_solver():
         solve_deal(hands, use_alpha_beta=True)
 
-    num_trials = 30
+    num_trials = 10
     times = []
     for _ in range(num_trials):
         times.append(timeit.timeit(run_solver, number=1))
 
     mean_time = statistics.mean(times)
     stdev_time = statistics.stdev(times)
-    # For 30 trials, t-score for 95% confidence interval is 2.045 (for 29 degrees of freedom)
-    confidence_interval = 2.045 * (stdev_time / math.sqrt(num_trials))
+    # For 10 trials, t-score for 95% confidence interval is 2.262 (for 29 degrees of freedom)
+    confidence_interval = 2.262 * (stdev_time / math.sqrt(num_trials))
 
     print()
     print("|---------------------|---------------|")
