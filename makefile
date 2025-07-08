@@ -10,7 +10,7 @@ run: venv/activate FORCE
 - venv/bin/python3 cards.py
 
 test: venv/activate FORCE
-- venv/bin/python3 -m pytest test_cards.py -v --capture=no
+- venv/bin/python3 -m pytest . -v --capture=no
 
 bench: venv/activate FORCE
 - venv/bin/python3 -m pytest benchmark.py -v --capture=no
