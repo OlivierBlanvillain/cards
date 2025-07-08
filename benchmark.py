@@ -1,6 +1,6 @@
 #!venv/bin/python3
 
-from cards import double_dummy_solver0, transposition_table
+from cards import solve_deal
 import timeit
 import statistics
 import math
@@ -16,13 +16,12 @@ def test_benchmark_full_game():
     ]
 
     def run_solver():
-        double_dummy_solver0(hands, 0, use_alpha_beta=True)
+        solve_deal(hands, use_alpha_beta=True)
 
     num_trials = 30
     times = []
     for _ in range(num_trials):
-        transposition_table.clear()
-        times.append(timeit.timeit(run_solver, number=10))
+        times.append(timeit.timeit(run_solver, number=1))
 
     mean_time = statistics.mean(times)
     stdev_time = statistics.stdev(times)

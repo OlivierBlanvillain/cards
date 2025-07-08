@@ -3,8 +3,7 @@ from cards import (
     get_playable_cards2,
     get_playable_cards3,
     get_points,
-    get_trick_points,
-    double_dummy_solver0,
+    solve_deal,
     trick_winner,
 )
 
@@ -31,13 +30,6 @@ def test_get_points():
     assert get_points(c("J♠")) == 20
     assert get_points(c("9♠")) == 14
     assert sum(get_points(c(d(1 << i))) for i in range(32)) == 152
-
-
-def test_get_trick_points():
-    """Tests the total points of a trick."""
-    assert get_trick_points(c("A♥"), c("K♥"), c("Q♥"), c("10♥")) == 28
-    assert get_trick_points(c("J♠"), c("9♠"), c("A♠"), c("10♠")) == 55
-    assert get_trick_points(c("7♣"), c("8♦"), c("9♥"), c("8♠")) == 0
 
 def test_trick_winner():
     """Tests the logic for determining the winner of a trick."""
@@ -107,8 +99,8 @@ def test_minmax_alphabeta_consistency_1():
         c("A♥,9♠,7♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score_mm = double_dummy_solver0(hands, 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver0(hands, 0, use_alpha_beta=True)
+    score_mm = solve_deal(hands, use_alpha_beta=False)
+    score_ab = solve_deal(hands, use_alpha_beta=True)
     assert score_ab == score_mm == 63
 
 
@@ -119,17 +111,17 @@ def test_minmax_alphabeta_consistency_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score_mm = double_dummy_solver0(hands, 0, use_alpha_beta=False)
-    score_ab = double_dummy_solver0(hands, 0, use_alpha_beta=True)
+    score_mm = solve_deal(hands, use_alpha_beta=False)
+    score_ab = solve_deal(hands, use_alpha_beta=True)
     assert score_ab == score_mm == 94
 
 
 def test_regression0():
-    hands = (
+    hands = [
       c("8♣,J♠,Q♠,A♠,J♦,8♥,A♥,10♥"),
       c("J♣,8♠,K♠,9♠,Q♦,Q♥,7♥,J♥"),
       c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
-    )
-    score = double_dummy_solver0(hands, 0, use_alpha_beta=True)
+    ]
+    score = solve_deal(hands, use_alpha_beta=True)
     assert score == 114

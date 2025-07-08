@@ -347,3 +347,13 @@ def double_dummy_solver3(
         elif best_score >= beta: flag = FLAG_LOWER_BOUND
         transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
+
+def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
+    transposition_table.clear()
+    return double_dummy_solver0(
+        hands=hands,
+        curr_player=0,
+        use_alpha_beta=use_alpha_beta,
+        alpha=-999,
+        beta=999,
+    )
