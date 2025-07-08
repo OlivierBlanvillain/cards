@@ -43,8 +43,6 @@ def get_suite(card: int) -> int:
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
     return get_points(card1) + get_points(card2) + get_points(card3) + get_points(card4)
 
-
-
 @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
     led_suit = get_suite(card1)
@@ -143,13 +141,11 @@ def double_dummy_solver0(
 ) -> int:
     initial_alpha = alpha
     state_key = (remaining_cards, curr_player)
-
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
-
     if remaining_cards == 0:
         return 0
     is_maximizing_player = (curr_player % 2 == 0)
@@ -196,13 +192,11 @@ def double_dummy_solver1(
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, remaining_cards, curr_player)
-
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
-
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards1(card1, hands[curr_player])
@@ -249,13 +243,11 @@ def double_dummy_solver2(
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, remaining_cards, curr_player)
-
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
-
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
@@ -357,13 +349,12 @@ def double_dummy_solver3(
     return best_score
 
 def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
+    for i in range(len(hands)):
+      for j in range(i):
+        assert not hands[i] & hands[j], f"hands {i} and {j} overlap"
+
     transposition_table.clear()
-    assert not hands[0] & hands[1]
-    assert not hands[0] & hands[2]
-    assert not hands[0] & hands[3]
-    assert not hands[1] & hands[2]
-    assert not hands[1] & hands[3]
-    assert not hands[2] & hands[3]
+
     return double_dummy_solver0(
         hands=hands,
         curr_player=0,
