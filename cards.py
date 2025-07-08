@@ -299,13 +299,11 @@ def double_dummy_solver3(
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, card3, remaining_cards, curr_player)
-
     if use_alpha_beta and (entry := transposition_table.get(state_key)):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
-
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
@@ -318,6 +316,8 @@ def double_dummy_solver3(
         points = get_trick_points(card1, card2, card3, card)
         if winner_player % 2 == 0:
             points_this_trick = points
+            if remaining_cards == card:
+                points_this_trick += 10
         else:
             points_this_trick = 0
         new_alpha, new_beta = alpha, beta

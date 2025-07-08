@@ -101,7 +101,7 @@ def test_minmax_alphabeta_consistency_1():
     ]
     score_mm = solve_deal(hands, use_alpha_beta=False)
     score_ab = solve_deal(hands, use_alpha_beta=True)
-    assert score_ab == score_mm == 63
+    assert score_ab == score_mm == 73
 
 
 def test_minmax_alphabeta_consistency_2():
@@ -113,7 +113,7 @@ def test_minmax_alphabeta_consistency_2():
     ]
     score_mm = solve_deal(hands, use_alpha_beta=False)
     score_ab = solve_deal(hands, use_alpha_beta=True)
-    assert score_ab == score_mm == 94
+    assert score_ab == score_mm == 104
 
 
 def test_regression0():
@@ -124,4 +124,4 @@ def test_regression0():
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     ]
     score = solve_deal(hands, use_alpha_beta=True)
-    assert score == 114
+    assert score == 124
