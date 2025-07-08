@@ -151,10 +151,9 @@ def double_dummy_solver0(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = hands[curr_player]
-    mask = playable_cards
-    while mask:
-        card = mask & -mask
-        mask ^= card
+    while playable_cards:
+        card = playable_cards & -playable_cards
+        playable_cards ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver1(
             card1=card,
@@ -174,11 +173,13 @@ def double_dummy_solver0(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    if use_alpha_beta:
+    if best_score <= initial_alpha:
+        flag = FLAG_UPPER_BOUND
+    elif best_score >= beta:
+        flag = FLAG_LOWER_BOUND
+    else:
         flag = FLAG_EXACT
-        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
-        elif best_score >= beta: flag = FLAG_LOWER_BOUND
-        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
+    transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver1(
@@ -200,10 +201,9 @@ def double_dummy_solver1(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards1(card1, hands[curr_player])
-    mask = playable_cards
-    while mask:
-        card = mask & -mask
-        mask ^= card
+    while playable_cards:
+        card = playable_cards & -playable_cards
+        playable_cards ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver2(
             card1=card1,
@@ -224,11 +224,13 @@ def double_dummy_solver1(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    if use_alpha_beta:
+    if best_score <= initial_alpha:
+        flag = FLAG_UPPER_BOUND
+    elif best_score >= beta:
+        flag = FLAG_LOWER_BOUND
+    else:
         flag = FLAG_EXACT
-        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
-        elif best_score >= beta: flag = FLAG_LOWER_BOUND
-        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
+    transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver2(
@@ -251,10 +253,9 @@ def double_dummy_solver2(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
-    mask = playable_cards
-    while mask:
-        card = mask & -mask
-        mask ^= card
+    while playable_cards:
+        card = playable_cards & -playable_cards
+        playable_cards ^= card
         hands[curr_player] ^= card
         current_move_value = double_dummy_solver3(
             card1=card1,
@@ -276,11 +277,13 @@ def double_dummy_solver2(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    if use_alpha_beta:
+    if best_score <= initial_alpha:
+        flag = FLAG_UPPER_BOUND
+    elif best_score >= beta:
+        flag = FLAG_LOWER_BOUND
+    else:
         flag = FLAG_EXACT
-        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
-        elif best_score >= beta: flag = FLAG_LOWER_BOUND
-        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
+    transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def double_dummy_solver3(
@@ -306,11 +309,9 @@ def double_dummy_solver3(
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
-    assert playable_cards != 0
-    mask = playable_cards
-    while mask:
-        card = mask & -mask
-        mask ^= card
+    while playable_cards:
+        card = playable_cards & -playable_cards
+        playable_cards ^= card
         current_move_value: int
         winner_idx_in_trick = trick_winner(card1, card2, card3, card)
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
@@ -341,11 +342,13 @@ def double_dummy_solver3(
             beta = min(beta, best_score)
         if use_alpha_beta and beta <= alpha:
             break
-    if use_alpha_beta:
+    if best_score <= initial_alpha:
+        flag = FLAG_UPPER_BOUND
+    elif best_score >= beta:
+        flag = FLAG_LOWER_BOUND
+    else:
         flag = FLAG_EXACT
-        if best_score <= initial_alpha: flag = FLAG_UPPER_BOUND
-        elif best_score >= beta: flag = FLAG_LOWER_BOUND
-        transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
+    transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
 def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
