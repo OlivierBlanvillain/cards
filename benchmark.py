@@ -16,7 +16,7 @@ def test_benchmark_full_game():
     ]
 
     def run_solver():
-        solve_deal(hands, use_alpha_beta=True)
+        solve_deal(hands)
 
     num_trials = 10
     times = []

@@ -135,13 +135,12 @@ def double_dummy_solver0(
   hands: list[int],
   curr_player: int,
   remaining_cards: int,
-  use_alpha_beta: bool,
   alpha: int = -999,
   beta: int = 999,
 ) -> int:
     initial_alpha = alpha
     state_key = (remaining_cards, curr_player)
-    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+    if entry := transposition_table.get(state_key):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
@@ -160,7 +159,6 @@ def double_dummy_solver0(
             hands=hands,
             curr_player=(curr_player + 1) % 4,
             remaining_cards=remaining_cards ^ card,
-            use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
@@ -171,7 +169,7 @@ def double_dummy_solver0(
         else:
             best_score = min(best_score, current_move_value)
             beta = min(beta, best_score)
-        if use_alpha_beta and beta <= alpha:
+        if beta <= alpha:
             break
     if best_score <= initial_alpha:
         flag = FLAG_UPPER_BOUND
@@ -187,13 +185,12 @@ def double_dummy_solver1(
   hands: list[int],
   curr_player: int,
   remaining_cards: int,
-  use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, remaining_cards, curr_player)
-    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+    if entry := transposition_table.get(state_key):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
@@ -211,7 +208,6 @@ def double_dummy_solver1(
             hands=hands,
             curr_player=(curr_player + 1) % 4,
             remaining_cards=remaining_cards ^ card,
-            use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
@@ -222,7 +218,7 @@ def double_dummy_solver1(
         else:
             best_score = min(best_score, current_move_value)
             beta = min(beta, best_score)
-        if use_alpha_beta and beta <= alpha:
+        if beta <= alpha:
             break
     if best_score <= initial_alpha:
         flag = FLAG_UPPER_BOUND
@@ -239,13 +235,12 @@ def double_dummy_solver2(
   hands: list[int],
   curr_player: int,
   remaining_cards: int,
-  use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, remaining_cards, curr_player)
-    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+    if entry := transposition_table.get(state_key):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
@@ -264,7 +259,6 @@ def double_dummy_solver2(
             hands=hands,
             curr_player=(curr_player + 1) % 4,
             remaining_cards=remaining_cards ^ card,
-            use_alpha_beta=use_alpha_beta,
             alpha=alpha,
             beta=beta,
         )
@@ -275,7 +269,7 @@ def double_dummy_solver2(
         else:
             best_score = min(best_score, current_move_value)
             beta = min(beta, best_score)
-        if use_alpha_beta and beta <= alpha:
+        if beta <= alpha:
             break
     if best_score <= initial_alpha:
         flag = FLAG_UPPER_BOUND
@@ -293,13 +287,12 @@ def double_dummy_solver3(
   hands: list[int],
   curr_player: int,
   remaining_cards: int,
-  use_alpha_beta: bool,
   alpha: int,
   beta: int,
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, card3, remaining_cards, curr_player)
-    if use_alpha_beta and (entry := transposition_table.get(state_key)):
+    if entry := transposition_table.get(state_key):
         if entry.flag == FLAG_EXACT: return entry.score
         elif entry.flag == FLAG_LOWER_BOUND: alpha = max(alpha, entry.score)
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
@@ -327,7 +320,6 @@ def double_dummy_solver3(
             hands=hands,
             curr_player=winner_player,
             remaining_cards=remaining_cards ^ card,
-            use_alpha_beta=use_alpha_beta,
             alpha=new_alpha,
             beta=new_beta,
         )
@@ -339,7 +331,7 @@ def double_dummy_solver3(
         else:
             best_score = min(best_score, current_move_value)
             beta = min(beta, best_score)
-        if use_alpha_beta and beta <= alpha:
+        if beta <= alpha:
             break
     if best_score <= initial_alpha:
         flag = FLAG_UPPER_BOUND
@@ -350,7 +342,7 @@ def double_dummy_solver3(
     transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
-def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
+def solve_deal(hands: list[int]) -> int:
     for i in range(len(hands)):
       for j in range(i):
         assert not hands[i] & hands[j], f"hands {i} and {j} overlap"
@@ -361,7 +353,6 @@ def solve_deal(hands: list[int], use_alpha_beta: bool = True) -> int:
         hands=hands,
         curr_player=0,
         remaining_cards=sum(hands),
-        use_alpha_beta=use_alpha_beta,
         alpha=-999,
         beta=999,
     )
