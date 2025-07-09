@@ -1,4 +1,4 @@
-from typing import Iterator, List, Tuple
+from typing import Iterator, Tuple
 from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 from cards import (
     double_dummy_solver1,
@@ -22,12 +22,12 @@ def pretty_print_cards(hand_mask: int) -> str:
     return ", ".join(reversed([d(card) for card in iter_bits(hand_mask)]))
 
 def print_mistake_report(
-    hands: List[int],
-    trick: List[int],
+    hands: list[int],
+    trick: list[int],
     trick_leader: int,
     current_player: int,
     played_card: int,
-    optimal_moves: List[int],
+    optimal_moves: list[int],
     points_lost: float,
     trick_idx: int,
     card_idx_in_trick: int,
@@ -52,10 +52,10 @@ def print_mistake_report(
     print("="*70 + "\n")
 
 def analyze_game(
-    initial_hands_str: List[str], played_tricks_str: List[List[str]]
+    initial_hands_str: list[str], played_tricks_str: list[list[str]]
 ) -> None:
-    initial_hands_bit = tuple(c(h) for h in initial_hands_str)
-    played_tricks_bit = [[c(card) for card in trick] for trick in played_tricks_str]
+    initial_hands_bit: tuple[int, ...] = tuple(c(h) for h in initial_hands_str)
+    played_tricks_bit: list[list[int]] = [[c(card) for card in trick] for trick in played_tricks_str]
 
     hands_at_last_completed_trick = list(initial_hands_bit)
     trick_leader = 0

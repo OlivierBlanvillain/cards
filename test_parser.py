@@ -1,8 +1,7 @@
 import unittest
 import os
 from collections import defaultdict
-from typing import Optional, List, Dict, cast
-from typing import Optional
+from typing import Optional, cast, List, Dict
 
 # Import the function to be tested
 from parser import parse_game_log
@@ -93,14 +92,14 @@ P2 passes
             f.write(full_log_content)
 
         # Expected data structures
-        expected_hands: Dict[str, List[str]] = {
+        expected_hands: dict[str, list[str]] = {
             'P1': ['8♣', 'J♠', 'Q♠', 'A♠', 'J♦', '8♥', 'A♥', '10♥'],
             'P2': ['J♣', '8♠', 'K♠', '9♠', 'Q♦', 'Q♥', '7♥', 'J♥'],
             'P3': ['K♣', '10♠', '7♣', '9♥', '9♦', 'K♦', 'A♣', '10♣'],
             'P4': ['9♣', '7♠', 'A♦', 'K♥', '10♦', '7♦', 'Q♣', '8♦']
         }
 
-        expected_tricks: List[List[str]] = [
+        expected_tricks: list[list[str]] = [
             ['8♣', 'J♣', 'K♣', '9♣'],
             ['10♠', '7♠', 'J♠', '8♠'],
             ['Q♠', 'K♠', '7♣', 'A♦'],
