@@ -134,3 +134,14 @@ def test_minmax_alphabeta_consistency_2():
     score_mm = double_dummy_solver((), hands, 0, use_alpha_beta=False)
     score_ab = double_dummy_solver((), hands, 0, use_alpha_beta=True)
     assert score_ab == score_mm == 94
+
+
+def test_regression0():
+    hands = (
+      c("8♣,J♠,Q♠,A♠,J♦,8♥,A♥,10♥"),
+      c("J♣,8♠,K♠,9♠,Q♦,Q♥,7♥,J♥"),
+      c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
+      c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
+    )
+    score = double_dummy_solver((), hands, 0, use_alpha_beta=True)
+    assert score == 114
