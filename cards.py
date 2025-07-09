@@ -10,7 +10,7 @@ class TranspositionTableEntry:
   score: int
   flag: int
 
-transposition_table: dict[tuple, TranspositionTableEntry]  = {}
+
 
 C = 0x000000FF  # Clubs
 D = 0x0000FF00  # Diamonds
@@ -137,6 +137,7 @@ def double_dummy_solver0(
   remaining_cards: int,
   alpha: int,
   beta: int,
+  transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (remaining_cards, curr_player)
@@ -161,6 +162,7 @@ def double_dummy_solver0(
             remaining_cards=remaining_cards ^ card,
             alpha=alpha,
             beta=beta,
+            transposition_table=transposition_table,
         )
         hands[curr_player] ^= card
         if is_maximizing_player:
@@ -187,6 +189,7 @@ def double_dummy_solver1(
   remaining_cards: int,
   alpha: int,
   beta: int,
+  transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, remaining_cards, curr_player)
@@ -210,6 +213,7 @@ def double_dummy_solver1(
             remaining_cards=remaining_cards ^ card,
             alpha=alpha,
             beta=beta,
+            transposition_table=transposition_table,
         )
         hands[curr_player] ^= card
         if is_maximizing_player:
@@ -237,6 +241,7 @@ def double_dummy_solver2(
   remaining_cards: int,
   alpha: int,
   beta: int,
+  transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, remaining_cards, curr_player)
@@ -261,6 +266,7 @@ def double_dummy_solver2(
             remaining_cards=remaining_cards ^ card,
             alpha=alpha,
             beta=beta,
+            transposition_table=transposition_table,
         )
         hands[curr_player] ^= card
         if is_maximizing_player:
@@ -289,6 +295,7 @@ def double_dummy_solver3(
   remaining_cards: int,
   alpha: int,
   beta: int,
+  transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, card3, remaining_cards, curr_player)
@@ -322,6 +329,7 @@ def double_dummy_solver3(
             remaining_cards=remaining_cards ^ card,
             alpha=new_alpha,
             beta=new_beta,
+            transposition_table=transposition_table,
         )
         hands[curr_player] ^= card
         current_move_value = points_this_trick + sub_game_value
@@ -342,7 +350,10 @@ def double_dummy_solver3(
     transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
-def solve_deal(hands: list[int]) -> int:
+def solve_deal(hands: list[int], transposition_table: dict[tuple, TranspositionTableEntry] | None = None) -> int:
+    if transposition_table is None:
+        transposition_table = {}
+
     for i in range(len(hands)):
       for j in range(i):
         assert not hands[i] & hands[j], f"hands {i} and {j} overlap"
@@ -355,4 +366,5 @@ def solve_deal(hands: list[int]) -> int:
         remaining_cards=sum(hands),
         alpha=-999,
         beta=999,
+        transposition_table=transposition_table,
     )

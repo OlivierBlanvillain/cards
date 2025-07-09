@@ -59,6 +59,7 @@ def analyze_game(
 
     hands_at_last_completed_trick = list(initial_hands_bit)
     trick_leader = 0
+    transposition_table = {}
 
     for trick_idx, trick_cards_bit in enumerate(played_tricks_bit):
         current_trick_bit = []
@@ -100,6 +101,7 @@ def analyze_game(
                             remaining_cards=sum(new_hands),
                             alpha=-999,
                             beta=999,
+                            transposition_table=transposition_table,
                         )
                     case (c1, c2):
                         value = double_dummy_solver2(
@@ -110,6 +112,7 @@ def analyze_game(
                             remaining_cards=sum(new_hands),
                             alpha=-999,
                             beta=999,
+                            transposition_table=transposition_table,
                         )
                     case (c1, c2, c3):
                         value = double_dummy_solver3(
@@ -121,6 +124,7 @@ def analyze_game(
                             remaining_cards=sum(new_hands),
                             alpha=-999,
                             beta=999,
+                            transposition_table=transposition_table,
                         )
                     case (_, _, _, _):
                         winner_idx = trick_winner(*new_trick)
@@ -133,6 +137,7 @@ def analyze_game(
                             remaining_cards=sum(new_hands),
                             alpha=-999,
                             beta=999,
+                            transposition_table=transposition_table,
                         )
                         value = points_for_max_player + sub_game_value
                     case _:

@@ -99,7 +99,7 @@ def test_minmax_alphabeta_consistency_1():
         c("A♥,9♠,8♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score = solve_deal(hands)
+    score = solve_deal(hands, transposition_table={})
     assert score == 73
 
 
@@ -110,7 +110,7 @@ def test_minmax_alphabeta_consistency_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score = solve_deal(hands)
+    score = solve_deal(hands, transposition_table={})
     assert score == 104
 
 
@@ -121,5 +121,5 @@ def test_regression0():
       c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     ]
-    score = solve_deal(hands)
+    score = solve_deal(hands, transposition_table={})
     assert score == 124
