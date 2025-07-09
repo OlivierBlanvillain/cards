@@ -135,8 +135,8 @@ def double_dummy_solver0(
   hands: list[int],
   curr_player: int,
   remaining_cards: int,
-  alpha: int = -999,
-  beta: int = 999,
+  alpha: int,
+  beta: int,
 ) -> int:
     initial_alpha = alpha
     state_key = (remaining_cards, curr_player)
