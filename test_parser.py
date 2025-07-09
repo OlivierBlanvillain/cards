@@ -111,7 +111,7 @@ P2 passes
 
         # Run parser and check results
         hands, tricks = parse_game_log(full_log_filename)
-        self.assertEqual(hands, expected_hands)
+        self.assertEqual(dict(hands), expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
         # Clean up the full log file
@@ -134,7 +134,7 @@ P2 passes
         hands, tricks = parse_game_log(self.temp_log_filename)
 
         # Assert that the parsed data matches the expected data
-        self.assertEqual(dict(hands), dict(expected_hands))
+        self.assertEqual(dict(hands), expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
     def test_file_not_found(self):

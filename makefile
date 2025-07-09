@@ -18,9 +18,13 @@ bench: venv/activate FORCE
 watch: venv/activate FORCE
 - git ls-files | entr make test
 
+type: venv/activate FORCE
+- venv/bin/pyright
+
 venv/activate:
 - @echo "creating a new venv..."
 - rm -rf venv __pycache__
 - python3 -m venv venv
 - venv/bin/pip install -r requirements.txt
+- venv/bin/pip install pyright
 - touch $@
