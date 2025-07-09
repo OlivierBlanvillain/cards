@@ -1,7 +1,7 @@
 import unittest
 import os
 from collections import defaultdict
-from typing import Optional, cast, List, Dict
+from typing import Optional, cast
 
 # Import the function to be tested
 from parser import parse_game_log
@@ -114,8 +114,8 @@ P2 passes
         hands_raw, tricks_raw = parse_game_log(full_log_filename)
         self.assertIsNotNone(hands_raw)
         self.assertIsNotNone(tricks_raw)
-        hands = cast(Dict[str, List[str]], hands_raw)
-        tricks = cast(List[List[str]], tricks_raw)
+        hands = cast(dict[str, list[str]], hands_raw)
+        tricks = cast(list[list[str]], tricks_raw)
         self.assertEqual(hands, expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
@@ -141,8 +141,8 @@ P2 passes
         # Assert that the parsed data matches the expected data
         self.assertIsNotNone(hands_raw)
         self.assertIsNotNone(tricks_raw)
-        hands = cast(Dict[str, List[str]], hands_raw)
-        tricks = cast(List[List[str]], tricks_raw)
+        hands = cast(dict[str, list[str]], hands_raw)
+        tricks = cast(list[list[str]], tricks_raw)
         self.assertEqual(dict(hands), expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
