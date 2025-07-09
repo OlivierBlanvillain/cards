@@ -1,3 +1,4 @@
+from typing import Iterator, List, Tuple
 from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 from cards import (
     double_dummy_solver1,
@@ -11,7 +12,7 @@ from cards import (
     double_dummy_solver0,
 )
 
-def iter_bits(mask: int):
+def iter_bits(mask: int) -> Iterator[int]:
     while mask:
         b = mask & -mask
         yield b
@@ -20,7 +21,17 @@ def iter_bits(mask: int):
 def pretty_print_cards(hand_mask: int) -> str:
     return ", ".join(reversed([d(card) for card in iter_bits(hand_mask)]))
 
-def print_mistake_report(hands, trick, trick_leader, current_player, played_card, optimal_moves, points_lost, trick_idx, card_idx_in_trick):
+def print_mistake_report(
+    hands: List[int],
+    trick: List[int],
+    trick_leader: int,
+    current_player: int,
+    played_card: int,
+    optimal_moves: List[int],
+    points_lost: float,
+    trick_idx: int,
+    card_idx_in_trick: int,
+) -> None:
     print("="*70)
     print(f"MISTAKE DETECTED on Trick {trick_idx + 1}")
     print("-"*70)
@@ -40,7 +51,9 @@ def print_mistake_report(hands, trick, trick_leader, current_player, played_card
     print(f"  Points lost        : {int(points_lost)}")
     print("="*70 + "\n")
 
-def analyze_game(initial_hands_str: list[str], played_tricks_str: list[list[str]]):
+def analyze_game(
+    initial_hands_str: List[str], played_tricks_str: List[List[str]]
+) -> None:
     initial_hands_bit = tuple(c(h) for h in initial_hands_str)
     played_tricks_bit = [[c(card) for card in trick] for trick in played_tricks_str]
 
