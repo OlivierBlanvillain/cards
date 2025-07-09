@@ -95,6 +95,9 @@ def test_get_playable_cards():
     hand = c("J♠,7♠,A♣") # Player has trumps (J♠, 7♠) and a discard (A♣)
     assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠")
 
+    # must trump if partner is not winning
+    assert get_playable_cards3( c("10♣"), c("8♦"), c("A♥"), hand) == c("9♠,8♠")
+
 
 def test_minmax_alphabeta_consistency_1():
     hands = (
@@ -127,5 +130,5 @@ def test_regression0():
       c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     )
-    score = double_dummy_solver((), hands, 0, use_alpha_beta=True)
+    score = double_dummy_solver0(hands, 0, use_alpha_beta=True)
     assert score == 114
