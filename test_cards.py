@@ -95,8 +95,9 @@ def test_get_playable_cards():
     hand = c("J♠,7♠,A♣") # Player has trumps (J♠, 7♠) and a discard (A♣)
     assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠")
 
-    # must trump if partner is not winning
-    assert get_playable_cards3( c("10♣"), c("8♦"), c("A♥"), hand) == c("9♠,8♠")
+    # must trump if partner isn't winning
+    hand = c("9♠,8♠,Q♥")
+    assert get_playable_cards3(c("10♣"), c("8♦"), c("A♥"), hand) == c("9♠,8♠")
 
 
 def test_minmax_alphabeta_consistency_1():

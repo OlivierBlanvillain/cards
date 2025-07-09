@@ -114,8 +114,10 @@ def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
         return cards_in_led_suit
 
     # otherwise, players must play trump (unless their partner is winning)
-    partner_card = card2 & (led_suite | S)
-    partner_is_winning = card2 > card1 and card2 > card3 & (led_suite | S)
+    relevant_mask = (led_suite | S)
+    card2 = card2 & relevant_mask
+    card3 = card3 & relevant_mask
+    partner_is_winning = card2 > card1 and card2 > card3
     trumps_in_hand = hand & S
     if trumps_in_hand and not partner_is_winning:
         return trumps_in_hand
