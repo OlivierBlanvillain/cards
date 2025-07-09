@@ -5,7 +5,7 @@ import timeit
 import statistics
 import math
 
-from test_utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
+from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 
 def test_benchmark_full_game():
     hands = [
