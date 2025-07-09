@@ -61,33 +61,3 @@ def test_print_mistake_report():
     assert "Move played        : 9♣" in output
     assert "Optimal move(s)    : 10♣, 7♣" in output
     assert "Points lost        : 5" in output
-
-@patch.multiple(
-    'analysis',
-    double_dummy_solver1=DEFAULT,
-    double_dummy_solver2=DEFAULT,
-    double_dummy_solver3=DEFAULT,
-    double_dummy_solver0=DEFAULT,
-    trick_winner=DEFAULT,
-    get_points=DEFAULT,
-)
-def test_analyze_game_coverage_playable_cards_and_full_trick(double_dummy_solver1, double_dummy_solver2, double_dummy_solver3, double_dummy_solver0, trick_winner, get_points):
-    double_dummy_solver1.return_value = 10
-    double_dummy_solver2.return_value = 20
-    patch('analysis.double_dummy_solver3', return_value=30)
-    double_dummy_solver0.return_value = 40
-    trick_winner.return_value = 0
-    get_points.return_value = 10
-
-    initial_hands_str = [
-        "A♠,K♠,Q♠,J♠,10♠,9♠,8♠,7♠",
-        "A♥,K♥,Q♥,J♥,10♥,9♥,8♥,7♥",
-        "A♦,K♦,Q♦,J♦,10♦,9♦,8♦,7♦",
-        "A♣,K♣,Q♣,J♣,10♣,9♣,8♣,7♣",
-    ]
-    # This sequence of tricks is designed to hit all playable_cards match cases
-    # and the full trick case.
-    played_tricks_str = [
-        ["A♠", "A♥", "A♦", "A♣"], # Full trick (covers empty current_trick_bit for first card, and full trick case for value)
-        ["K♠", "K♥", "K♦", "K♣"], # Full trick (covers 1, 2, 3 card current_trick_bit cases)
-    ]

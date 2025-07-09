@@ -18,7 +18,7 @@ bench: venv/activate FORCE
 watch: venv/activate FORCE
 - git ls-files | entr make test
 
-type: venv/activate FORCE
+check: venv/activate FORCE
 - venv/bin/pyright
 
 venv/activate:
