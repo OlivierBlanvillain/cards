@@ -33,7 +33,7 @@ def print_mistake_report(
     card_idx_in_trick: int,
 ) -> None:
     print("="*70)
-    print(f"MISTAKE DETECTED on Trick {trick_idx + 1}")
+    print(f"MISTAKE DETECTED on Trick {trick_idx + 1} (Player {current_player})")
     print("-"*70)
     print("Game State:")
     for i, hand_mask in enumerate(hands):
