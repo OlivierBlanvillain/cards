@@ -2,7 +2,7 @@ import re
 import sys
 from collections import defaultdict
 
-def parse_game_log(filepath):
+def parse_game_log(filepath) -> tuple[dict[str, list[str]], list[list[str]]] | tuple[None, None]:
     """
     Parses a game log from a file to extract hands and tricks.
 

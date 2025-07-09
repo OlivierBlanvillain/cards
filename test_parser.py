@@ -1,6 +1,8 @@
 import unittest
 import os
 from collections import defaultdict
+from typing import Optional, List, Dict, cast
+from typing import Optional
 
 # Import the function to be tested
 from parser import parse_game_log
@@ -91,14 +93,14 @@ P2 passes
             f.write(full_log_content)
 
         # Expected data structures
-        expected_hands = {
+        expected_hands: Dict[str, List[str]] = {
             'P1': ['8♣', 'J♠', 'Q♠', 'A♠', 'J♦', '8♥', 'A♥', '10♥'],
             'P2': ['J♣', '8♠', 'K♠', '9♠', 'Q♦', 'Q♥', '7♥', 'J♥'],
             'P3': ['K♣', '10♠', '7♣', '9♥', '9♦', 'K♦', 'A♣', '10♣'],
             'P4': ['9♣', '7♠', 'A♦', 'K♥', '10♦', '7♦', 'Q♣', '8♦']
         }
 
-        expected_tricks = [
+        expected_tricks: List[List[str]] = [
             ['8♣', 'J♣', 'K♣', '9♣'],
             ['10♠', '7♠', 'J♠', '8♠'],
             ['Q♠', 'K♠', '7♣', 'A♦'],
@@ -110,8 +112,12 @@ P2 passes
         ]
 
         # Run parser and check results
-        hands, tricks = parse_game_log(full_log_filename)
-        self.assertEqual(dict(hands), expected_hands)
+        hands_raw, tricks_raw = parse_game_log(full_log_filename)
+        self.assertIsNotNone(hands_raw)
+        self.assertIsNotNone(tricks_raw)
+        hands = cast(Dict[str, List[str]], hands_raw)
+        tricks = cast(List[List[str]], tricks_raw)
+        self.assertEqual(hands, expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
         # Clean up the full log file
@@ -120,7 +126,7 @@ P2 passes
     def test_parsing_partial_log(self):
         """Tests the parser with the smaller, partial log."""
         # Expected data for the partial log in setUp
-        expected_hands = defaultdict(list)
+        expected_hands: dict[str, list[str]] = defaultdict(list)
         expected_hands['P1'] = ['8♣', 'J♠']
         expected_hands['P2'] = ['J♣', '8♠']
         expected_hands['P3'] = ['K♣', '10♠']
@@ -131,9 +137,13 @@ P2 passes
             ['10♠', '7♠', 'J♠', '8♠']
         ]
 
-        hands, tricks = parse_game_log(self.temp_log_filename)
+        hands_raw, tricks_raw = parse_game_log(self.temp_log_filename)
 
         # Assert that the parsed data matches the expected data
+        self.assertIsNotNone(hands_raw)
+        self.assertIsNotNone(tricks_raw)
+        hands = cast(Dict[str, List[str]], hands_raw)
+        tricks = cast(List[List[str]], tricks_raw)
         self.assertEqual(dict(hands), expected_hands)
         self.assertEqual(tricks, expected_tricks)
 
