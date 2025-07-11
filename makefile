@@ -6,17 +6,11 @@ MAKEFLAGS += --no-builtin-rules
 help/page:
 - @grep -Po '^[a-z]+(?=:)' makefile | paste -sd"|" | xargs echo make
 
-run: venv/activate FORCE
-- venv/bin/python3 cards.py
-
 test: venv/activate FORCE
-- venv/bin/python3 -m pytest . -v --capture=no
+- venv/bin/pytest . -v --capture=no
 
 bench: venv/activate FORCE
-- venv/bin/python3 -m pytest benchmark.py -v --capture=no
-
-watch: venv/activate FORCE
-- git ls-files | entr make test
+- venv/bin/python3 benchmark.py
 
 check: venv/activate FORCE
 - venv/bin/pyright -p pyrightconfig.json

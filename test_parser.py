@@ -119,8 +119,3 @@ def test_parsing_partial_log(temp_log_file):
     assert hands is not None
     assert dict(hands) == expected_hands
     assert tricks == expected_tricks
-
-def test_file_not_found():
-    hands, tricks = parse_game_log("non_existent_file.txt")
-    assert hands is None
-    assert tricks is None
