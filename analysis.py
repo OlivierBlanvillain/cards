@@ -1,5 +1,5 @@
 from typing import Iterator, Tuple
-from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
+from test_jass import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 from jass import (
     double_dummy_solver1,
     double_dummy_solver2,
@@ -129,7 +129,7 @@ def analyze_game(
                         winner_player = (trick_leader + winner_idx) % 4
                         points = sum(map(get_points, new_trick))
                         points_for_max_player = points if (winner_player % 2 == 0) else 0
-                        sub_game_value, _ = double_dummy_solver0(
+                        sub_game_value = double_dummy_solver0(
                             hands=new_hands,
                             curr_player=winner_player,
                             remaining_cards=sum(new_hands),
@@ -142,6 +142,12 @@ def analyze_game(
                         raise ValueError()
 
                 move_evaluations[card_to_evaluate] = value
+            print("playable cards:")
+            for card_to_evaluate in iter_bits(playable_cards):
+                print(d(card_to_evaluate))
+
+            print("actual play:")
+            print(d(played_card_bit))
             actual_move_score = move_evaluations[played_card_bit]
             optimal_score = max(move_evaluations.values()) if is_maximizing_player else min(move_evaluations.values())
             points_lost = (optimal_score - actual_move_score) if is_maximizing_player else (actual_move_score - optimal_score)
@@ -165,22 +171,24 @@ def analyze_game(
 
 # --- Main execution ---
 if __name__ == '__main__':
-    game_hands = [
-      "8♣,J♠,Q♠,A♠,J♦,8♥,A♥,10♥",
-      "J♣,8♠,K♠,9♠,Q♦,Q♥,7♥,J♥",
-      "K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣",
-      "9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦",
+    hands = [
+        "J♠,9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦",
+        "A♠,K♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦",
+        "10♥,6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦",
+        "7♠,Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦",
     ]
-    game_tricks = [
-        ['8♣', 'J♣', '10♣', '9♣'],
-        ['K♣', 'Q♣', 'J♦', 'K♠'],
-        ['J♥', '9♥', 'K♥', '10♥'],
-        ['A♥', 'Q♥', '10♠', '7♠'],
-        ['7♣', 'A♦', '8♥', '9♠'],
-        ['Q♦', '9♦', '7♦', 'Q♠'],
-        ['A♠', '8♠', 'A♣', '8♦'],
-        ['J♠', '7♥', 'K♦', '10♦'],
+
+    tricks = [
+        ["J♠", "K♠", "10♥", "7♠"],
+        ["9♠", "10♠", "Q♣", "6♦"],
+        ["6♠", "A♠", "J♣", "Q♥"],
+        ["8♣", "6♣", "7♣", "8♥"],
+        ["K♥", "6♥", "7♥", "A♥"],
+        ["7♦", "J♦", "9♦", "A♦"],
+        ["J♥", "8♠", "K♣", "10♦"],
+        ["8♦", "K♦", "Q♦", "9♣"],
+        ["10♣", "A♣", "9♥", "Q♠"],
     ]
 
     print("Analyzing Belote game for mistakes...\n")
-    analyze_game(game_hands, game_tricks)
+    analyze_game(hands, tricks)
