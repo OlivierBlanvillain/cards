@@ -1,12 +1,10 @@
 from typing import Iterator, Tuple
 from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
-from belote import (
+from jass import (
     double_dummy_solver1,
     double_dummy_solver2,
     double_dummy_solver3,
     get_playable_cards1,
-    get_playable_cards2,
-    get_playable_cards3,
     trick_winner,
     get_points,
     double_dummy_solver0,
@@ -79,9 +77,9 @@ def analyze_game(
                 case [c1]:
                     playable_cards = get_playable_cards1(c1, hand)
                 case [c1, c2]:
-                    playable_cards = get_playable_cards2(c1, c2, hand)
+                    playable_cards = get_playable_cards1(c1, hand)
                 case [c1, c2, c3]:
-                    playable_cards = get_playable_cards3(c1, c2, c3, hand)
+                    playable_cards = get_playable_cards1(c1, hand)
                 case _:
                     raise ValueError()
 
@@ -131,7 +129,7 @@ def analyze_game(
                         winner_player = (trick_leader + winner_idx) % 4
                         points = sum(map(get_points, new_trick))
                         points_for_max_player = points if (winner_player % 2 == 0) else 0
-                        sub_game_value = double_dummy_solver0(
+                        sub_game_value, _ = double_dummy_solver0(
                             hands=new_hands,
                             curr_player=winner_player,
                             remaining_cards=sum(new_hands),
@@ -174,14 +172,14 @@ if __name__ == '__main__':
       "9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦",
     ]
     game_tricks = [
-      ["8♣", "J♣", "K♣", "9♣"],
-      ["10♠", "7♠", "J♠", "8♠"],
-      ["Q♠", "K♠", "7♣", "A♦"],
-      ["9♠", "9♥", "K♥", "A♠"],
-      ["Q♦", "9♦", "10♦", "J♦"],
-      ["7♦", "8♥", "Q♥", "K♦"],
-      ["A♣", "Q♣", "A♥", "7♥"],
-      ["10♣", "8♦", "10♥", "J♥"],
+        ['8♣', 'J♣', '10♣', '9♣'],
+        ['K♣', 'Q♣', 'J♦', 'K♠'],
+        ['J♥', '9♥', 'K♥', '10♥'],
+        ['A♥', 'Q♥', '10♠', '7♠'],
+        ['7♣', 'A♦', '8♥', '9♠'],
+        ['Q♦', '9♦', '7♦', 'Q♠'],
+        ['A♠', '8♠', 'A♣', '8♦'],
+        ['J♠', '7♥', 'K♦', '10♦'],
     ]
 
     print("Analyzing Belote game for mistakes...\n")
