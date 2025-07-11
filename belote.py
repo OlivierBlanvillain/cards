@@ -7,8 +7,8 @@ FLAG_UPPER_BOUND = 2
 
 @dataclass(slots=True)
 class TranspositionTableEntry:
-  score: int
-  flag: int
+    score: int
+    flag: int
 
 
 
@@ -25,7 +25,7 @@ POINTS_TABLE = [
     0, 0, 3, 4, 10, 11, 14, 20,
 ]
 
-SUITE_TABLE = [
+SUIT_TABLE = [
     -1, # unused
     C, C, C, C, C, C, C, C,
     D, D, D, D, D, D, D, D,
@@ -36,8 +36,8 @@ SUITE_TABLE = [
 def get_points(card: int) -> int:
     return POINTS_TABLE[card.bit_length()]
 
-def get_suite(card: int) -> int:
-    return SUITE_TABLE[card.bit_length()]
+def get_suit(card: int) -> int:
+    return SUIT_TABLE[card.bit_length()]
 
 @functools.lru_cache(maxsize=None)
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
@@ -45,7 +45,7 @@ def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
 
 @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
-    led_suit = get_suite(card1)
+    led_suit = get_suit(card1)
     led_mask = S | led_suit
     card2 &= led_mask
     card3 &= led_mask
@@ -68,8 +68,8 @@ def get_playable_cards1(card1: int, hand: int) -> int:
         if overtrumps:
             hand = (hand & ~S) | overtrumps  # remove undertrumps
 
-    # players must follow suite
-    cards_in_led_suit = hand & get_suite(card1)
+    # players must follow suit
+    cards_in_led_suit = hand & get_suit(card1)
     if cards_in_led_suit:
         return cards_in_led_suit
 
@@ -90,14 +90,14 @@ def get_playable_cards2(card1: int, card2: int, hand: int) -> int:
         if overtrumps:
             hand = (hand & ~S) | overtrumps  # remove undertrumps
 
-    # players must follow suite
-    led_suite = get_suite(card1)
-    cards_in_led_suit = hand & led_suite
+    # players must follow suit
+    led_suit = get_suit(card1)
+    cards_in_led_suit = hand & led_suit
     if cards_in_led_suit:
         return cards_in_led_suit
 
     # otherwise, players must play trump (unless their partner is winning)
-    partner_is_winning = card1 > (card2 & (led_suite | S))
+    partner_is_winning = card1 > (card2 & (led_suit | S))
     trumps_in_hand = hand & S
     if trumps_in_hand and not partner_is_winning:
         return trumps_in_hand
@@ -114,14 +114,14 @@ def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
         if overtrumps:
             hand = (hand & ~S) | overtrumps  # remove undertrumps
 
-    # players must follow suite
-    led_suite = get_suite(card1)
-    cards_in_led_suit = hand & led_suite
+    # players must follow suit
+    led_suit = get_suit(card1)
+    cards_in_led_suit = hand & led_suit
     if cards_in_led_suit:
         return cards_in_led_suit
 
     # otherwise, players must play trump (unless their partner is winning)
-    relevant_mask = (led_suite | S)
+    relevant_mask = (led_suit | S)
     card2 = card2 & relevant_mask
     card3 = card3 & relevant_mask
     partner_is_winning = card2 > card1 and card2 > card3
