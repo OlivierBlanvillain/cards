@@ -19,7 +19,7 @@ watch: venv/activate FORCE
 - git ls-files | entr make test
 
 check: venv/activate FORCE
-- venv/bin/pyright
+- venv/bin/pyright -p pyrightconfig.json
 
 venv/activate:
 - @echo "creating a new venv..."
