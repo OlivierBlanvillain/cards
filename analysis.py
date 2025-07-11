@@ -1,6 +1,6 @@
 from typing import Iterator, Tuple
 from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
-from cards import (
+from belote import (
     double_dummy_solver1,
     double_dummy_solver2,
     double_dummy_solver3,

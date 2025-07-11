@@ -1,4 +1,4 @@
-from cards import (
+from belote import (
     get_playable_cards1,
     get_playable_cards2,
     get_playable_cards3,

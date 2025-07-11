@@ -1,6 +1,6 @@
 #!venv/bin/python3
 
-from cards import solve_deal
+from belote import solve_deal
 import timeit
 import statistics
 import math

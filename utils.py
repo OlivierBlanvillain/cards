@@ -1,4 +1,4 @@
-from cards import C, D, H, S
+from belote import C, D, H, S
 
 RANKS_TRUMP = ['J', '9', 'A', '10', 'K', 'Q', '8', '7']
 RANKS_PLAIN = ['A', '10', 'K', 'Q', 'J', '9', '8', '7']

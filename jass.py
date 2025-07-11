@@ -7,37 +7,49 @@ FLAG_UPPER_BOUND = 2
 
 @dataclass(slots=True)
 class TranspositionTableEntry:
-  score: int
-  flag: int
+    score: int
+    flag: int
 
 
+C = 0b000000000000000000000000000111111111  # Clubs
+D = 0b000000000000000000111111111000000000  # Diamonds
+H = 0b000000000111111111000000000000000000  # Hearts
+S = 0b111111111000000000000000000000000000  # Spades (trump suit)
 
-C = 0x000000FF  # Clubs
-D = 0x0000FF00  # Diamonds
-H = 0x00FF0000  # Hearts
-S = 0xFF000000  # Spades (trump suit)
+JACK_OF_TRUMP = (1 << 35)
+S_NO_JACK = S ^ JACK_OF_TRUMP
 
 POINTS_TABLE = [
     -1, # unused
-    0, 0, 0, 2, 3, 4, 10, 11,
-    0, 0, 0, 2, 3, 4, 10, 11,
-    0, 0, 0, 2, 3, 4, 10, 11,
-    0, 0, 3, 4, 10, 11, 14, 20,
+    # 6, 7, 8, 9, 10, J, Q, K, As
+    0, 0, 0, 0, 10, 2, 3, 4, 11,
+    0, 0, 0, 0, 10, 2, 3, 4, 11,
+    0, 0, 0, 0, 10, 2, 3, 4, 11,
+    # 6, 7, 8, 10, Q, K, As, 9,  J
+    0, 0, 0, 10, 3, 4, 11, 14, 20,
 ]
 
-SUITE_TABLE = [
+SUIT_TABLE = [
     -1, # unused
-    C, C, C, C, C, C, C, C,
-    D, D, D, D, D, D, D, D,
-    H, H, H, H, H, H, H, H,
-    S, S, S, S, S, S, S, S,
+    C, C, C, C, C, C, C, C, C,
+    D, D, D, D, D, D, D, D, D,
+    H, H, H, H, H, H, H, H, H,
+    S, S, S, S, S, S, S, S, S,
+]
+
+FOLLOW_TABLE = [
+    -1, # unused
+    C, C, C, C, C, C, C, C, C,
+    D, D, D, D, D, D, D, D, D,
+    H, H, H, H, H, H, H, H, H,
+    S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK,
 ]
 
 def get_points(card: int) -> int:
     return POINTS_TABLE[card.bit_length()]
 
-def get_suite(card: int) -> int:
-    return SUITE_TABLE[card.bit_length()]
+def get_suit(card: int) -> int:
+    return SUIT_TABLE[card.bit_length()]
 
 @functools.lru_cache(maxsize=None)
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
@@ -45,7 +57,7 @@ def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
 
 @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
-    led_suit = get_suite(card1)
+    led_suit = get_suit(card1)
     led_mask = S | led_suit
     card2 &= led_mask
     card3 &= led_mask
@@ -60,75 +72,9 @@ def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
 
 @functools.lru_cache(maxsize=None)
 def get_playable_cards1(card1: int, hand: int) -> int:
-    # if there is a trump in the trick, players cannot purposefully undertrump
-    trumps_in_trick = card1 & S
-    if trumps_in_trick:
-        highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
-        overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
-        if overtrumps:
-            hand = (hand & ~S) | overtrumps  # remove undertrumps
-
-    # players must follow suite
-    cards_in_led_suit = hand & get_suite(card1)
-    if cards_in_led_suit:
-        return cards_in_led_suit
-
-    # otherwise trump
-    trumps_in_hand = hand & S
-    if trumps_in_hand:
-        return trumps_in_hand
-
-    return hand
-
-@functools.lru_cache(maxsize=None)
-def get_playable_cards2(card1: int, card2: int, hand: int) -> int:
-    # if there is a trump in the trick, players cannot purposefully undertrump
-    trumps_in_trick = (card1 | card2) & S
-    if trumps_in_trick:
-        highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
-        overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
-        if overtrumps:
-            hand = (hand & ~S) | overtrumps  # remove undertrumps
-
-    # players must follow suite
-    led_suite = get_suite(card1)
-    cards_in_led_suit = hand & led_suite
-    if cards_in_led_suit:
-        return cards_in_led_suit
-
-    # otherwise, players must play trump (unless their partner is winning)
-    partner_is_winning = card1 > (card2 & (led_suite | S))
-    trumps_in_hand = hand & S
-    if trumps_in_hand and not partner_is_winning:
-        return trumps_in_hand
-
-    return hand
-
-@functools.lru_cache(maxsize=None)
-def get_playable_cards3(card1: int, card2: int, card3: int, hand: int) -> int:
-    # if there is a trump in the trick, players cannot purposefully undertrump
-    trumps_in_trick = (card1 | card2 | card3) & S
-    if trumps_in_trick:
-        highest_trump_in_trick = 1 << (trumps_in_trick.bit_length() - 1)
-        overtrumps = hand & ~((highest_trump_in_trick << 1) - 1)
-        if overtrumps:
-            hand = (hand & ~S) | overtrumps  # remove undertrumps
-
-    # players must follow suite
-    led_suite = get_suite(card1)
-    cards_in_led_suit = hand & led_suite
-    if cards_in_led_suit:
-        return cards_in_led_suit
-
-    # otherwise, players must play trump (unless their partner is winning)
-    relevant_mask = (led_suite | S)
-    card2 = card2 & relevant_mask
-    card3 = card3 & relevant_mask
-    partner_is_winning = card2 > card1 and card2 > card3
-    trumps_in_hand = hand & S
-    if trumps_in_hand and not partner_is_winning:
-        return trumps_in_hand
-
+    follow = hand & FOLLOW_TABLE[card1.bit_length()]
+    if follow:
+        return follow | (hand & JACK_OF_TRUMP)
     return hand
 
 def double_dummy_solver0(
@@ -252,7 +198,7 @@ def double_dummy_solver2(
         if alpha >= beta: return entry.score
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
-    playable_cards = get_playable_cards2(card1, card2, hands[curr_player])
+    playable_cards = get_playable_cards1(card1, hands[curr_player])
     while playable_cards:
         card = playable_cards & -playable_cards
         playable_cards ^= card
@@ -306,7 +252,7 @@ def double_dummy_solver3(
         if alpha >= beta: return entry.score
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
-    playable_cards = get_playable_cards3(card1, card2, card3, hands[curr_player])
+    playable_cards = get_playable_cards1(card1, hands[curr_player])
     while playable_cards:
         card = playable_cards & -playable_cards
         playable_cards ^= card
@@ -315,7 +261,7 @@ def double_dummy_solver3(
         winner_player = (curr_player + winner_idx_in_trick + 1) % 4
         points = get_trick_points(card1, card2, card3, card)
         if remaining_cards == card:
-            points += 10
+            points += 5
         points_this_trick = 0
         if winner_player % 2 == 0:
             points_this_trick = points

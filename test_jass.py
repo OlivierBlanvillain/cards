@@ -1,21 +1,55 @@
-from cards import (
+from jass import (
     get_playable_cards1,
-    get_playable_cards2,
-    get_playable_cards3,
     get_points,
     solve_deal,
     trick_winner,
+    S_NO_JACK,
 )
 
-from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
+from jass import C, D, H, S
+
+RANKS_TRUMP = ['J', '9', 'A', 'K', 'Q', '10', '8', '7', '6']
+RANKS_PLAIN = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6']
+CARD_TO_BIT = {}
+BIT_TO_CARD = {}
+
+bit = 35
+for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
+    ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
+    for rank in ranks:
+        CARD_TO_BIT[(suit, rank)] = bit
+        BIT_TO_CARD[bit] = (suit, rank, suit_name)
+        bit -= 1
+
+def c(desc: str) -> int:
+    """Converts a comma-separated string of cards (e.g., 'A♠,K♥') to a bitmask."""
+    total = 0
+    if not desc:
+        return total
+    for token in desc.split(','):
+        rank = token[:-1]
+        suit_char = token[-1]
+        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
+        total |= 1 << CARD_TO_BIT[(suit, rank)]
+    return total
+
+def d(card_mask: int) -> str:
+    """Converts a single card bitmask back to its string representation (e.g., 'A♠')."""
+    if card_mask == 0:
+        return ""
+    bit_pos = card_mask.bit_length() - 1
+    suit, rank, suit_char = BIT_TO_CARD[bit_pos]
+    return rank + suit_char
+
 
 
 def test_cards_representation():
     """Tests the rank hierarchy of cards."""
-    assert c("J♠") > c("9♠") > c("A♠") > c("10♠") > c("K♠") > c("Q♠") > c("8♠") > c("7♠")
-    assert c("A♥") > c("10♥") > c("K♥") > c("Q♥") > c("J♥") > c("9♥") > c("8♥") > c("7♥")
-    assert c("7♣") == (1 << 0)
-    assert c("J♠") == (1 << 31)
+    assert c("J♠") > c("9♠") > c("A♠") > c("K♠") > c("Q♠") > c("10♠") > c("8♠") > c("7♠") > c("6♠")
+    assert c("A♥") > c("K♥") > c("Q♥") > c("J♥") > c("10♥") > c("9♥") > c("8♥") > c("7♥") > c("6♥")
+    assert c("6♣") == (1 << 0)
+    assert c("J♠") == (1 << 35)
+    assert S_NO_JACK == 0b011111111000000000000000000000000000
 
 def test_get_points():
     """Tests the point values of individual cards."""
@@ -29,7 +63,7 @@ def test_get_points():
     assert get_points(c("7♣")) == 0
     assert get_points(c("J♠")) == 20
     assert get_points(c("9♠")) == 14
-    assert sum(get_points(c(d(1 << i))) for i in range(32)) == 152
+    assert sum(get_points(c(d(1 << i))) for i in range(36)) == 152
 
 def test_trick_winner():
     """Tests the logic for determining the winner of a trick."""
@@ -46,50 +80,56 @@ def test_trick_winner():
     assert trick_winner(c("7♠"), c("8♠"), c("9♠"), c("J♠")) == 3
     assert trick_winner(c("J♠"), c("9♠"), c("8♠"), c("7♠")) == 0
 
+    # wierd 10 stuff
+    assert trick_winner(c("7♥"), c("8♥"), c("9♥"), c("10♥")) == 3
+    assert trick_winner(c("7♥"), c("8♥"), c("10♥"), c("J♥")) == 3
+
+
 def test_get_playable_cards():
     """Tests the logic for playable cards."""
-    # players must follow suit
+    # players must follow suit or play J♠
     hand = c("K♦,A♣,J♠")
-    assert get_playable_cards1(c("A♦"), hand) == c("K♦")
+    assert get_playable_cards1(c("A♦"), hand) == c("K♦,J♠")
 
-    # must tump when unable to follow suit
+    # players must follow the trump suit
+    hand = c("K♦,A♠,J♠")
+    assert get_playable_cards1(c("6♠"), hand) == c("A♠,J♠")
+
+    # players are never force to play their J♠
+    hand = c("K♦,J♠")
+    assert get_playable_cards1(c("6♠"), hand) == c("K♦,J♠")
+
+    # free to play any cards when unable to follow suit
     hand = c("J♠,7♠,9♣")
-    assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠")
+    assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠,9♣")
 
-    # must play a higher trump if possible
+    # free to play lower trump
     hand = c("J♠,8♠,A♣")
-    assert get_playable_cards2(c("A♥"), c("9♠"), hand) == c("J♠")
-
-    # must play a higher trump if possible (partner leading)
+    assert get_playable_cards1(c("A♥"), hand) == c("J♠,8♠,A♣")
     hand = c("J♠,Q♠")
-    assert get_playable_cards3(c("9♣"), c("K♠"), c("8♠"), hand) == c("J♠")
-
-    # playing a lower trump when unable to over-trump
+    assert get_playable_cards1(c("9♣"), hand) == c("J♠,Q♠")
     hand = c("9♠,8♠,A♣")
-    assert get_playable_cards2(c("A♥"), c("J♠"), hand) == c("9♠,8♠")
+    assert get_playable_cards1(c("A♥"), hand) == c("9♠,8♠,A♣")
 
-    # partner (player 0) is winning with Ace of Hearts
-    # player 2 must follow suit with the Queen of Hearts
-    hand = c("Q♥,J♠,A♣") # Player 2's hand
-    assert get_playable_cards2(c("A♥"), c("K♦"), hand) == c("Q♥")
+    # follow suit with the Queen of Hearts or J♠
+    hand = c("Q♥,J♠,A♣")
+    assert get_playable_cards1(c("A♥"), hand) == c("Q♥,J♠")
 
-    # partner (player 1) is winning with the Jack of Spades (a trump)
     # player 3 is void in the led suit (Hearts) and is not forced to trump
-    # because their partner is winning. They can play any card
-    hand = c("9♠,A♣,K♣") # Player 3's hand
-    assert get_playable_cards3(c("A♥"), c("J♠"), c("10♥"), hand) == c("9♠,A♣,K♣")
+    hand = c("9♠,A♣,K♣")
+    assert get_playable_cards1(c("A♥"), hand) == c("9♠,A♣,K♣")
 
     # scenario where everything is playable
     hand = c("J♥,9♥,8♣")
-    assert get_playable_cards3(c("A♦"), c("7♣"), c("10♥"), hand) == c("J♥,9♥,8♣")
+    assert get_playable_cards1(c("A♦"), hand) == c("J♥,9♥,8♣")
 
-    # if player is void in the led suit and has trumps, they must play a trump
+    # if player is void in the led suit and has trumps, they are free to play anything
     hand = c("J♠,7♠,A♣") # Player has trumps (J♠, 7♠) and a discard (A♣)
-    assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠")
+    assert get_playable_cards1(c("A♥"), hand) == c("J♠,7♠,A♣")
 
-    # must trump if partner isn't winning
+    # free to play anything if partner isn't winning
     hand = c("9♠,8♠,Q♥")
-    assert get_playable_cards3(c("10♣"), c("8♦"), c("A♥"), hand) == c("9♠,8♠")
+    assert get_playable_cards1(c("10♣"), hand) == c("9♠,8♠,Q♥")
 
 
 def test_minmax_alphabeta_consistency_1():
@@ -100,7 +140,7 @@ def test_minmax_alphabeta_consistency_1():
         c("Q♠,8♠,A♣,10♦")
     ]
     score = solve_deal(hands, transposition_table={})
-    assert score == 73
+    assert score == 94
 
 
 def test_minmax_alphabeta_consistency_2():
@@ -111,7 +151,7 @@ def test_minmax_alphabeta_consistency_2():
         c("Q♠,A♣,8♠,10♦")
     ]
     score = solve_deal(hands, transposition_table={})
-    assert score == 104
+    assert score == 100
 
 
 def test_regression0():
@@ -122,4 +162,4 @@ def test_regression0():
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     ]
     score = solve_deal(hands, transposition_table={})
-    assert score == 124
+    assert score == 112
