@@ -1,5 +1,4 @@
-from jass import S, C, D, H, solve_deal
-from utils import iter_bits
+from jass import S, C, D, H, solve_deal, iter_bits
 from test_jass import d
 import random
 import statistics

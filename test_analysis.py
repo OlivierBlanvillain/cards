@@ -1,5 +1,5 @@
-from analysis import pretty_print_cards, iter_bits, analyze_game, print_mistake_report
-from utils import c, d
+from analysis import iter_bits, analyze_game, print_mistake_report
+from jass import c, d
 import pytest
 from unittest.mock import patch, DEFAULT
 import io
@@ -12,10 +12,6 @@ def test_iter_bits():
     assert list(iter_bits(0)) == []
     assert list(iter_bits(0b1)) == [0b1]
 
-def test_pretty_print_cards():
-    assert pretty_print_cards(c('7♣,9♣')) == "9♣, 7♣"
-    assert pretty_print_cards(0) == ""
-    assert pretty_print_cards(c('A♠')) == "A♠"
 
 def test_analyze_game_with_mistakes():
     game_hands = [

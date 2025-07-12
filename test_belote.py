@@ -5,10 +5,13 @@ from belote import (
     get_points,
     solve_deal,
     trick_winner,
+    RANKS_TRUMP,
+    RANKS_PLAIN,
+    CARD_TO_BIT,
+    BIT_TO_CARD,
+    c,
+    d,
 )
-
-from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
-
 
 def test_cards_representation():
     """Tests the rank hierarchy of cards."""

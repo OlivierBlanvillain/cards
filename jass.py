@@ -45,15 +45,18 @@ FOLLOW_TABLE = [
     S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK, S_NO_JACK,
 ]
 
-def get_points(card: int) -> int:
-    return POINTS_TABLE[card.bit_length()]
-
 def get_suit(card: int) -> int:
     return SUIT_TABLE[card.bit_length()]
 
 # @functools.lru_cache(maxsize=None)
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
-    return get_points(card1) + get_points(card2) + get_points(card3) + get_points(card4)
+    return (
+        POINTS_TABLE[card1.bit_length()]
+        + POINTS_TABLE[card2.bit_length()]
+        + POINTS_TABLE[card3.bit_length()]
+        + POINTS_TABLE[card4.bit_length()]
+    )
+
 
 # @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
@@ -70,7 +73,7 @@ def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
         return 2
     return 3
 
-# @functools.lru_cache(maxsize=None)
+@functools.lru_cache(maxsize=None)
 def get_playable_cards1(card1: int, hand: int) -> int:
     follow = hand & FOLLOW_TABLE[card1.bit_length()]
     if follow:
@@ -317,3 +320,44 @@ def solve_deal(
         beta=999,
         transposition_table=transposition_table,
     )
+
+# utils
+
+RANKS_TRUMP = ['J', '9', 'A', 'K', 'Q', '10', '8', '7', '6']
+RANKS_PLAIN = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6']
+CARD_TO_BIT = {}
+BIT_TO_CARD = {}
+
+bit = 35
+for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
+    ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
+    for rank in ranks:
+        CARD_TO_BIT[(suit, rank)] = bit
+        BIT_TO_CARD[bit] = (suit, rank, suit_name)
+        bit -= 1
+
+def c(desc: str) -> int:
+    """Converts a comma-separated string of cards (e.g., 'A♠,K♥') to a bitmask."""
+    total = 0
+    if not desc:
+        return total
+    for token in desc.split(','):
+        rank = token[:-1]
+        suit_char = token[-1]
+        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
+        total |= 1 << CARD_TO_BIT[(suit, rank)]
+    return total
+
+def d(card_mask: int) -> str:
+    """Converts a single card bitmask back to its string representation (e.g., 'A♠')."""
+    if card_mask == 0:
+        return ""
+    bit_pos = card_mask.bit_length() - 1
+    suit, rank, suit_char = BIT_TO_CARD[bit_pos]
+    return rank + suit_char
+
+def iter_bits(mask: int):
+    while mask:
+        b = mask & -mask
+        yield b
+        mask ^= b

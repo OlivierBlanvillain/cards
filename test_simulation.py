@@ -1,6 +1,6 @@
 import pytest
 import random
-from jass import C, D, H, S
+from jass import C, D, H, S, c, d, iter_bits
 
 from simulation import (
     shuffle_one_hand,
@@ -8,9 +8,6 @@ from simulation import (
     swap_trump,
     ALL_CARDS, SUIT_BIT_START
 )
-
-from test_jass import c, d
-from utils import iter_bits
 # --- Basic Sanity Tests ---
 
 def test_shuffle_one_hand():

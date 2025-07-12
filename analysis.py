@@ -1,15 +1,19 @@
-from utils import iter_bits
-from test_jass import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 from jass import (
     double_dummy_solver1,
     double_dummy_solver2,
     double_dummy_solver3,
     get_playable_cards1,
     trick_winner,
-    get_points,
     double_dummy_solver0,
+    iter_bits,
+    POINTS_TABLE,
+    RANKS_TRUMP,
+    RANKS_PLAIN,
+    CARD_TO_BIT,
+    BIT_TO_CARD,
+    c,
+    d,
 )
-from utils import pretty_print_hand
 
 def print_mistake_report(
     hands: list[int],
@@ -119,7 +123,7 @@ def analyze_game(
                     case (_, _, _, _):
                         winner_idx = trick_winner(*new_trick)
                         winner_player = (trick_leader + winner_idx) % 4
-                        points = sum(map(get_points, new_trick))
+                        points = sum(map(lambda x: POINTS_TABLE[x.bit_length()], new_trick))
                         points_for_max_player = points if (winner_player % 2 == 0) else 0
                         sub_game_value = double_dummy_solver0(
                             hands=new_hands,

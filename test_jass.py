@@ -1,46 +1,16 @@
 from jass import (
     get_playable_cards1,
-    get_points,
     solve_deal,
     trick_winner,
     S_NO_JACK,
+    POINTS_TABLE,
+    C,
+    D,
+    H,
+    S,
+    c,
+    d,
 )
-
-from jass import C, D, H, S
-
-RANKS_TRUMP = ['J', '9', 'A', 'K', 'Q', '10', '8', '7', '6']
-RANKS_PLAIN = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6']
-CARD_TO_BIT = {}
-BIT_TO_CARD = {}
-
-bit = 35
-for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
-    ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
-    for rank in ranks:
-        CARD_TO_BIT[(suit, rank)] = bit
-        BIT_TO_CARD[bit] = (suit, rank, suit_name)
-        bit -= 1
-
-def c(desc: str) -> int:
-    """Converts a comma-separated string of cards (e.g., 'A♠,K♥') to a bitmask."""
-    total = 0
-    if not desc:
-        return total
-    for token in desc.split(','):
-        rank = token[:-1]
-        suit_char = token[-1]
-        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
-        total |= 1 << CARD_TO_BIT[(suit, rank)]
-    return total
-
-def d(card_mask: int) -> str:
-    """Converts a single card bitmask back to its string representation (e.g., 'A♠')."""
-    if card_mask == 0:
-        return ""
-    bit_pos = card_mask.bit_length() - 1
-    suit, rank, suit_char = BIT_TO_CARD[bit_pos]
-    return rank + suit_char
-
 
 
 def test_cards_representation():
@@ -53,17 +23,17 @@ def test_cards_representation():
 
 def test_get_points():
     """Tests the point values of individual cards."""
-    assert get_points(c("A♣")) == 11
-    assert get_points(c("10♣")) == 10
-    assert get_points(c("K♣")) == 4
-    assert get_points(c("Q♣")) == 3
-    assert get_points(c("J♣")) == 2
-    assert get_points(c("9♣")) == 0
-    assert get_points(c("8♣")) == 0
-    assert get_points(c("7♣")) == 0
-    assert get_points(c("J♠")) == 20
-    assert get_points(c("9♠")) == 14
-    assert sum(get_points(c(d(1 << i))) for i in range(36)) == 152
+    assert POINTS_TABLE[c("A♣").bit_length()] == 11
+    assert POINTS_TABLE[c("10♣").bit_length()] == 10
+    assert POINTS_TABLE[c("K♣").bit_length()] == 4
+    assert POINTS_TABLE[c("Q♣").bit_length()] == 3
+    assert POINTS_TABLE[c("J♣").bit_length()] == 2
+    assert POINTS_TABLE[c("9♣").bit_length()] == 0
+    assert POINTS_TABLE[c("8♣").bit_length()] == 0
+    assert POINTS_TABLE[c("7♣").bit_length()] == 0
+    assert POINTS_TABLE[c("J♠").bit_length()] == 20
+    assert POINTS_TABLE[c("9♠").bit_length()] == 14
+    assert sum(POINTS_TABLE[c(d(1 << i)).bit_length()] for i in range(36)) == 152
 
 def test_trick_winner():
     """Tests the logic for determining the winner of a trick."""
@@ -139,12 +109,7 @@ def test_minmax_alphabeta_consistency_1():
         c("A♥,9♠,8♣,K♦"),
         c("Q♠,8♠,A♣,10♦")
     ]
-    score, path = solve_deal(hands, transposition_table={})
-    print()
-    for i, (p, x) in enumerate(path):
-        if i % 4 == 0:
-            print()
-        print(f"{p}: {d(x)}")
+    score = solve_deal(hands, transposition_table={})
     assert score == 94
 
 
@@ -155,12 +120,7 @@ def test_minmax_alphabeta_consistency_2():
         c("9♠,A♥,7♥,10♣"),
         c("Q♠,A♣,8♠,10♦")
     ]
-    score, path = solve_deal(hands, transposition_table={})
-    print()
-    for i, (p, x) in enumerate(path):
-        if i % 4 == 0:
-            print()
-        print(f"{p}: {d(x)}")
+    score = solve_deal(hands, transposition_table={})
     assert score == 100
 
 
@@ -171,10 +131,16 @@ def test_regression0():
       c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     ]
-    score, path = solve_deal(hands, transposition_table={})
-    print()
-    for i, (p, x) in enumerate(path):
-        if i % 4 == 0:
-            print()
-        print(f"{p}: {d(x)}")
+    score = solve_deal(hands, transposition_table={})
+    assert score == 112
+
+
+def test_regression1():
+    hands = [
+        c("9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦"),
+        c("A♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦"),
+        c("6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦"),
+        c("Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦"),
+    ]
+    score = solve_deal(hands, transposition_table={})
     assert score == 112
