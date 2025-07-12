@@ -1,18 +1,42 @@
-hands = [
-    ["J♠,9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦"],
-    ["A♠,K♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦"],
-    ["10♥,6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦"],
-    ["7♠,Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦"],
-]
 
-tricks = [
-    ["J♠", "K♠", "10♥", "7♠"],
-    ["9♠", "10♠", "Q♣", "6♦"],
-    ["6♠", "A♠", "J♣", "Q♥"],
-    ["8♣", "6♣", "7♣", "8♥"],
-    ["K♥", "6♥", "7♥", "A♥"],
-    ["7♦", "J♦", "9♦", "A♦"],
-    ["J♥", "8♠", "K♣", "10♦"],
-    ["8♦", "K♦", "Q♦", "9♣"],
-    ["10♣", "A♣", "9♥", "Q♠"],
-]
+shuffle initial 1x
+shuffle the remaining hands  1000x
+dds to an EV 9x1000, 5 EVs out
+
+diff between top bid and 2nd bid
+{-1}, -2, -3, -4, -5, -6, -10, -15
+
+
+make a website
+
+1.html file, that contains {-1, -2, -3, -4, -5, -6, -10, -15}
+                                 ^^
+static page for -3 game
+Chibre ou bien ?
+
+[.] [.] [.] [.] [.]
+-20 -40 -30  -3  +0   CORRECT
+
+NEXT
+
+2.html?lvl=3
+2.html file, that contains {-1, -2, -3, -4, -5, -6, -10, -15}
+                                 ^^
+static page for -3 game
+Chibre ou bien ?
+
+[.] [.] [.] [.] [.]
+-20 -40 -30  -3  +0   CORRECT
+
+NEXT 2.html?lvl=2
+
+
+3.html file, that contains {-1, -2, -3, -4, -5, -6, -10, -15}
+                                 ^^
+static page for -3 game
+Chibre ou bien ?
+
+[.] [.] [.] [.] [.]
+-20 -40 -30  -3  +0   CORRECT
+
+NEXT

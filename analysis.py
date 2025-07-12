@@ -142,12 +142,7 @@ def analyze_game(
                         raise ValueError()
 
                 move_evaluations[card_to_evaluate] = value
-            print("playable cards:")
-            for card_to_evaluate in iter_bits(playable_cards):
-                print(d(card_to_evaluate))
 
-            print("actual play:")
-            print(d(played_card_bit))
             actual_move_score = move_evaluations[played_card_bit]
             optimal_score = max(move_evaluations.values()) if is_maximizing_player else min(move_evaluations.values())
             points_lost = (optimal_score - actual_move_score) if is_maximizing_player else (actual_move_score - optimal_score)
@@ -172,14 +167,14 @@ def analyze_game(
 # --- Main execution ---
 if __name__ == '__main__':
     hands = [
-        "J♠,9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦",
-        "A♠,K♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦",
-        "10♥,6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦",
-        "7♠,Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦",
+        "9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦",
+        "A♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦",
+        "6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦",
+        "Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦",
     ]
 
     tricks = [
-        ["J♠", "K♠", "10♥", "7♠"],
+        # ["J♠", "K♠", "10♥", "7♠"],
         ["9♠", "10♠", "Q♣", "6♦"],
         ["6♠", "A♠", "J♣", "Q♥"],
         ["8♣", "6♣", "7♣", "8♥"],
@@ -189,6 +184,24 @@ if __name__ == '__main__':
         ["8♦", "K♦", "Q♦", "9♣"],
         ["10♣", "A♣", "9♥", "Q♠"],
     ]
+    # hands = [
+    #     "J♠,9♠,Q♠,8♠,6♠,A♥,8♥,8♦,7♦",
+    #     "A♠,K♠,10♠,K♥,K♣,10♣,8♣,K♦,J♦",
+    #     "10♥,6♥,A♣,Q♣,J♣,6♣,Q♦,10♦,9♦",
+    #     "7♠,Q♥,J♥,9♥,7♥,9♣,7♣,A♦,6♦",
+    # ]
+
+    # tricks = [
+    #     ["J♠", "K♠", "10♥", "7♠"],
+    #     ["9♠", "10♠", "Q♣", "6♦"],
+    #     ["6♠", "A♠", "J♣", "Q♥"],
+    #     ["8♣", "6♣", "7♣", "8♥"],
+    #     ["K♥", "6♥", "7♥", "A♥"],
+    #     ["7♦", "J♦", "9♦", "A♦"],
+    #     ["J♥", "8♠", "K♣", "10♦"],
+    #     ["8♦", "K♦", "Q♦", "9♣"],
+    #     ["10♣", "A♣", "9♥", "Q♠"],
+    # ]
 
     print("Analyzing Belote game for mistakes...\n")
     analyze_game(hands, tricks)
