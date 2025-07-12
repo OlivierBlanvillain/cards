@@ -124,10 +124,5 @@ def test_regression0():
       c("K♣,10♠,7♣,9♥,9♦,K♦,A♣,10♣"),
       c("9♣,7♠,A♦,K♥,10♦,7♦,Q♣,8♦"),
     ]
-    score, path = solve_deal(hands, transposition_table={})
-    print()
-    for i, (p, x) in enumerate(path):
-        if i % 4 == 0:
-            print()
-        print(f"{p}: {d(x)}")
+    score = solve_deal(hands, transposition_table={})
     assert score == 124

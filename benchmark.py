@@ -1,11 +1,9 @@
 #!venv/bin/python3
 
-from jass import solve_deal
+from jass import solve_deal, RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 import timeit
 import statistics
 import math
-
-from test_jass import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 
 def test_benchmark_full_game():
     hands = [

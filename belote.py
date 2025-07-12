@@ -145,7 +145,7 @@ def double_dummy_solver0(
         elif entry.flag == FLAG_UPPER_BOUND: beta = min(beta, entry.score)
         if alpha >= beta: return entry.score
     if remaining_cards == 0:
-        return 0, ()
+        return 0
     is_maximizing_player = (curr_player % 2 == 0)
     best_score = -999 if is_maximizing_player else 999
     playable_cards = hands[curr_player]
