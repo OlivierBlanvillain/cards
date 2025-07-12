@@ -1,24 +1,24 @@
 #!venv/bin/python3
 
-from belote import solve_deal
+from jass import solve_deal
 import timeit
 import statistics
 import math
 
-from utils import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
+from test_jass import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 
 def test_benchmark_full_game():
     hands = [
-        c("10♠,A♥,10♥,9♥,7♥,10♦,J♦,10♣"),
-        c("A♠,9♠,Q♥,J♥,8♥,8♦,A♣,7♣"),
-        c("K♠,J♠,K♥,K♦,9♦,7♦,K♣,Q♣"),
-        c("Q♠,8♠,7♠,A♦,Q♦,J♣,9♣,8♣"),
+        c("6♠,10♠,A♥,10♥,9♥,7♥,10♦,J♦,10♣"),
+        c("6♥,A♠,9♠,Q♥,J♥,8♥,8♦,A♣,7♣"),
+        c("6♦,K♠,J♠,K♥,K♦,9♦,7♦,K♣,Q♣"),
+        c("6♣,Q♠,8♠,7♠,A♦,Q♦,J♣,9♣,8♣"),
     ]
 
     def run_solver():
         solve_deal(hands)
 
-    num_trials = 10
+    num_trials = 2
     times = []
     for _ in range(num_trials):
         times.append(timeit.timeit(run_solver, number=1))

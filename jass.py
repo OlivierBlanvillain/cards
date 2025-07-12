@@ -51,11 +51,11 @@ def get_points(card: int) -> int:
 def get_suit(card: int) -> int:
     return SUIT_TABLE[card.bit_length()]
 
-@functools.lru_cache(maxsize=None)
+# @functools.lru_cache(maxsize=None)
 def get_trick_points(card1: int, card2: int, card3: int, card4: int) -> int:
     return get_points(card1) + get_points(card2) + get_points(card3) + get_points(card4)
 
-@functools.lru_cache(maxsize=None)
+# @functools.lru_cache(maxsize=None)
 def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
     led_suit = get_suit(card1)
     led_mask = S | led_suit
@@ -70,7 +70,7 @@ def trick_winner(card1: int, card2: int, card3: int, card4: int) -> int:
         return 2
     return 3
 
-@functools.lru_cache(maxsize=None)
+# @functools.lru_cache(maxsize=None)
 def get_playable_cards1(card1: int, hand: int) -> int:
     follow = hand & FOLLOW_TABLE[card1.bit_length()]
     if follow:
@@ -78,12 +78,12 @@ def get_playable_cards1(card1: int, hand: int) -> int:
     return hand
 
 def double_dummy_solver0(
-  hands: list[int],
-  curr_player: int,
-  remaining_cards: int,
-  alpha: int,
-  beta: int,
-  transposition_table: dict[tuple, TranspositionTableEntry],
+    hands: list[int],
+    curr_player: int,
+    remaining_cards: int,
+    alpha: int,
+    beta: int,
+    transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (remaining_cards, curr_player)
@@ -129,13 +129,13 @@ def double_dummy_solver0(
     return best_score
 
 def double_dummy_solver1(
-  card1: int,
-  hands: list[int],
-  curr_player: int,
-  remaining_cards: int,
-  alpha: int,
-  beta: int,
-  transposition_table: dict[tuple, TranspositionTableEntry],
+    card1: int,
+    hands: list[int],
+    curr_player: int,
+    remaining_cards: int,
+    alpha: int,
+    beta: int,
+    transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, remaining_cards, curr_player)
@@ -180,14 +180,14 @@ def double_dummy_solver1(
     return best_score
 
 def double_dummy_solver2(
-  card1: int,
-  card2: int,
-  hands: list[int],
-  curr_player: int,
-  remaining_cards: int,
-  alpha: int,
-  beta: int,
-  transposition_table: dict[tuple, TranspositionTableEntry],
+    card1: int,
+    card2: int,
+    hands: list[int],
+    curr_player: int,
+    remaining_cards: int,
+    alpha: int,
+    beta: int,
+    transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, remaining_cards, curr_player)
@@ -233,15 +233,15 @@ def double_dummy_solver2(
     return best_score
 
 def double_dummy_solver3(
-  card1: int,
-  card2: int,
-  card3: int,
-  hands: list[int],
-  curr_player: int,
-  remaining_cards: int,
-  alpha: int,
-  beta: int,
-  transposition_table: dict[tuple, TranspositionTableEntry],
+    card1: int,
+    card2: int,
+    card3: int,
+    hands: list[int],
+    curr_player: int,
+    remaining_cards: int,
+    alpha: int,
+    beta: int,
+    transposition_table: dict[tuple, TranspositionTableEntry],
 ) -> int:
     initial_alpha = alpha
     state_key = (card1, card2, card3, remaining_cards, curr_player)
@@ -296,7 +296,10 @@ def double_dummy_solver3(
     transposition_table[state_key] = TranspositionTableEntry(best_score, flag)
     return best_score
 
-def solve_deal(hands: list[int], transposition_table: dict[tuple, TranspositionTableEntry] | None = None) -> int:
+def solve_deal(
+    hands: list[int],
+    transposition_table: dict[tuple, TranspositionTableEntry] | None = None,
+) -> int:
     if transposition_table is None:
         transposition_table = {}
 

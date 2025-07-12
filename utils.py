@@ -33,6 +33,9 @@ def d(card_mask: int) -> str:
     suit, rank, suit_char = BIT_TO_CARD[bit_pos]
     return rank + suit_char
 
+def pretty_print_hand(hand: int) -> str:
+    return ", ".join(reversed([d(card) for card in iter_bits(hand)]))
+
 def iter_bits(mask: int):
     while mask:
         b = mask & -mask

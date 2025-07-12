@@ -9,9 +9,7 @@ from jass import (
     get_points,
     double_dummy_solver0,
 )
-
-def pretty_print_cards(hand_mask: int) -> str:
-    return ", ".join(reversed([d(card) for card in iter_bits(hand_mask)]))
+from utils import pretty_print_hand
 
 def print_mistake_report(
     hands: list[int],
@@ -30,7 +28,7 @@ def print_mistake_report(
     print("Game State:")
     for i, hand_mask in enumerate(hands):
         is_current = " <- To play" if i == current_player else ""
-        print(f"  Player {i}'s hand: {pretty_print_cards(hand_mask)} {is_current}")
+        print(f"  Player {i}'s hand: {pretty_print_hand(hand_mask)} {is_current}")
 
     trick_str = ", ".join([d(card) for card in trick]) if trick else "(empty)"
     print(f"\n  Trick leader: Player {trick_leader}")

@@ -1,6 +1,4 @@
 
-shuffle initial 1x
-shuffle the remaining hands  1000x
 dds to an EV 9x1000, 5 EVs out
 
 diff between top bid and 2nd bid

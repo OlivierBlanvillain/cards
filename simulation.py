@@ -1,7 +1,8 @@
-from jass import S, C, D, H
+from jass import S, C, D, H, solve_deal
 from utils import iter_bits
-
+from test_jass import d
 import random
+import statistics
 
 CARD_LIST = [1 << i for i in range(36)]
 ALL_CARDS = sum(CARD_LIST)
@@ -55,7 +56,34 @@ def shuffle_other_hands(declarer_hand: int) -> list[int]:
     ]
     random.shuffle(cards_to_deal)
     return [
+        declarer_hand,
         sum(cards_to_deal[0:9]),
         sum(cards_to_deal[9:18]),
         sum(cards_to_deal[18:27]),
     ]
+
+def pretty_print_hand(hand: int) -> str:
+    return ", ".join(reversed([d(card) for card in iter_bits(hand)]))
+
+def simulate_one():
+    declarer_hand = shuffle_one_hand()
+    print(pretty_print_hand(declarer_hand))
+    for tump_suit in SUIT_BIT_START.keys():
+        scores = []
+        for i in range(10):
+            hands = shuffle_other_hands(declarer_hand)
+            hands = swap_trump(hands, tump_suit)
+            for i, _ in enumerate(hands):
+                for card in iter_bits(hands[i]):
+                    hands[i] ^= card
+                    break
+            score = solve_deal(hands)
+            scores.append(score)
+            mean = statistics.mean(scores)
+            trump_repr = {S: "♠", D: "♦", H: "♥", C: "♣"}[tump_suit]
+            print(f"{trump_repr} gives {mean} after {i} simulation(s)")
+
+
+if __name__ == "__main__":
+    for _ in range(10):
+        simulate_one()

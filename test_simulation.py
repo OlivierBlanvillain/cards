@@ -23,13 +23,12 @@ def test_shuffle_one_hand():
 def test_shuffle_other_hands_for_4_players():
     random.seed(123)
     declarer_hand = shuffle_one_hand()
-    other_hands = shuffle_other_hands(declarer_hand)
+    world = shuffle_other_hands(declarer_hand)
 
-    assert isinstance(other_hands, list)
-    assert len(other_hands) == 3
+    assert isinstance(world, list)
+    assert len(world) == 4
 
-    all_hands_mask = declarer_hand | sum(other_hands)
-    assert all_hands_mask == ALL_CARDS
+    assert sum(world) == ALL_CARDS
 
 # --- swap_trump Tests ---
 
