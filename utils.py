@@ -32,3 +32,9 @@ def d(card_mask: int) -> str:
     bit_pos = card_mask.bit_length() - 1
     suit, rank, suit_char = BIT_TO_CARD[bit_pos]
     return rank + suit_char
+
+def iter_bits(mask: int):
+    while mask:
+        b = mask & -mask
+        yield b
+        mask ^= b

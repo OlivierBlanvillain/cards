@@ -1,4 +1,4 @@
-from typing import Iterator, Tuple
+from utils import iter_bits
 from test_jass import RANKS_TRUMP, RANKS_PLAIN, CARD_TO_BIT, BIT_TO_CARD, c, d
 from jass import (
     double_dummy_solver1,
@@ -9,12 +9,6 @@ from jass import (
     get_points,
     double_dummy_solver0,
 )
-
-def iter_bits(mask: int) -> Iterator[int]:
-    while mask:
-        b = mask & -mask
-        yield b
-        mask ^= b
 
 def pretty_print_cards(hand_mask: int) -> str:
     return ", ".join(reversed([d(card) for card in iter_bits(hand_mask)]))
