@@ -243,7 +243,7 @@ int solve_deal(std::vector<hand_t>& hands) {
     }
     ankerl::unordered_dense::map<uint64_t, int> transposition_table;
     int final_score = double_dummy_solver(NOT_A_CARD, NOT_A_CARD, NOT_A_CARD, hands, 0, std::accumulate(hands.begin(), hands.end(), (hand_t)0), -999, 999, transposition_table);
-    std::cout << "Final solve_deal score: " << final_score << std::endl;
+    // std::cout << "Final solve_deal score: " << final_score << std::endl;
     return final_score;
 }
 

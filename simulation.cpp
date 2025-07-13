@@ -138,51 +138,122 @@ std::string pretty_print_hand(jass::hand_t hand) {
     return result;
 }
 
-void simulate_one() {
-    jass::hand_t declarer_hand = shuffle_one_hand();
-    std::cout << pretty_print_hand(declarer_hand) << std::endl;
 
-    std::vector<jass::hand_t> trump_suits = {jass::C, jass::D, jass::H, jass::S};
+// A structure to hold the results for each potential move (trump suit)
+struct MoveResult {
+    char name;
+    jass::hand_t move_mask;
+    std::vector<double> scores;
+    double mean = 0.0;
+    double std_dev = 0.0;
 
-    for (jass::hand_t trump_suit_mask : trump_suits) {
-        std::vector<double> scores;
-        for (int i = 0; i < 10; ++i) {
-            std::vector<jass::hand_t> hands = shuffle_other_hands(declarer_hand);
-            hands = swap_trump(hands, trump_suit_mask);
-
-            // This part removes the lowest value card from each hand.
-            // This is likely for simulating a card being played.
-            for (size_t j = 0; j < hands.size(); ++j) {
-                if (hands[j] > 0) {
-                    jass::card_t lowest_card = hands[j] & (-hands[j]); // Get the lowest set bit
-                    hands[j] ^= lowest_card; // Remove it
-                }
-            }
-
-            int score = jass::solve_deal(hands);
-            scores.push_back(static_cast<double>(score));
+    void update_stats() {
+        if (scores.empty()) return;
+        double sum = std::accumulate(scores.begin(), scores.end(), 0.0);
+        mean = sum / scores.size();
+        if (scores.size() > 1) {
+            double sq_sum = 0.0;
+            for(double score : scores) sq_sum += (score - mean) * (score - mean);
+            std_dev = std::sqrt(sq_sum / (scores.size() - 1));
+        } else {
+            std_dev = 0.0;
         }
-        double sum_scores = std::accumulate(scores.begin(), scores.end(), 0.0);
-        double mean = sum_scores / scores.size();
-
-        char trump_repr;
-        if (trump_suit_mask == jass::S) trump_repr = 'S';
-        else if (trump_suit_mask == jass::D) trump_repr = 'D';
-        else if (trump_suit_mask == jass::H) trump_repr = 'H';
-        else if (trump_suit_mask == jass::C) trump_repr = 'C';
-        else trump_repr = '?';
-
-        std::cout << trump_repr << " gives EV=" << std::round(mean * 100.0) / 100.0 << "pts (after " << 10 << " simulations)" << std::endl;
     }
+};
+
+// This function runs ONE full experiment for a given trump suit
+double run_one_experiment(jass::hand_t declarer_hand, jass::hand_t trump_suit_mask) {
+    std::cout << "Running one experiment...\n" << std::endl;
+    std::vector<jass::hand_t> hands = shuffle_other_hands(declarer_hand);
+    hands = swap_trump(hands, trump_suit_mask);
+    return static_cast<double>(jass::solve_deal(hands));
+}
+
+// Calculates the 95% Confidence Interval for the difference of two means
+std::pair<double, double> get_ci_for_difference(const MoveResult& res1, const MoveResult& res2) {
+    double n1 = res1.scores.size(), n2 = res2.scores.size();
+    double mean1 = res1.mean, mean2 = res2.mean;
+    double std1 = res1.std_dev, std2 = res2.std_dev;
+    double diff_mean = mean1 - mean2;
+    double se_diff = std::sqrt((std1 * std1 / n1) + (std2 * std2 / n2));
+    double margin_of_error = 1.96 * se_diff; // Z-score for 95% CI
+    return {diff_mean - margin_of_error, diff_mean + margin_of_error};
+}
+
+void find_best_trump() {
+    // --- Parameters ---
+    const int N_MIN = 10;           // Min experiments before first check.
+    const int BATCH_SIZE = 5;       // Experiments per suit per batch. Total exps = 4 * 5 = 20.
+                                    // 20 exps * 10s/exp = 200s (~3.3 min) per batch.
+    const int MAX_N = 500;          // Hard limit per suit to prevent infinite loops.
+    const double INDIFFERENCE_THRESHOLD = 0.1;
+
+    jass::hand_t declarer_hand = shuffle_one_hand();
+    std::cout << "Declarer Hand: " << pretty_print_hand(declarer_hand) << std::endl;
+    std::cout << "Finding best trump suit...\n" << std::endl;
+
+    std::vector<MoveResult> results = {
+        {'S', jass::S}, {'H', jass::H}, {'D', jass::D}, {'C', jass::C}
+    };
+
+    // --- Initial Batch ---
+    for (int i = 0; i < N_MIN; ++i) {
+        for (auto& res : results) {
+            res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
+        }
+    }
+
+    // --- Dynamic Loop ---
+    int current_n = N_MIN;
+    while (current_n < MAX_N) {
+        for (auto& res : results) res.update_stats();
+
+        std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) { return a.mean > b.mean; });
+
+        const MoveResult& best_move = results[0];
+        const MoveResult& second_best_move = results[1];
+        auto ci = get_ci_for_difference(best_move, second_best_move);
+
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "N=" << std::setw(4) << current_n
+                  << " | Best: " << best_move.name << " (" << best_move.mean << ")"
+                  << " | 2nd: " << second_best_move.name << " (" << second_best_move.mean << ")"
+                  << " | 95% CI for Diff: [" << std::setw(6) << ci.first << ", " << std::setw(6) << ci.second << "]" << std::endl;
+
+        if (ci.first > 0) {
+            std::cout << "\n--- Conclusion: Found a Winner! ---" << std::endl;
+            std::cout << "Trump " << best_move.name << " is significantly better than " << second_best_move.name << "." << std::endl;
+            std::cout << "Final EV: " << best_move.mean << " after " << current_n << " simulations per suit." << std::endl;
+            return;
+        }
+
+        if ((ci.second - ci.first) < INDIFFERENCE_THRESHOLD) {
+            std::cout << "\n--- Conclusion: Moves are Practically Equivalent ---" << std::endl;
+            std::cout << "The difference between " << best_move.name << " and " << second_best_move.name
+                      << " is smaller than the indifference threshold of " << INDIFFERENCE_THRESHOLD << " pts." << std::endl;
+            std::cout << "Best move is " << best_move.name << " with EV: " << best_move.mean << std::endl;
+            return;
+        }
+
+        for (int i = 0; i < BATCH_SIZE; ++i) {
+            for (auto& res : results) {
+                res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
+            }
+        }
+        current_n += BATCH_SIZE;
+    }
+
+    std::cout << "\n--- Conclusion: Reached Max Simulations (" << MAX_N << ") ---" << std::endl;
+    std::cout << "Result is inconclusive. The best move is likely " << results[0].name
+              << " but it is not statistically superior to " << results[1].name << "." << std::endl;
 }
 
 int main() {
+    // These must be called once at the start
     jass::initialize_card_maps();
-    initialize_swap_maps(); // Initialize simulation-specific maps
+    initialize_swap_maps();
 
-    for (int i = 0; i < 10; ++i) {
-        simulate_one();
-    }
+    find_best_trump();
 
     return 0;
 }
