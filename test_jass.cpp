@@ -85,7 +85,7 @@ void test_GetPlayableCards() {
 }
 
 void test_SolveDeal() {
-    std::vector<jass::hand_t> hands;
+    std::array<jass::hand_t, 4> hands;
 
     hands = {jass::c("10H,JS,7C,AD"), jass::c("JH,KS,QC,8D"), jass::c("AH,9S,8C,KD"), jass::c("QS,8S,AC,10D")};
     REQUIRE(jass::solve_deal(hands) == 94);

@@ -8,7 +8,7 @@
 #include <algorithm>
 
 void run_benchmark_full_game() {
-    std::vector<jass::hand_t> hands = {
+    std::array<jass::hand_t, 4> hands = {
         jass::c("6S,10S,AH,10H,9H,7H,10D,JD,10C"),
         jass::c("6H,AS,9S,QH,JH,8H,8D,AC,7C"),
         jass::c("6D,KS,JS,KH,KD,9D,7D,KC,QC"),
