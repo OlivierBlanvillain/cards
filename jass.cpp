@@ -2,7 +2,7 @@
 #include <iostream>
 #include <numeric>
 #include <algorithm>
-#include <unordered_map>
+#include "ankerl/unordered_dense.h"
 #include <bit> // For std::countl_zero
 
 namespace jass {
@@ -154,7 +154,7 @@ int double_dummy_solver(
     hand_t remaining_cards,
     int alpha,
     int beta,
-    std::unordered_map<uint64_t, int>& transposition_table
+    ankerl::unordered_dense::map<uint64_t, int>& transposition_table
 ) {
     if (remaining_cards == 0) return 0;
     int initial_alpha = alpha;
@@ -249,7 +249,7 @@ int solve_deal(std::vector<hand_t>& hands) {
             }
         }
     }
-    std::unordered_map<uint64_t, int> transposition_table;
+    ankerl::unordered_dense::map<uint64_t, int> transposition_table;
     int final_score = double_dummy_solver(NOT_A_CARD, NOT_A_CARD, NOT_A_CARD, hands, 0, std::accumulate(hands.begin(), hands.end(), (hand_t)0), -999, 999, transposition_table);
     std::cout << "Final solve_deal score: " << final_score << std::endl;
     return final_score;

@@ -1,6 +1,10 @@
 CXX = g++
 CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3
 
+.PHONY: all test clean benchmark
+
+all: test
+
 test: test_jass
 	./test_jass
 
@@ -13,8 +17,8 @@ test_jass: jass.o test_jass.o
 bench_jass: jass.o bench.o
 	$(CXX) $(CXXFLAGS) -o bench_jass jass.o bench.o
 
-%.o: %.cpp jass.h
+%.o: %.cpp jass.h ankerl/unordered_dense.h
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f *.o test_jass bench_jass
+	rm -f *.o test_jass benchmark_jass
