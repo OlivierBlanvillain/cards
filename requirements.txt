@@ -1,4 +1,0 @@
-cykhash
-py-spy
-pytest
-pyright
