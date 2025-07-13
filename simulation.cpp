@@ -102,8 +102,8 @@ jass::hand_t shuffle_one_hand() {
     return chosen_hand;
 }
 
-std::vector<jass::hand_t> shuffle_other_hands(jass::hand_t declarer_hand) {
-    jass::hand_t remaining_cards_mask = ALL_CARDS ^ declarer_hand;
+std::vector<jass::hand_t> shuffle_other_hands(jass::hand_t bidder_hand, int bidder_idx) {
+    jass::hand_t remaining_cards_mask = ALL_CARDS ^ bidder_hand;
     std::vector<jass::card_t> cards_to_deal;
     for (jass::card_t card : CARD_LIST) {
         if (remaining_cards_mask & card) {
@@ -113,10 +113,13 @@ std::vector<jass::hand_t> shuffle_other_hands(jass::hand_t declarer_hand) {
     std::shuffle(cards_to_deal.begin(), cards_to_deal.end(), gen);
 
     std::vector<jass::hand_t> hands;
-    hands.push_back(declarer_hand);
-    hands.push_back(0);
-    hands.push_back(0);
-    hands.push_back(0);
+    for (int i = 0; i < 4; ++i) {
+        if (i == bidder_idx) {
+            hands.push_back(bidder_hand);
+        } else {
+            hands.push_back(0);
+        }
+    }
 
     for (int i = 0; i < 9; ++i) hands[1] |= cards_to_deal[i];
     for (int i = 9; i < 18; ++i) hands[2] |= cards_to_deal[i];
