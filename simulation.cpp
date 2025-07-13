@@ -71,12 +71,13 @@ void initialize_swap_maps() {
     }
 }
 
-std::vector<jass::hand_t> swap_trump(std::vector<jass::hand_t> hands, jass::hand_t trump_mask) {
+std::array<jass::hand_t, 4> swap_trump(std::array<jass::hand_t, 4> hands, jass::hand_t trump_mask) {
     if (trump_mask == jass::S) {
         return hands;
     }
-    std::vector<jass::hand_t> new_hands;
-    for (jass::hand_t hand : hands) {
+    std::array<jass::hand_t, 4> new_hands;
+    for (size_t i = 0; i < hands.size(); ++i) {
+        jass::hand_t hand = hands[i];
         jass::hand_t spades_cards = hand & jass::S;
         jass::hand_t trump_cards = hand & trump_mask;
         jass::hand_t stable_cards = hand & ~(trump_mask | jass::S);
@@ -87,7 +88,7 @@ std::vector<jass::hand_t> swap_trump(std::vector<jass::hand_t> hands, jass::hand
         for (jass::card_t card : iter_bits(trump_cards)) {
             stable_cards |= T_TO_S[trump_mask][card];
         }
-        new_hands.push_back(stable_cards);
+        new_hands[i] = stable_cards;
     }
     return new_hands;
 }
@@ -165,10 +166,8 @@ struct MoveResult {
     }
 };
 
-// This function runs ONE full experiment for a given trump suit
 double run_one_experiment(jass::hand_t declarer_hand, jass::hand_t trump_suit_mask) {
-    std::cout << "Running one experiment...\n" << std::endl;
-    std::vector<jass::hand_t> hands = shuffle_other_hands(declarer_hand);
+    std::vector<jass::hand_t> hands = shuffle_other_hands(declarer_hand, 0);
     hands = swap_trump(hands, trump_suit_mask);
     return static_cast<double>(jass::solve_deal(hands));
 }
