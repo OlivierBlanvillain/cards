@@ -183,8 +183,8 @@ int double_dummy_solver(
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
-        hands[curr_player] ^= card;
 
+        hands[curr_player] ^= card;
         int current_move_value;
         if (card1 == NOT_A_CARD) {
             current_move_value = double_dummy_solver(card, NOT_A_CARD, NOT_A_CARD, hands, (curr_player + 1) % 4, remaining_cards ^ card, alpha, beta, transposition_table);
@@ -200,14 +200,11 @@ int double_dummy_solver(
                 points += LAST_TRICK_BONUS;
             }
             int points_this_trick = (winner_player % 2 == 0) ? points : 0;
-
             int new_alpha = alpha - points_this_trick;
             int new_beta = beta - points_this_trick;
-
             int sub_game_value = double_dummy_solver(NOT_A_CARD, NOT_A_CARD, NOT_A_CARD, hands, winner_player, remaining_cards ^ card, new_alpha, new_beta, transposition_table);
             current_move_value = points_this_trick + sub_game_value;
         }
-
         hands[curr_player] ^= card;
 
         if (is_maximizing_player) {
