@@ -225,7 +225,7 @@ CARD_TO_BIT = {}
 BIT_TO_CARD = {}
 
 bit = 35
-for suit, suit_name in [(S, "♠"), (H, "♥"), (D, "♦"), (C, "♣")]:
+for suit, suit_name in [(S, "S"), (H, "H"), (D, "D"), (C, "C")]:
     ranks = RANKS_TRUMP if suit == S else RANKS_PLAIN
     for rank in ranks:
         CARD_TO_BIT[(suit, rank)] = bit
@@ -239,7 +239,7 @@ def c(desc: str) -> int:
     for token in desc.split(','):
         rank = token[:-1]
         suit_char = token[-1]
-        suit = {"♣": C, "♦": D, "♥": H, "♠": S}[suit_char]
+        suit = {"C": C, "D": D, "H": H, "S": S}[suit_char]
         total |= 1 << CARD_TO_BIT[(suit, rank)]
     return total
 

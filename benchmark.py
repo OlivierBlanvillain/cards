@@ -7,10 +7,10 @@ import math
 
 def test_benchmark_full_game():
     hands = [
-        c("6♠,10♠,A♥,10♥,9♥,7♥,10♦,J♦,10♣"),
-        c("6♥,A♠,9♠,Q♥,J♥,8♥,8♦,A♣,7♣"),
-        c("6♦,K♠,J♠,K♥,K♦,9♦,7♦,K♣,Q♣"),
-        c("6♣,Q♠,8♠,7♠,A♦,Q♦,J♣,9♣,8♣"),
+        c("6S,10S,AH,10H,9H,7H,10D,JD,10C"),
+        c("6H,AS,9S,QH,JH,8H,8D,AC,7C"),
+        c("6D,KS,JS,KH,KD,9D,7D,KC,QC"),
+        c("6C,QS,8S,7S,AD,QD,JC,9C,8C"),
     ]
 
     def run_solver():
