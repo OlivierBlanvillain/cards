@@ -54,13 +54,8 @@ static const hand_t FOLLOW_TABLE[37] = {
 std::map<std::pair<Suit, std::string>, int> CARD_TO_BIT;
 std::map<int, std::tuple<Suit, std::string, char>> BIT_TO_CARD;
 
-int get_card_bit(card_t card) {
-    if (card == 0) return 0; // Matches Python's (0).bit_length()
-    return 64 - std::countl_zero(card); // Matches Python's x.bit_length()
-}
-
 hand_t get_suit(card_t card) {
-    return SUIT_TABLE[get_card_bit(card)];
+    return SUIT_TABLE[std::bit_width(card)];
 }
 
 void initialize_card_maps() {
@@ -111,7 +106,7 @@ card_t c(const std::string& desc) {
 
 std::string d(card_t card_mask) {
     if (card_mask == 0) return "";
-    int bit_pos = get_card_bit(card_mask); // This is 1-indexed bit_length (0-36)
+    int bit_pos = std::bit_width(card_mask); // This is 1-indexed bit_length (0-36)
     if (bit_pos == 0) return ""; // Handle NOT_A_CARD case
     auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(bit_pos - 1); // Convert to 0-indexed for BIT_TO_CARD
     return rank + suit_char;
@@ -119,10 +114,10 @@ std::string d(card_t card_mask) {
 
 int get_trick_points(card_t card1, card_t card2, card_t card3, card_t card4) {
     int points = 0;
-    if (card1 != NOT_A_CARD) points += POINTS_TABLE[get_card_bit(card1)];
-    if (card2 != NOT_A_CARD) points += POINTS_TABLE[get_card_bit(card2)];
-    if (card3 != NOT_A_CARD) points += POINTS_TABLE[get_card_bit(card3)];
-    if (card4 != NOT_A_CARD) points += POINTS_TABLE[get_card_bit(card4)];
+    if (card1 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card1)];
+    if (card2 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card2)];
+    if (card3 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card3)];
+    if (card4 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card4)];
     return points;
 }
 
@@ -140,7 +135,7 @@ int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4) {
 
 hand_t get_playable_cards(card_t card1, hand_t hand) {
     if (card1 == NOT_A_CARD) return hand;
-    hand_t follow = hand & FOLLOW_TABLE[get_card_bit(card1)];
+    hand_t follow = hand & FOLLOW_TABLE[std::bit_width(card1)];
     if (follow) return follow | (hand & JACK_OF_TRUMP);
     return hand;
 }
@@ -160,9 +155,9 @@ int double_dummy_solver(
     int initial_alpha = alpha;
 
     uint64_t state_key = (remaining_cards << 20) |
-                         (get_card_bit(card1) << 14) |
-                         (get_card_bit(card2) << 8) |
-                         (get_card_bit(card3) << 2) |
+                         (std::bit_width(card1) << 14) |
+                         (std::bit_width(card2) << 8) |
+                         (std::bit_width(card3) << 2) |
                          curr_player;
 
     auto it = transposition_table.find(state_key);

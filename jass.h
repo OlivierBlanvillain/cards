@@ -33,7 +33,6 @@ extern const card_t NOT_A_CARD;
 
 extern const int POINTS_TABLE[37];
 
-int get_card_bit(card_t card);
 void initialize_card_maps();
 card_t c(const std::string& desc);
 std::string d(card_t card_mask);
