@@ -1,23 +1,21 @@
-MAKEFLAGS += --no-builtin-rules
-.ONESHELL:
-.RECIPEPREFIX=-
-.PHONY: FORCE
+CXX = g++
+CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3
 
-help/page:
-- @grep -Po '^[a-z]+(?=:)' makefile | paste -sd"|" | xargs echo make
+.PHONY: all test clean
 
-test: venv/activate FORCE
-- venv/bin/pytest . --verbose --capture=no --exitfirst
+all: test
 
-bench: venv/activate FORCE
-- venv/bin/python3 benchmark.py
+test: test_jass
+	./test_jass
 
-check: venv/activate FORCE
-- venv/bin/pyright -p pyrightconfig.json
+test_jass: jass.o test_jass.o
+	$(CXX) $(CXXFLAGS) -o test_jass jass.o test_jass.o
 
-venv/activate: requirements.txt
-- @echo "creating a new venv..."
-- rm -rf venv __pycache__
-- python3 -m venv venv
-- venv/bin/pip install -r requirements.txt
-- touch $@
+jass.o: jass.cpp jass.h
+	$(CXX) $(CXXFLAGS) -c jass.cpp
+
+test_jass.o: test_jass.cpp jass.h
+	$(CXX) $(CXXFLAGS) -c test_jass.cpp
+
+clean:
+	rm -f *.o test_jass
