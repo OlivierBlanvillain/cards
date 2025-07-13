@@ -146,6 +146,7 @@ struct MoveResult {
     std::vector<double> scores;
     double mean = 0.0;
     double std_dev = 0.0;
+    bool isActive = true;
 
     void update_stats() {
         if (scores.empty()) return;
@@ -181,11 +182,9 @@ std::pair<double, double> get_ci_for_difference(const MoveResult& res1, const Mo
 }
 
 void find_best_trump() {
-    // --- Parameters ---
-    const int N_MIN = 10;           // Min experiments before first check.
-    const int BATCH_SIZE = 5;       // Experiments per suit per batch. Total exps = 4 * 5 = 20.
-                                    // 20 exps * 10s/exp = 200s (~3.3 min) per batch.
-    const int MAX_N = 500;          // Hard limit per suit to prevent infinite loops.
+    const int N_MIN = 10;
+    const int BATCH_SIZE = 5;
+    const int MAX_N_PER_MOVE = 500;
     const double INDIFFERENCE_THRESHOLD = 0.1;
 
     jass::hand_t declarer_hand = shuffle_one_hand();
@@ -196,64 +195,95 @@ void find_best_trump() {
         {'S', jass::S}, {'H', jass::H}, {'D', jass::D}, {'C', jass::C}
     };
 
-    // --- Initial Batch ---
     for (int i = 0; i < N_MIN; ++i) {
         for (auto& res : results) {
             res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
         }
     }
 
-    // --- Dynamic Loop ---
-    int current_n = N_MIN;
-    while (current_n < MAX_N) {
-        for (auto& res : results) res.update_stats();
-
-        std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) { return a.mean > b.mean; });
-
-        const MoveResult& best_move = results[0];
-        const MoveResult& second_best_move = results[1];
-        auto ci = get_ci_for_difference(best_move, second_best_move);
-
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << "N=" << std::setw(4) << current_n
-                  << " | Best: " << best_move.name << " (" << best_move.mean << ")"
-                  << " | 2nd: " << second_best_move.name << " (" << second_best_move.mean << ")"
-                  << " | 95% CI for Diff: [" << std::setw(6) << ci.first << ", " << std::setw(6) << ci.second << "]" << std::endl;
-
-        if (ci.first > 0) {
-            std::cout << "\n--- Conclusion: Found a Winner! ---" << std::endl;
-            std::cout << "Trump " << best_move.name << " is significantly better than " << second_best_move.name << "." << std::endl;
-            std::cout << "Final EV: " << best_move.mean << " after " << current_n << " simulations per suit." << std::endl;
-            return;
-        }
-
-        if ((ci.second - ci.first) < INDIFFERENCE_THRESHOLD) {
-            std::cout << "\n--- Conclusion: Moves are Practically Equivalent ---" << std::endl;
-            std::cout << "The difference between " << best_move.name << " and " << second_best_move.name
-                      << " is smaller than the indifference threshold of " << INDIFFERENCE_THRESHOLD << " pts." << std::endl;
-            std::cout << "Best move is " << best_move.name << " with EV: " << best_move.mean << std::endl;
-            return;
-        }
-
-        for (int i = 0; i < BATCH_SIZE; ++i) {
-            for (auto& res : results) {
-                res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
+    while (true) {
+        // --- 1. Update stats and identify active contenders ---
+        std::vector<MoveResult*> active_contenders;
+        for (auto& res : results) {
+            if (res.isActive) {
+                res.update_stats();
+                active_contenders.push_back(&res);
             }
         }
-        current_n += BATCH_SIZE;
-    }
 
-    std::cout << "\n--- Conclusion: Reached Max Simulations (" << MAX_N << ") ---" << std::endl;
-    std::cout << "Result is inconclusive. The best move is likely " << results[0].name
-              << " but it is not statistically superior to " << results[1].name << "." << std::endl;
+        // --- 2. Check for a single winner ---
+        if (active_contenders.size() <= 1) {
+            std::cout << "\n--- Conclusion: Found a Single Best Move! ---" << std::endl;
+            if (!active_contenders.empty()) {
+                std::cout << "Trump " << active_contenders[0]->name << " is the winner with EV: " << active_contenders[0]->mean << std::endl;
+            } else {
+                std::cout << "Error: No active contenders left." << std::endl;
+            }
+            return;
+        }
+
+        // --- 3. Sort active contenders by mean score ---
+        std::sort(active_contenders.begin(), active_contenders.end(), [](const auto* a, const auto* b) {
+            return a->mean > b->mean;
+        });
+
+        MoveResult* best_move = active_contenders[0];
+        MoveResult* second_best_move = active_contenders[1];
+
+        // --- 4. Pruning Phase: Compare best against all other active challengers ---
+        for (size_t i = 1; i < active_contenders.size(); ++i) {
+            MoveResult* challenger = active_contenders[i];
+            auto ci_prune = get_ci_for_difference(*best_move, *challenger);
+            if (ci_prune.first > 0) {
+                challenger->isActive = false;
+                std::cout << "    -> Pruning move " << challenger->name << " (EV " << challenger->mean
+                          << "). Confident it's worse than " << best_move->name << " (EV " << best_move->mean << ")." << std::endl;
+            }
+        }
+
+        // --- 5. Status Report & Main Stopping Conditions ---
+        auto ci_main = get_ci_for_difference(*best_move, *second_best_move);
+
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "N(" << best_move->name << ")=" << std::setw(3) << best_move->scores.size()
+                  << " | Best: " << best_move->name << " (" << best_move->mean << ")"
+                  << " | 2nd: " << second_best_move->name << " (" << second_best_move->mean << ")"
+                  << " | 95% CI for Diff: [" << std::setw(6) << ci_main.first << ", " << std::setw(6) << ci_main.second << "]" << std::endl;
+
+        if (ci_main.first > 0 && second_best_move->isActive) {
+            std::cout << "\n--- Conclusion: Found a Confident Winner! ---" << std::endl;
+            std::cout << "Trump " << best_move->name << " is significantly better than " << second_best_move->name << "." << std::endl;
+            return;
+        }
+
+        if ((ci_main.second - ci_main.first) < INDIFFERENCE_THRESHOLD) {
+            std::cout << "\n--- Conclusion: Moves are Practically Equivalent ---" << std::endl;
+            std::cout << "Difference between " << best_move->name << " and " << second_best_move->name
+                      << " is smaller than the threshold of " << INDIFFERENCE_THRESHOLD << " pts." << std::endl;
+            return;
+        }
+
+        // --- 6. Check max simulations for the leading contender ---
+        if (best_move->scores.size() >= MAX_N_PER_MOVE) {
+            std::cout << "\n--- Conclusion: Reached Max Simulations (" << MAX_N_PER_MOVE << ") ---" << std::endl;
+            std::cout << "Result is inconclusive for top contenders." << std::endl;
+            return;
+        }
+
+        // --- 7. Run next batch ONLY for active moves ---
+        for (auto& res : results) {
+            if (res.isActive) {
+                for (int i = 0; i < BATCH_SIZE; ++i) {
+                    res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
+                }
+            }
+        }
+    }
 }
 
 int main() {
-    // These must be called once at the start
     jass::initialize_card_maps();
     initialize_swap_maps();
-
     find_best_trump();
-
     return 0;
 }
