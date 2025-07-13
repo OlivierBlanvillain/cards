@@ -7,7 +7,7 @@ help/page:
 - @grep -Po '^[a-z]+(?=:)' makefile | paste -sd"|" | xargs echo make
 
 test: venv/activate FORCE
-- venv/bin/pytest . -v --capture=no
+- venv/bin/pytest . --verbose --capture=no --exitfirst
 
 bench: venv/activate FORCE
 - venv/bin/python3 benchmark.py
@@ -15,10 +15,9 @@ bench: venv/activate FORCE
 check: venv/activate FORCE
 - venv/bin/pyright -p pyrightconfig.json
 
-venv/activate:
+venv/activate: requirements.txt
 - @echo "creating a new venv..."
 - rm -rf venv __pycache__
 - python3 -m venv venv
 - venv/bin/pip install -r requirements.txt
-- venv/bin/pip install pyright
 - touch $@
