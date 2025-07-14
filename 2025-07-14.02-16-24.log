@@ -1,0 +1,40 @@
+g++ -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3 -o build/simulation jass.o simulation.o
+build/simulation
+Declarer Hand: 7S, AH, KH, 10H, 8H, KD, 8D, 8C, 6C
+Finding best trump suit...
+
+    -> Pruning move C (EV 29.3333). Confident it's worse than H (EV 109).
+N(H)=  3 | Best: H (109.00) | 2nd: S (80.33) | 95% CI for Diff: [-60.01, 117.34]
+N(H)=  4 | Best: H (96.25) | 2nd: S (84.50) | 95% CI for Diff: [-56.24,  79.74]
+N(H)=  5 | Best: H (94.20) | 2nd: S (86.40) | 95% CI for Diff: [-45.15,  60.75]
+N(H)=  6 | Best: H (93.83) | 2nd: S (87.00) | 95% CI for Diff: [-36.42,  50.09]
+N(H)=  7 | Best: H (92.00) | 2nd: S (90.14) | 95% CI for Diff: [-35.39,  39.10]
+N(S)=  8 | Best: S (92.12) | 2nd: H (91.25) | 95% CI for Diff: [-31.65,  33.40]
+N(H)=  9 | Best: H (90.22) | 2nd: S (83.56) | 95% CI for Diff: [-26.63,  39.97]
+    -> Pruning move D (EV 60.20). Confident it's worse than H (EV 92.90).
+N(H)= 10 | Best: H (92.90) | 2nd: S (86.00) | 95% CI for Diff: [-23.72,  37.52]
+N(H)= 11 | Best: H (93.27) | 2nd: S (88.73) | 95% CI for Diff: [-23.67,  32.76]
+N(H)= 12 | Best: H (93.42) | 2nd: S (84.42) | 95% CI for Diff: [-18.11,  36.11]
+N(H)= 13 | Best: H (97.08) | 2nd: S (77.92) | 95% CI for Diff: [ -9.75,  48.06]
+N(H)= 14 | Best: H (94.93) | 2nd: S (76.71) | 95% CI for Diff: [ -8.98,  45.41]
+N(H)= 15 | Best: H (96.33) | 2nd: S (79.60) | 95% CI for Diff: [ -9.35,  42.82]
+N(H)= 16 | Best: H (93.50) | 2nd: S (74.62) | 95% CI for Diff: [ -7.98,  45.73]
+N(H)= 17 | Best: H (90.65) | 2nd: S (78.18) | 95% CI for Diff: [-14.29,  39.23]
+N(H)= 18 | Best: H (93.33) | 2nd: S (76.67) | 95% CI for Diff: [ -9.28,  42.61]
+N(H)= 19 | Best: H (92.32) | 2nd: S (76.00) | 95% CI for Diff: [ -8.34,  40.97]
+N(H)= 20 | Best: H (92.60) | 2nd: S (74.25) | 95% CI for Diff: [ -5.30,  42.00]
+N(H)= 21 | Best: H (90.29) | 2nd: S (73.86) | 95% CI for Diff: [ -6.53,  39.39]
+N(H)= 22 | Best: H (87.73) | 2nd: S (70.50) | 95% CI for Diff: [ -6.17,  40.63]
+N(H)= 23 | Best: H (85.61) | 2nd: S (70.57) | 95% CI for Diff: [ -7.70,  37.79]
+N(H)= 24 | Best: H (87.17) | 2nd: S (71.00) | 95% CI for Diff: [ -5.84,  38.17]
+N(H)= 25 | Best: H (85.60) | 2nd: S (68.52) | 95% CI for Diff: [ -4.79,  38.95]
+N(H)= 26 | Best: H (85.31) | 2nd: S (69.12) | 95% CI for Diff: [ -4.86,  37.25]
+N(H)= 27 | Best: H (87.26) | 2nd: S (67.11) | 95% CI for Diff: [ -0.84,  41.14]
+N(H)= 28 | Best: H (87.04) | 2nd: S (68.93) | 95% CI for Diff: [ -2.44,  38.65]
+N(H)= 29 | Best: H (85.72) | 2nd: S (70.14) | 95% CI for Diff: [ -4.54,  35.71]
+N(H)= 30 | Best: H (86.13) | 2nd: S (67.80) | 95% CI for Diff: [ -1.66,  38.33]
+    -> Pruning move S (EV 67.39). Confident it's worse than H (EV 88.42).
+N(H)= 31 | Best: H (88.42) | 2nd: S (67.39) | 95% CI for Diff: [  1.17,  40.90]
+
+--- Conclusion: Found a Single Best Move! ---
+Trump H is the winner with EV: 88.47

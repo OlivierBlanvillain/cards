@@ -1,0 +1,17 @@
+g++ -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3 -o build/simulation jass.o simulation.o
+build/simulation
+Declarer Hand: JS, KS, 10S, 7S, AH, KD, 7D, 6D, QC
+Finding best trump suit...
+
+    -> Pruning move C (EV 80.3333). Confident it's worse than S (EV 120.667).
+    -> Pruning move H (EV 78.6667). Confident it's worse than S (EV 120.667).
+N(S)=  3 | Best: S (120.67) | 2nd: D (106.67) | 95% CI for Diff: [-59.10,  87.10]
+N(S)=  4 | Best: S (120.00) | 2nd: D (110.00) | 95% CI for Diff: [-42.12,  62.12]
+N(S)=  5 | Best: S (122.40) | 2nd: D (108.20) | 95% CI for Diff: [-26.59,  54.99]
+N(S)=  6 | Best: S (128.17) | 2nd: D (109.17) | 95% CI for Diff: [-16.22,  54.22]
+N(S)=  7 | Best: S (129.14) | 2nd: D (106.29) | 95% CI for Diff: [ -7.50,  53.22]
+    -> Pruning move D (EV 97.00). Confident it's worse than S (EV 132.62).
+N(S)=  8 | Best: S (132.62) | 2nd: D (97.00) | 95% CI for Diff: [  2.93,  68.32]
+
+--- Conclusion: Found a Single Best Move! ---
+Trump S is the winner with EV: 133.78

@@ -43,7 +43,7 @@ void run_benchmark_full_game() {
     std::cout << "|---------------------|---------------|" << std::endl;
     std::cout << "| Metric              | Value         |" << std::endl;
     std::cout << "|---------------------|---------------|" << std::endl;
-    std::cout << "| Mean Time           | " << std::fixed << std::setprecision(4) << mean_time << " s      |" << std::endl;
+    // std::cout << "| Mean Time           | " << std::fixed << std::setprecision(4) << mean_time << " s      |" << std::endl;
     std::cout << "| Standard Deviation  | " << std::fixed << std::setprecision(4) << stdev_time << " s      |" << std::endl;
     std::cout << "| 95% Confidence Int. | \xc2\xb1" << std::fixed << std::setprecision(4) << confidence_interval << " s     |" << std::endl;
     std::cout << "|-------------------------------------|" << std::endl;

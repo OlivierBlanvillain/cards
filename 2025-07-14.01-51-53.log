@@ -1,0 +1,23 @@
+g++ -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3 -o build/simulation jass.o simulation.o
+build/simulation
+Declarer Hand: AS, QS, 8S, AH, 10H, 9H, JD, 8C, 7C
+Finding best trump suit...
+
+N(D)=  3 | Best: D (121.33) | 2nd: H (96.33) | 95% CI for Diff: [-47.73,  97.73]
+    -> Pruning move C (EV 50.25). Confident it's worse than D (EV 125.75).
+N(D)=  4 | Best: D (125.75) | 2nd: H (110.00) | 95% CI for Diff: [-42.88,  74.38]
+N(H)=  5 | Best: H (119.40) | 2nd: D (119.40) | 95% CI for Diff: [-50.56,  50.56]
+N(H)=  6 | Best: H (117.33) | 2nd: D (114.83) | 95% CI for Diff: [-39.94,  44.94]
+N(H)=  7 | Best: H (114.29) | 2nd: D (109.71) | 95% CI for Diff: [-33.15,  42.29]
+N(D)=  8 | Best: D (115.62) | 2nd: H (106.12) | 95% CI for Diff: [-28.67,  47.67]
+    -> Pruning move S (EV 74.33). Confident it's worse than D (EV 120.22).
+N(D)=  9 | Best: D (120.22) | 2nd: H (105.44) | 95% CI for Diff: [-20.10,  49.65]
+N(D)= 10 | Best: D (123.90) | 2nd: H (109.50) | 95% CI for Diff: [-18.59,  47.39]
+N(D)= 11 | Best: D (121.36) | 2nd: H (106.82) | 95% CI for Diff: [-16.16,  45.25]
+N(D)= 12 | Best: D (122.75) | 2nd: H (102.92) | 95% CI for Diff: [ -9.35,  49.01]
+N(D)= 13 | Best: D (125.38) | 2nd: H (98.46) | 95% CI for Diff: [ -1.77,  55.62]
+    -> Pruning move H (EV 96.57). Confident it's worse than D (EV 126.21).
+N(D)= 14 | Best: D (126.21) | 2nd: H (96.57) | 95% CI for Diff: [  2.77,  56.51]
+
+--- Conclusion: Found a Single Best Move! ---
+Trump D is the winner with EV: 122.73
