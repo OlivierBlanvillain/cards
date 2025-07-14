@@ -211,6 +211,18 @@ double run_one_experiment(jass::hand_t declarer_hand, jass::hand_t trump_suit_ma
     return static_cast<double>(jass::solve_deal(hands));
 }
 
+// Calculates the 95% Confidence Interval for a single mean
+std::pair<double, double> get_ci_for_mean(const MoveResult& res) {
+    if (res.scores.size() < 2) {
+        return {0.0, 0.0}; // Not enough data for a meaningful CI
+    }
+    double n = static_cast<double>(res.scores.size());
+    double mean = res.mean;
+    double se = res.std_dev / std::sqrt(n);
+    double margin_of_error = 1.96 * se; // Z-score for 95% CI
+    return {mean - margin_of_error, mean + margin_of_error};
+}
+
 // Calculates the 95% Confidence Interval for the difference of two means
 std::pair<double, double> get_ci_for_difference(const MoveResult& res1, const MoveResult& res2) {
     double n1 = static_cast<double>(res1.scores.size()), n2 = static_cast<double>(res2.scores.size());
@@ -285,11 +297,13 @@ void find_best_trump() {
 
         // --- 5. Status Report & Main Stopping Conditions ---
         auto ci_main = get_ci_for_difference(*best_move, *second_best_move);
+        auto ci_best = get_ci_for_mean(*best_move);
+        auto ci_second = get_ci_for_mean(*second_best_move);
 
         std::cout << std::fixed << std::setprecision(2);
-        std::cout << "N(" << best_move->name << ")=" << std::setw(3) << best_move->scores.size()
-                  << " | Best: " << best_move->name << " (" << best_move->mean << ")"
-                  << " | 2nd: " << second_best_move->name << " (" << second_best_move->mean << ")"
+        std::cout << "N(" << best_move->name << ")=" << std::setw(4) << best_move->scores.size()
+                  << " | Best: " << best_move->name << " (" << best_move->mean << " CI: [" << ci_best.first << ", " << ci_best.second << "])"
+                  << " | 2nd: " << second_best_move->name << " (" << second_best_move->mean << " CI: [" << ci_second.first << ", " << ci_second.second << "])"
                   << " | 95% CI for Diff: [" << std::setw(6) << ci_main.first << ", " << std::setw(6) << ci_main.second << "]" << std::endl;
 
         if (ci_main.first > 0 && second_best_move->isActive) {
