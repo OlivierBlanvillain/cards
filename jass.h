@@ -54,30 +54,102 @@ using State1 = std::tuple<uint64_t, uint64_t, int>; // card1, remaining_cards, c
 using State2 = std::tuple<uint64_t, uint64_t, uint64_t, int>; // card1, card2, remaining_cards, current_player
 using State3 = std::tuple<uint64_t, uint64_t, uint64_t, uint64_t, int>; // card1, card2, card3, remaining_cards, current_player
 
-// Declare the four recursive solver functions
-int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards, int alpha, int beta,
-           ankerl::unordered_dense::map<uint64_t, int>& tt0,
-           ankerl::unordered_dense::map<uint64_t, int>& tt1,
-           ankerl::unordered_dense::map<uint64_t, int>& tt2,
-           ankerl::unordered_dense::map<uint64_t, int>& tt3);
-int solve1(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards,
-           int alpha, int beta,
-           ankerl::unordered_dense::map<uint64_t, int>& tt0,
-           ankerl::unordered_dense::map<uint64_t, int>& tt1,
-           ankerl::unordered_dense::map<uint64_t, int>& tt2,
-           ankerl::unordered_dense::map<uint64_t, int>& tt3);
-int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand, int current_player,
-           uint64_t remaining_cards, int alpha, int beta,
-           ankerl::unordered_dense::map<uint64_t, int>& tt0,
-           ankerl::unordered_dense::map<uint64_t, int>& tt1,
-           ankerl::unordered_dense::map<uint64_t, int>& tt2,
-           ankerl::unordered_dense::map<uint64_t, int>& tt3);
-int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
-           int current_player, uint64_t remaining_cards, int alpha, int beta,
-           ankerl::unordered_dense::map<uint64_t, int>& tt0,
-           ankerl::unordered_dense::map<uint64_t, int>& tt1,
-           ankerl::unordered_dense::map<uint64_t, int>& tt2,
-           ankerl::unordered_dense::map<uint64_t, int>& tt3);
+// Declare the specialized recursive solver functions
+int solve0_0(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve0_1(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve0_2(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve0_3(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+
+int solve1_0(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards,
+             int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve1_1(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards,
+             int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve1_2(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards,
+             int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve1_3(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards,
+             int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+
+int solve2_0(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve2_1(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve2_2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve2_3(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+
+int solve3_0(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve3_1(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve3_2(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
+int solve3_3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+             uint64_t remaining_cards, int alpha, int beta,
+             ankerl::unordered_dense::map<uint64_t, int>& tt0,
+             ankerl::unordered_dense::map<uint64_t, int>& tt1,
+             ankerl::unordered_dense::map<uint64_t, int>& tt2,
+             ankerl::unordered_dense::map<uint64_t, int>& tt3);
 
 // Main entry point for solving a deal
 int solve_deal(std::array<hand_t, 4>& hands);

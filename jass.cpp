@@ -141,16 +141,13 @@ hand_t get_playable_cards(card_t card1, hand_t hand) {
     return hand;
 }
 
-int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards, int alpha, int beta,
+int solve0_0(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
            ankerl::unordered_dense::map<uint64_t, int>& tt0,
            ankerl::unordered_dense::map<uint64_t, int>& tt1,
            ankerl::unordered_dense::map<uint64_t, int>& tt2,
            ankerl::unordered_dense::map<uint64_t, int>& tt3) {
     int initial_alpha = alpha;
-    uint64_t state_key = (
-        (remaining_cards << 20)
-        | current_player
-    );
+    uint64_t state_key = remaining_cards;
     auto it = tt0.find(state_key);
     if (it != tt0.end()) {
         int entry = it->second;
@@ -171,33 +168,27 @@ int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t 
         return 0;
     }
 
-    bool is_maximizing_player = (current_player % 2 == 0);
-    int best_score = is_maximizing_player ? -999 : 999;
+    bool is_maximizing_player = true; // Player 0 is maximizing
+    int best_score = -999;
 
-    hand_t playable_cards = cards_in_hand[current_player];
+    hand_t playable_cards = cards_in_hand[0];
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
-        int current_move_value = solve1(
+        cards_in_hand[0] ^= card;
+        int current_move_value = solve1_1(
             card,
             cards_in_hand,
-            (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
             beta,
             tt0, tt1, tt2, tt3
         );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[0] ^= card;
 
-        if (is_maximizing_player) {
-            best_score = std::max(best_score, current_move_value);
-            alpha = std::max(alpha, best_score);
-        } else {
-            best_score = std::min(best_score, current_move_value);
-            beta = std::min(beta, best_score);
-        }
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
 
         if (beta <= alpha) {
             break;
@@ -217,10 +208,209 @@ int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t 
     return best_score;
 }
 
-int solve1(
+int solve0_1(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = remaining_cards;
+    auto it = tt0.find(state_key);
+    if (it != tt0.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    if (remaining_cards == 0) {
+        return 0;
+    }
+
+    bool is_maximizing_player = false; // Player 1 is minimizing
+    int best_score = 999;
+
+    hand_t playable_cards = cards_in_hand[1];
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[1] ^= card;
+        int current_move_value = solve1_2(
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[1] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt0[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve0_2(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = remaining_cards;
+    auto it = tt0.find(state_key);
+    if (it != tt0.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    if (remaining_cards == 0) {
+        return 0;
+    }
+    bool is_maximizing_player = true; // Player 2 is maximizing
+    int best_score = -999;
+
+    hand_t playable_cards = cards_in_hand[2];
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[2] ^= card;
+        int current_move_value = solve1_3(
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[2] ^= card;
+
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt0[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve0_3(std::array<uint64_t, 4>& cards_in_hand, uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = remaining_cards;
+    auto it = tt0.find(state_key);
+    if (it != tt0.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    if (remaining_cards == 0) {
+        return 0;
+    }
+
+    
+    int best_score = 999;
+
+    hand_t playable_cards = cards_in_hand[3];
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[3] ^= card;
+        int current_move_value = solve1_0(
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[3] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt0[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve1_0(
     uint64_t card1,
     std::array<uint64_t, 4>& cards_in_hand,
-    int current_player,
     uint64_t remaining_cards,
     int alpha,
     int beta,
@@ -233,7 +423,6 @@ int solve1(
     uint64_t state_key = (
         (remaining_cards << 20)
         | (std::bit_width(card1) << 14)
-        | current_player
     );
     auto it = tt1.find(state_key);
     if (it != tt1.end()) {
@@ -251,34 +440,28 @@ int solve1(
         }
     }
 
-    bool is_maximizing_player = (current_player % 2 == 0);
-    int best_score = is_maximizing_player ? -999 : 999;
+    bool is_maximizing_player = true; // Player 0 is maximizing
+    int best_score = -999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[0]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
-        int current_move_value = solve2(
+        cards_in_hand[0] ^= card;
+        int current_move_value = solve2_1(
             card1,
             card,
             cards_in_hand,
-            (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
             beta,
             tt0, tt1, tt2, tt3
         );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[0] ^= card;
 
-        if (is_maximizing_player) {
-            best_score = std::max(best_score, current_move_value);
-            alpha = std::max(alpha, best_score);
-        } else {
-            best_score = std::min(best_score, current_move_value);
-            beta = std::min(beta, best_score);
-        }
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
 
         if (beta <= alpha) {
             break;
@@ -298,7 +481,226 @@ int solve1(
     return best_score;
 }
 
-int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand, int current_player,
+int solve1_1(
+    uint64_t card1,
+    std::array<uint64_t, 4>& cards_in_hand,
+    uint64_t remaining_cards,
+    int alpha,
+    int beta,
+    ankerl::unordered_dense::map<uint64_t, int>& tt0,
+    ankerl::unordered_dense::map<uint64_t, int>& tt1,
+    ankerl::unordered_dense::map<uint64_t, int>& tt2,
+    ankerl::unordered_dense::map<uint64_t, int>& tt3
+){
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+    );
+    auto it = tt1.find(state_key);
+    if (it != tt1.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = false; // Player 1 is minimizing
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[1]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[1] ^= card;
+        int current_move_value = solve2_2(
+            card1,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[1] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt1[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve1_2(
+    uint64_t card1,
+    std::array<uint64_t, 4>& cards_in_hand,
+    uint64_t remaining_cards,
+    int alpha,
+    int beta,
+    ankerl::unordered_dense::map<uint64_t, int>& tt0,
+    ankerl::unordered_dense::map<uint64_t, int>& tt1,
+    ankerl::unordered_dense::map<uint64_t, int>& tt2,
+    ankerl::unordered_dense::map<uint64_t, int>& tt3
+){
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+    );
+    auto it = tt1.find(state_key);
+    if (it != tt1.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = true; // Player 2 is maximizing
+    int best_score = -999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[2]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[2] ^= card;
+        int current_move_value = solve2_3(
+            card1,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[2] ^= card;
+
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt1[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve1_3(
+    uint64_t card1,
+    std::array<uint64_t, 4>& cards_in_hand,
+    uint64_t remaining_cards,
+    int alpha,
+    int beta,
+    ankerl::unordered_dense::map<uint64_t, int>& tt0,
+    ankerl::unordered_dense::map<uint64_t, int>& tt1,
+    ankerl::unordered_dense::map<uint64_t, int>& tt2,
+    ankerl::unordered_dense::map<uint64_t, int>& tt3
+){
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+    );
+    auto it = tt1.find(state_key);
+    if (it != tt1.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[3]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[3] ^= card;
+        int current_move_value = solve2_0(
+            card1,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[3] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt1[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve2_0(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
            uint64_t remaining_cards, int alpha, int beta,
            ankerl::unordered_dense::map<uint64_t, int>& tt0,
            ankerl::unordered_dense::map<uint64_t, int>& tt1,
@@ -309,7 +711,6 @@ int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_han
         (remaining_cards << 20)
         | (std::bit_width(card1) << 14)
         | (std::bit_width(card2) << 8)
-        | current_player
     );
     auto it = tt2.find(state_key);
     if (it != tt2.end()) {
@@ -327,35 +728,29 @@ int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_han
         }
     }
 
-    bool is_maximizing_player = (current_player % 2 == 0);
-    int best_score = is_maximizing_player ? -999 : 999;
+    bool is_maximizing_player = true; // Player 0 is maximizing
+    int best_score = -999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[0]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
-        int current_move_value = solve3(
+        cards_in_hand[0] ^= card;
+        int current_move_value = solve3_1(
             card1,
             card2,
             card,
             cards_in_hand,
-            (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
             beta,
             tt0, tt1, tt2, tt3
         );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[0] ^= card;
 
-        if (is_maximizing_player) {
-            best_score = std::max(best_score, current_move_value);
-            alpha = std::max(alpha, best_score);
-        } else {
-            best_score = std::min(best_score, current_move_value);
-            beta = std::min(beta, best_score);
-        }
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
 
         if (beta <= alpha) {
             break;
@@ -375,8 +770,218 @@ int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_han
     return best_score;
 }
 
-int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
-           int current_player, uint64_t remaining_cards, int alpha, int beta,
+int solve2_1(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+    );
+    auto it = tt2.find(state_key);
+    if (it != tt2.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = false; // Player 1 is minimizing
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[1]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[1] ^= card;
+        int current_move_value = solve3_2(
+            card1,
+            card2,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[1] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt2[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve2_2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+    );
+    auto it = tt2.find(state_key);
+    if (it != tt2.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = true; // Player 2 is maximizing
+    int best_score = -999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[2]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[2] ^= card;
+        int current_move_value = solve3_3(
+            card1,
+            card2,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[2] ^= card;
+
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt2[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve2_3(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+    );
+    auto it = tt2.find(state_key);
+    if (it != tt2.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[3]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        cards_in_hand[3] ^= card;
+        int current_move_value = solve3_0(
+            card1,
+            card2,
+            card,
+            cards_in_hand,
+            remaining_cards ^ card,
+            alpha,
+            beta,
+            tt0, tt1, tt2, tt3
+        );
+        cards_in_hand[3] ^= card;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt2[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve3_0(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
            ankerl::unordered_dense::map<uint64_t, int>& tt0,
            ankerl::unordered_dense::map<uint64_t, int>& tt1,
            ankerl::unordered_dense::map<uint64_t, int>& tt2,
@@ -387,7 +992,6 @@ int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 
         | (std::bit_width(card1) << 14)
         | (std::bit_width(card2) << 8)
         | (std::bit_width(card3) << 2)
-        | current_player
     );
     auto it = tt3.find(state_key);
     if (it != tt3.end()) {
@@ -405,48 +1009,302 @@ int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 
         }
     }
 
-    bool is_maximizing_player = (current_player % 2 == 0);
-    int best_score = is_maximizing_player ? -999 : 999;
+    bool is_maximizing_player = true; // Player 0 is maximizing
+    int best_score = -999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[0]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
         int current_move_value;
         int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
-        int winner_player = (current_player + winner_idx_in_trick + 1) % 4;
         int points = get_trick_points(card1, card2, card3, card);
         if (remaining_cards == card) {
             points += LAST_TRICK_BONUS;
         }
         int points_this_trick = 0;
-        if (winner_player % 2 == 0) {
+        if (winner_idx_in_trick % 2 == 0) { // Player 0 or 2 wins
             points_this_trick = points;
         }
         int new_alpha = alpha - points_this_trick;
         int new_beta = beta - points_this_trick;
 
-        cards_in_hand[current_player] ^= card;
-        int sub_game_value = solve0(
-            cards_in_hand,
-            winner_player,
-            remaining_cards ^ card,
-            new_alpha,
-            new_beta,
-            tt0, tt1, tt2, tt3
-        );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[0] ^= card;
+        int sub_game_value;
+        if (winner_idx_in_trick == 0) { // Player 0 wins
+            sub_game_value = solve0_0(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 1) { // Player 1 wins
+            sub_game_value = solve0_1(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 2) { // Player 2 wins
+            sub_game_value = solve0_2(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else { // winner_idx_in_trick == 3, Player 3 wins
+            sub_game_value = solve0_3(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        }
+        cards_in_hand[0] ^= card;
 
         current_move_value = points_this_trick + sub_game_value;
 
-        if (is_maximizing_player) {
-            best_score = std::max(best_score, current_move_value);
-            alpha = std::max(alpha, best_score);
-        } else {
-            best_score = std::min(best_score, current_move_value);
-            beta = std::min(beta, best_score);
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
+
+        if (beta <= alpha) {
+            break;
         }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt3[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve3_1(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+        | (std::bit_width(card3) << 2)
+    );
+    auto it = tt3.find(state_key);
+    if (it != tt3.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = false; // Player 1 is minimizing
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[1]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        int current_move_value;
+        int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
+        int points = get_trick_points(card1, card2, card3, card);
+        if (remaining_cards == card) {
+            points += LAST_TRICK_BONUS;
+        }
+        int points_this_trick = 0;
+        if (winner_idx_in_trick % 2 == 1) { // Player 1 or 3 wins
+            points_this_trick = points;
+        }
+        int new_alpha = alpha - points_this_trick;
+        int new_beta = beta - points_this_trick;
+
+        cards_in_hand[1] ^= card;
+        int sub_game_value;
+        if (winner_idx_in_trick == 0) { // Player 0 wins
+            sub_game_value = solve0_0(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 1) { // Player 1 wins
+            sub_game_value = solve0_1(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 2) { // Player 2 wins
+            sub_game_value = solve0_2(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else { // winner_idx_in_trick == 3, Player 3 wins
+            sub_game_value = solve0_3(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        }
+        cards_in_hand[1] ^= card;
+
+        current_move_value = points_this_trick + sub_game_value;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt3[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve3_2(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+        | (std::bit_width(card3) << 2)
+    );
+    auto it = tt3.find(state_key);
+    if (it != tt3.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    bool is_maximizing_player = true; // Player 2 is maximizing
+    int best_score = -999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[2]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        int current_move_value;
+        int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
+        int points = get_trick_points(card1, card2, card3, card);
+        if (remaining_cards == card) {
+            points += LAST_TRICK_BONUS;
+        }
+        int points_this_trick = 0;
+        if (winner_idx_in_trick % 2 == 0) { // Player 0 or 2 wins
+            points_this_trick = points;
+        }
+        int new_alpha = alpha - points_this_trick;
+        int new_beta = beta - points_this_trick;
+
+        cards_in_hand[2] ^= card;
+        int sub_game_value;
+        if (winner_idx_in_trick == 0) { // Player 0 wins
+            sub_game_value = solve0_0(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 1) { // Player 1 wins
+            sub_game_value = solve0_1(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 2) { // Player 2 wins
+            sub_game_value = solve0_2(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else { // winner_idx_in_trick == 3, Player 3 wins
+            sub_game_value = solve0_3(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        }
+        cards_in_hand[2] ^= card;
+
+        current_move_value = points_this_trick + sub_game_value;
+
+        best_score = std::max(best_score, current_move_value);
+        alpha = std::max(alpha, best_score);
+
+        if (beta <= alpha) {
+            break;
+        }
+    }
+
+    int flag;
+    if (best_score <= initial_alpha) {
+        flag = FLAG_UPPER_BOUND;
+    } else if (best_score >= beta) {
+        flag = FLAG_LOWER_BOUND;
+    } else {
+        flag = FLAG_EXACT;
+    }
+    tt3[state_key] = best_score | flag;
+
+    return best_score;
+}
+
+int solve3_3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+           uint64_t remaining_cards, int alpha, int beta,
+           ankerl::unordered_dense::map<uint64_t, int>& tt0,
+           ankerl::unordered_dense::map<uint64_t, int>& tt1,
+           ankerl::unordered_dense::map<uint64_t, int>& tt2,
+           ankerl::unordered_dense::map<uint64_t, int>& tt3) {
+    int initial_alpha = alpha;
+    uint64_t state_key = (
+        (remaining_cards << 20)
+        | (std::bit_width(card1) << 14)
+        | (std::bit_width(card2) << 8)
+        | (std::bit_width(card3) << 2)
+    );
+    auto it = tt3.find(state_key);
+    if (it != tt3.end()) {
+        int entry = it->second;
+        if (entry & FLAG_EXACT) {
+            return entry ^ FLAG_EXACT;
+        } else if (entry & FLAG_LOWER_BOUND) {
+            int score = entry ^ FLAG_LOWER_BOUND;
+            alpha = std::max(alpha, score);
+            if (alpha >= beta) return score;
+        } else if (entry & FLAG_UPPER_BOUND) {
+            int score = entry ^ FLAG_UPPER_BOUND;
+            beta = std::min(beta, score);
+            if (alpha >= beta) return score;
+        }
+    }
+
+    
+    int best_score = 999;
+
+    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[3]);
+    while (playable_cards) {
+        card_t card = playable_cards & -playable_cards;
+        playable_cards ^= card;
+
+        int current_move_value;
+        int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
+        int points = get_trick_points(card1, card2, card3, card);
+        if (remaining_cards == card) {
+            points += LAST_TRICK_BONUS;
+        }
+        int points_this_trick = 0;
+        if (winner_idx_in_trick % 2 == 1) { // Player 1 or 3 wins
+            points_this_trick = points;
+        }
+        int new_alpha = alpha - points_this_trick;
+        int new_beta = beta - points_this_trick;
+
+        cards_in_hand[3] ^= card;
+        int sub_game_value;
+        if (winner_idx_in_trick == 0) { // Player 0 wins
+            sub_game_value = solve0_0(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 1) { // Player 1 wins
+            sub_game_value = solve0_1(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else if (winner_idx_in_trick == 2) { // Player 2 wins
+            sub_game_value = solve0_2(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        } else { // winner_idx_in_trick == 3, Player 3 wins
+            sub_game_value = solve0_3(cards_in_hand, remaining_cards ^ card, new_alpha, new_beta, tt0, tt1, tt2, tt3);
+        }
+        cards_in_hand[3] ^= card;
+
+        current_move_value = points_this_trick + sub_game_value;
+
+        best_score = std::min(best_score, current_move_value);
+        beta = std::min(beta, best_score);
 
         if (beta <= alpha) {
             break;
@@ -480,7 +1338,7 @@ int solve_deal(std::array<hand_t, 4>& hands) {
     ankerl::unordered_dense::map<uint64_t, int> tt3;
 
     // The initial call is to solve0
-    int final_score = solve0(hands, 0, std::accumulate(hands.begin(), hands.end(), (hand_t)0), -999, 999, tt0, tt1, tt2, tt3);
+    int final_score = solve0_0(hands, std::accumulate(hands.begin(), hands.end(), (hand_t)0), -999, 999, tt0, tt1, tt2, tt3);
     return final_score;
 }
 
