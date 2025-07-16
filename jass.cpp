@@ -544,20 +544,6 @@ int get_stock_bonus(hand_t hand) {
 }
 
 int solve_deal(std::array<hand_t, 4>& hands) {
-    // Log hands and timestamp
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-    std::tm* ptm = std::localtime(&now_c);
-    std::stringstream ss;
-    ss << std::put_time(ptm, "%Y-%m-%d.%H-%M-%S");
-    std::string filename = "logs/" + ss.str() + ".log";
-    std::ofstream log_file(filename, std::ios_base::app);
-
-    log_file << "Hands: " << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        log_file << "  Player " << i << ": " << hand_to_string(hands[i]) << std::endl;
-    }
-
     for (size_t i = 0; i < hands.size(); ++i) {
         for (size_t j = 0; j < i; ++j) {
             if (hands[i] & hands[j]) {
@@ -582,10 +568,6 @@ int solve_deal(std::array<hand_t, 4>& hands) {
     );
     final_score += get_stock_bonus(hands[0]); // Add bonus for player 0
     final_score += get_stock_bonus(hands[2]); // Add bonus for player 2
-
-    log_file << "Final Score: " << final_score << std::endl;
-    log_file.close();
-
     return final_score;
 }
 

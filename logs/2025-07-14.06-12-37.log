@@ -1,6 +1,0 @@
-g++ -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3 -o build/simulation jass.o simulation.o
-build/simulation
-Declarer Hand: KS, 8S, QH, 8H, 10D, 9D, 8D, 7D, 8C
-Finding best trump suit...
-
-N(D)=  3 | Best: D (94.33) | 2nd: C (75.33) | 95% CI for Diff: [-76.68, 114.68]
