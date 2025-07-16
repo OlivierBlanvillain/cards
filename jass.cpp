@@ -51,7 +51,7 @@ static const hand_t SUIT_TABLE[37] = {
 };
 
 // 1-indexed by bit_length (0-36)
-static const hand_t FOLLOW_TABLE[37] = {
+static const suit_t FOLLOW_TABLE[37] = {
     0, // unused (index 0)
     C, C, C, C, C, C, C, C, C,
     D, D, D, D, D, D, D, D, D,
@@ -62,7 +62,7 @@ static const hand_t FOLLOW_TABLE[37] = {
 std::map<std::pair<Suit, std::string>, int> CARD_TO_BIT;
 std::map<int, std::tuple<Suit, std::string, char>> BIT_TO_CARD;
 
-hand_t get_suit(card_t card) {
+suit_t get_suit(card_t card) {
     return SUIT_TABLE[std::bit_width(card)];
 }
 
@@ -71,7 +71,7 @@ void initialize_card_maps() {
     const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
 
     int bit = 35; // 0-indexed bit position
-    for (auto const& [suit_val, suit_name] : std::vector<std::pair<hand_t, Suit>>{{S, SPADES}, {H, HEARTS}, {D, DIAMONDS}, {C, CLUBS}}) {
+    for (auto const& [suit_val, suit_name] : std::vector<std::pair<suit_t, Suit>>{{S, SPADES}, {H, HEARTS}, {D, DIAMONDS}, {C, CLUBS}}) {
         const char** ranks = (suit_val == S) ? RANKS_TRUMP : RANKS_PLAIN;
         int num_ranks = 9;
         for (int i = 0; i < num_ranks; ++i) {
@@ -144,7 +144,7 @@ int get_trick_points(card_t card1, card_t card2, card_t card3, card_t card4) {
 
 int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4) {
     hand_t led_suit = get_suit(card1);
-    hand_t led_mask = S | led_suit;
+    suit_t led_mask = S | led_suit;
     card2 &= led_mask;
     card3 &= led_mask;
     card4 &= led_mask;

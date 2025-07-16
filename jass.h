@@ -11,6 +11,7 @@ namespace jass {
 
 using card_t = uint64_t;
 using hand_t = uint64_t;
+using suit_t = uint64_t;
 
 enum Suit {
     CLUBS,
@@ -19,11 +20,11 @@ enum Suit {
     SPADES,
 };
 
-extern const hand_t C;
-extern const hand_t D;
-extern const hand_t H;
-extern const hand_t S;
-extern const hand_t F;
+extern const suit_t C;
+extern const suit_t D;
+extern const suit_t H;
+extern const suit_t S;
+extern const suit_t F;
 
 extern const int FLAG_EXACT;
 extern const int FLAG_LOWER_BOUND;
@@ -43,6 +44,8 @@ int get_trick_points(card_t card1, card_t card2, card_t card3, card_t card4);
 int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4);
 hand_t get_playable_cards(card_t card1, hand_t hand);
 
+suit_t get_suit(card_t card);
+
 
 // Declare the four recursive solver functions
 int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards, int alpha, int beta,
@@ -61,7 +64,7 @@ int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
            card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
 
-uint64_t transposition_key(uint64_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card);
+uint64_t transposition_key(hand_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card);
 
 int get_stock_bonus(hand_t hand);
 
