@@ -26,6 +26,7 @@ const int FLAG_UPPER_BOUND = 1 << 12;
 
 const int LAST_TRICK_BONUS = 5;
 const card_t NOT_A_CARD = 0;
+const suit_t NOT_A_SUIT = 0;
 
 const card_t JACK_OF_TRUMP = (1ULL << 35);
 const hand_t F = S ^ JACK_OF_TRUMP;
@@ -171,14 +172,10 @@ int solve0(
     hand_t remaining_cards,
     int alpha,
     int beta,
-    boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    card_t trick_led_card,
-    int trick_points_so_far,
-    card_t trick_winning_card,
-    int trick_winner_idx_in_trick
+    boost::unordered_flat_map<uint64_t, int>& transposition_table
 ) {
     int initial_alpha = alpha;
-    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_card, trick_points_so_far, trick_winning_card);
+    uint64_t state_key = transposition_key(remaining_cards, current_player, NOT_A_SUIT, 0, NOT_A_CARD);
     auto it = transposition_table.find(state_key);
     if (it != transposition_table.end()) {
         int entry = it->second;
@@ -257,13 +254,13 @@ int solve1(
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    card_t trick_led_card,
+    suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
     int trick_winner_idx_in_trick
 ){
     int initial_alpha = alpha;
-    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_card, trick_points_so_far, trick_winning_card);
+    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
     auto it = transposition_table.find(state_key);
     if (it != transposition_table.end()) {
         int entry = it->second;
@@ -298,10 +295,10 @@ int solve1(
             alpha,
             beta,
             transposition_table,
-            trick_led_card,
+            trick_led_suite,
             trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
-            (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_led_card : card,
-            (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_winner_idx_in_trick : (current_player + 1) % 4
+            (trick_winner(trick_led_suite, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_led_suite : card,
+            (trick_winner(trick_led_suite, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_winner_idx_in_trick : (current_player + 1) % 4
         );
         hands[current_player] ^= card;
 
@@ -340,13 +337,13 @@ int solve2(
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    card_t trick_led_card,
+    suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
     int trick_winner_idx_in_trick
 ) {
     int initial_alpha = alpha;
-    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_card, trick_points_so_far, trick_winning_card);
+    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
     auto it = transposition_table.find(state_key);
     if (it != transposition_table.end()) {
         int entry = it->second;
@@ -372,11 +369,11 @@ int solve2(
         playable_cards ^= card;
 
         hands[current_player] ^= card;
-        int current_trick_winner_idx_in_trick_local = trick_winner(trick_led_card, card2, card, NOT_A_CARD);
+        int current_trick_winner_idx_in_trick_local = trick_winner(trick_led_suite, card2, card, NOT_A_CARD);
         card_t new_trick_winning_card;
         int new_trick_winner_idx_in_trick_local;
 
-        if (current_trick_winner_idx_in_trick_local == 0) { // trick_led_card is winning
+        if (current_trick_winner_idx_in_trick_local == 0) { // trick_led_suite is winning
             new_trick_winning_card = trick_winning_card;
             new_trick_winner_idx_in_trick_local = trick_winner_idx_in_trick;
         } else if (current_trick_winner_idx_in_trick_local == 1) { // card2 is winning
@@ -397,7 +394,7 @@ int solve2(
             alpha,
             beta,
             transposition_table,
-            trick_led_card,
+            trick_led_suite,
             trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
             new_trick_winning_card,
             new_trick_winner_idx_in_trick_local
@@ -440,13 +437,13 @@ int solve3(
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    card_t trick_led_card,
+    suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
     int trick_winner_idx_in_trick
 ) {
     int initial_alpha = alpha;
-    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_card, trick_points_so_far, trick_winning_card);
+    uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
     auto it = transposition_table.find(state_key);
     if (it != transposition_table.end()) {
         int entry = it->second;
@@ -492,11 +489,7 @@ int solve3(
             remaining_cards ^ card,
             new_alpha,
             new_beta,
-            transposition_table,
-            NOT_A_CARD, // trick_led_card (new trick)
-            0,          // trick_points_so_far (new trick)
-            NOT_A_CARD, // trick_winning_card (new trick)
-            0           // trick_winner_idx_in_trick (new trick)
+            transposition_table
         );
         hands[current_player] ^= card;
 
@@ -528,11 +521,11 @@ int solve3(
     return best_score;
 }
 
-uint64_t transposition_key(hand_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card) {
+uint64_t transposition_key(hand_t remaining_cards, int current_player, suit_t trick_led_suite, int trick_points_so_far, card_t trick_winning_card) {
     uint64_t key = 0;
     key |= (remaining_cards << 28); // 36 bits for remaining_cards (up to 2^36-1)
     key |= (static_cast<uint64_t>(current_player) << 26); // 2 bits for current_player (0-3)
-    key |= (static_cast<uint64_t>(std::bit_width(trick_led_card)) << 20); // 6 bits for trick_led_card (0-36)
+    key |= (static_cast<uint64_t>(std::bit_width(trick_led_suite)) << 20); // 6 bits for trick_led_suite (0-36)
     key |= (static_cast<uint64_t>(trick_points_so_far) << 14); // 6 bits for trick_points_so_far (0-63)
     key |= (static_cast<uint64_t>(std::bit_width(trick_winning_card)) << 8); // 6 bits for trick_winning_card (0-36)
     return key;
@@ -564,11 +557,7 @@ int solve_deal(std::array<hand_t, 4>& hands) {
         remaining_cards,
         -999,
         999,
-        transposition_table,
-        NOT_A_CARD, // trick_led_card
-        0,          // trick_points_so_far
-        NOT_A_CARD, // trick_winning_card
-        0           // trick_winner_idx_in_trick
+        transposition_table
     );
     final_score += get_stock_bonus(hands[0]); // Add bonus for player 0
     final_score += get_stock_bonus(hands[2]); // Add bonus for player 2

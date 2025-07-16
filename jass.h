@@ -49,8 +49,7 @@ suit_t get_suit(card_t card);
 
 // Declare the four recursive solver functions
 int solve0(std::array<card_t, 4>& cards_in_hand, int current_player, hand_t remaining_cards, int alpha, int beta,
-           boost::unordered_flat_map<uint64_t, int>& transposition_table,
-           card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
+           boost::unordered_flat_map<uint64_t, int>& transposition_table);
 int solve1(card_t card1, std::array<card_t, 4>& cards_in_hand, int current_player, hand_t remaining_cards,
            int alpha, int beta,
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
