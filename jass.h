@@ -9,79 +9,9 @@
 
 namespace jass {
 
-template <typename Tag>
-struct Typedef {
-    uint64_t value;
-
-    // Default constructor
-    Typedef() : value(0) {}
-
-    // Explicit constructor to prevent implicit conversions
-    explicit Typedef(uint64_t v) : value(v) {}
-
-    // Explicit getter for clarity
-    uint64_t get() const { return value; }
-
-    // Define comparison operators
-    bool operator==(const Typedef& other) const { return value == other.value; }
-    bool operator!=(const Typedef& other) const { return value != other.value; }
-    bool operator<(const Typedef& other) const { return value < other.value; }
-    bool operator>(const Typedef& other) const { return value > other.value; }
-    bool operator<=(const Typedef& other) const { return value <= other.value; }
-    bool operator>=(const Typedef& other) const { return value >= other.value; }
-
-    // Define bitwise operators
-    Typedef operator|(const Typedef& other) const { return Typedef(value | other.value); }
-    Typedef operator&(const Typedef& other) const { return Typedef(value & other.value); }
-    Typedef operator^(const Typedef& other) const { return Typedef(value ^ other.value); }
-    Typedef operator~() const { return Typedef(~value); }
-    Typedef operator<<(int shift) const { return Typedef(value << shift); }
-    Typedef operator>>(int shift) const { return Typedef(value >> shift); }
-
-    // Unary minus
-    Typedef operator-() const { return Typedef(static_cast<uint64_t>(-value)); }
-
-    // Define arithmetic operators
-    Typedef operator+(const Typedef& other) const { return Typedef(value + other.value); }
-    Typedef operator-(const Typedef& other) const { return Typedef(value - other.value); }
-    Typedef operator*(const Typedef& other) const { return Typedef(value * other.value); }
-    Typedef operator/(const Typedef& other) const { return Typedef(value / other.value); }
-    Typedef operator%(const Typedef& other) const { return Typedef(value % other.value); }
-
-    // Define compound assignment operators
-    Typedef& operator+=(const Typedef& other) { value += other.value; return *this; }
-    Typedef& operator-=(const Typedef& other) { value -= other.value; return *this; }
-    Typedef& operator*=(const Typedef& other) { value *= other.value; return *this; }
-    Typedef& operator/=(const Typedef& other) { value /= other.value; return *this; }
-    Typedef& operator%=(const Typedef& other) { value %= other.value; return *this; }
-    Typedef& operator|=(const Typedef& other) { value |= other.value; return *this; }
-    Typedef& operator&=(const Typedef& other) { value &= other.value; return *this; }
-    Typedef& operator^=(const Typedef& other) { value ^= other.value; return *this; }
-    Typedef& operator<<=(int shift) { value <<= shift; return *this; }
-    Typedef& operator>>=(int shift) { value >>= shift; return *this; }
-
-    // Pre-increment and pre-decrement
-    Typedef& operator++() { ++value; return *this; }
-    Typedef& operator--() { --value; return *this; }
-
-    // Post-increment and post-decrement
-    Typedef operator++(int) { Typedef temp = *this; ++(*this); return temp; }
-    Typedef operator--(int) { Typedef temp = *this; --(*this); return temp; }
-
-    // Boolean conversion
-    operator bool() const { return value != 0; }
-
-    // bit_width method
-    int bit_width() const { return std::bit_width(value); }
-};
-
-struct CardTag {};
-struct HandTag {};
-struct SuitTag {};
-
-using card_t = Typedef<CardTag>;
-using hand_t = Typedef<HandTag>;
-using suit_t = Typedef<SuitTag>;
+using card_t = uint64_t;
+using hand_t = uint64_t;
+using suit_t = uint64_t;
 
 enum Suit {
     CLUBS,
@@ -118,19 +48,19 @@ suit_t get_suit(card_t card);
 
 
 // Declare the four recursive solver functions
-int solve0(std::array<hand_t, 4>& cards_in_hand, int current_player, hand_t remaining_cards, int alpha, int beta,
+int solve0(std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards, int alpha, int beta,
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
            card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
-int solve1(card_t card1, std::array<hand_t, 4>& cards_in_hand, int current_player, hand_t remaining_cards,
+int solve1(uint64_t card1, std::array<uint64_t, 4>& cards_in_hand, int current_player, uint64_t remaining_cards,
            int alpha, int beta,
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
            card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
-int solve2(card_t card1, card_t card2, std::array<hand_t, 4>& cards_in_hand, int current_player,
-           hand_t remaining_cards, int alpha, int beta,
+int solve2(uint64_t card1, uint64_t card2, std::array<uint64_t, 4>& cards_in_hand, int current_player,
+           uint64_t remaining_cards, int alpha, int beta,
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
            card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
-int solve3(card_t card1, card_t card2, card_t card3, std::array<hand_t, 4>& cards_in_hand,
-           int current_player, hand_t remaining_cards, int alpha, int beta,
+int solve3(uint64_t card1, uint64_t card2, uint64_t card3, std::array<uint64_t, 4>& cards_in_hand,
+           int current_player, uint64_t remaining_cards, int alpha, int beta,
            boost::unordered_flat_map<uint64_t, int>& transposition_table,
            card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card, int trick_winner_idx_in_trick);
 

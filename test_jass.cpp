@@ -4,10 +4,6 @@
 #include <vector>
 #include <numeric>
 
-using jass::card_t;
-using jass::hand_t;
-using jass::suit_t;
-
 // Helper for printing test results
 #define RUN_TEST(test_func) \
     std::cout << "Running test: " << #test_func << std::endl; \
@@ -30,22 +26,22 @@ void test_CardRepresentation() {
     REQUIRE(jass::c("8S") > jass::c("7S"));
     REQUIRE(jass::c("7S") > jass::c("6S"));
     REQUIRE(jass::c("AH") > jass::c("KH"));
-    REQUIRE(jass::c("6C") == card_t(1ULL << 0));
-    REQUIRE(jass::c("JS") == card_t(1ULL << 35));
-    REQUIRE(jass::F.get() == (jass::S.get() ^ card_t(1ULL << 35).get()));
+    REQUIRE(jass::c("6C") == (1ULL << 0));
+    REQUIRE(jass::c("JS") == (1ULL << 35));
+    REQUIRE(jass::F == (jass::S ^ (1ULL << 35)));
 }
 
 void test_GetPoints() {
-    REQUIRE(jass::POINTS_TABLE[jass::c("AC").bit_width()] == 11);
-    REQUIRE(jass::POINTS_TABLE[jass::c("10C").bit_width()] == 10);
-    REQUIRE(jass::POINTS_TABLE[jass::c("KC").bit_width()] == 4);
-    REQUIRE(jass::POINTS_TABLE[jass::c("QC").bit_width()] == 3);
-    REQUIRE(jass::POINTS_TABLE[jass::c("JC").bit_width()] == 2);
-    REQUIRE(jass::POINTS_TABLE[jass::c("9C").bit_width()] == 0);
-    REQUIRE(jass::POINTS_TABLE[jass::c("8C").bit_width()] == 0);
-    REQUIRE(jass::POINTS_TABLE[jass::c("7C").bit_width()] == 0);
-    REQUIRE(jass::POINTS_TABLE[jass::c("JS").bit_width()] == 20);
-    REQUIRE(jass::POINTS_TABLE[jass::c("9S").bit_width()] == 14);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("AC"))] == 11);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("10C"))] == 10);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("KC"))] == 4);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("QC"))] == 3);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("JC"))] == 2);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("9C"))] == 0);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("8C"))] == 0);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("7C"))] == 0);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("JS"))] == 20);
+    REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("9S"))] == 14);
 }
 
 void test_TrickWinner() {
@@ -73,6 +69,7 @@ void test_GetPlayableCards() {
     REQUIRE(jass::get_playable_cards(jass::D, jass::c("JH,9H,8C")) == jass::c("JH,9H,8C"));
     REQUIRE(jass::get_playable_cards(jass::H, jass::c("JS,7S,AC")) == jass::c("JS,7S,AC"));
     REQUIRE(jass::get_playable_cards(jass::C, jass::c("9S,8S,QH")) == jass::c("9S,8S,QH"));
+}
 
 void test_SolveDeal() {
     std::array<jass::hand_t, 4> hands;

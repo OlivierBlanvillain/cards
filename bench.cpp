@@ -7,16 +7,12 @@
 #include <cmath>
 #include <algorithm>
 
-using jass::card_t;
-using jass::hand_t;
-using jass::suit_t;
-
 void run_benchmark_full_game() {
     std::array<jass::hand_t, 4> hands = {
-        hand_t(jass::c("6S,10S,AH,10H,9H,7H,10D,JD,10C")),
-        hand_t(jass::c("6H,AS,9S,QH,JH,8H,8D,AC,7C")),
-        hand_t(jass::c("6D,KS,JS,KH,KD,9D,7D,KC,QC")),
-        hand_t(jass::c("6C,QS,8S,7S,AD,QD,JC,9C,8C")),
+        jass::c("6S,10S,AH,10H,9H,7H,10D,JD,10C"),
+        jass::c("6H,AS,9S,QH,JH,8H,8D,AC,7C"),
+        jass::c("6D,KS,JS,KH,KD,9D,7D,KC,QC"),
+        jass::c("6C,QS,8S,7S,AD,QD,JC,9C,8C"),
     };
 
     int num_trials = 10;
