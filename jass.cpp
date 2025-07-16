@@ -166,9 +166,9 @@ hand_t get_playable_cards(suit_t led_suit, hand_t hand) {
 }
 
 int solve0(
-    std::array<uint64_t, 4>& cards_in_hand,
+    std::array<card_t, 4>& hands,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -202,15 +202,15 @@ int solve0(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = cards_in_hand[current_player];
+    hand_t playable_cards = hands[current_player];
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
         int current_move_value = solve1(
             card,
-            cards_in_hand,
+            hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
@@ -221,7 +221,7 @@ int solve0(
             card,
             0
         );
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
 
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
@@ -250,10 +250,10 @@ int solve0(
 }
 
 int solve1(
-    uint64_t card1,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    std::array<card_t, 4>& hands,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -283,16 +283,16 @@ int solve1(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
         int current_move_value = solve2(
             card1,
             card,
-            cards_in_hand,
+            hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
@@ -303,7 +303,7 @@ int solve1(
             (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_led_card : card,
             (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_winner_idx_in_trick : (current_player + 1) % 4
         );
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
 
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
@@ -332,11 +332,11 @@ int solve1(
 }
 
 int solve2(
-    uint64_t card1,
-    uint64_t card2,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    card_t card2,
+    std::array<card_t, 4>& hands,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -366,12 +366,12 @@ int solve2(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
         int current_trick_winner_idx_in_trick_local = trick_winner(trick_led_card, card2, card, NOT_A_CARD);
         card_t new_trick_winning_card;
         int new_trick_winner_idx_in_trick_local;
@@ -391,7 +391,7 @@ int solve2(
             card1,
             card2,
             card,
-            cards_in_hand,
+            hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
@@ -402,7 +402,7 @@ int solve2(
             new_trick_winning_card,
             new_trick_winner_idx_in_trick_local
         );
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
 
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
@@ -431,12 +431,12 @@ int solve2(
 }
 
 int solve3(
-    uint64_t card1,
-    uint64_t card2,
-    uint64_t card3,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    card_t card2,
+    card_t card3,
+    std::array<card_t, 4>& hands,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -466,7 +466,7 @@ int solve3(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
@@ -485,9 +485,9 @@ int solve3(
         int new_alpha = alpha - points_this_trick;
         int new_beta = beta - points_this_trick;
 
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
         int sub_game_value = solve0(
-            cards_in_hand,
+            hands,
             winner_player,
             remaining_cards ^ card,
             new_alpha,
@@ -498,7 +498,7 @@ int solve3(
             NOT_A_CARD, // trick_winning_card (new trick)
             0           // trick_winner_idx_in_trick (new trick)
         );
-        cards_in_hand[current_player] ^= card;
+        hands[current_player] ^= card;
 
         current_move_value = points_this_trick + sub_game_value;
 
@@ -528,7 +528,7 @@ int solve3(
     return best_score;
 }
 
-uint64_t transposition_key(uint64_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card) {
+uint64_t transposition_key(hand_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card) {
     uint64_t key = 0;
     key |= (remaining_cards << 28); // 36 bits for remaining_cards (up to 2^36-1)
     key |= (static_cast<uint64_t>(current_player) << 26); // 2 bits for current_player (0-3)
