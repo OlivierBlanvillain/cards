@@ -7,6 +7,7 @@
 #include <map>
 #include <chrono>
 #include <cmath> // For std::round
+#include <bitset>
 
 const int TRUMP_EVAL_TABLE[37] = {
     -1, // unused (index 0)
@@ -337,6 +338,54 @@ void find_best_trump() {
         }
     }
 }
+
+// int main() {
+//     jass::initialize_card_maps();
+//     initialize_swap_maps();
+//     find_best_trump();
+//     return 0;
+// }
+
+std::vector<jass::hand_t> generate_all_trump_hands() {
+    std::vector<jass::card_t> trump_cards;
+    std::vector<jass::card_t> non_trump_cards;
+    jass::hand_t full_deck = jass::C | jass::D | jass::H | jass::S;
+
+    for (int i = 0; i < 36; ++i) {
+        jass::card_t current_card = 1ULL << i;
+        if ((current_card & full_deck) == 0) continue; // Skip unused bits if any
+        if (current_card & jass::S) {
+            trump_cards.push_back(current_card);
+        } else {
+            non_trump_cards.push_back(current_card);
+        }
+    }
+    std::random_device random_device;
+    std::mt19937 g(random_device());
+
+    std::vector<jass::hand_t> generated_hands;
+    generated_hands.reserve(512);
+
+    for (int i = 0; i < 512; ++i) {
+        jass::hand_t current_hand = 0;
+        int num_trumps = 0;
+        for (int j = 0; j < 9; ++j) {
+            if ((i >> j) & 1) {
+                current_hand |= trump_cards[j];
+                num_trumps++;
+            }
+        }
+        int num_non_trumps_needed = 9 - num_trumps;
+        std::shuffle(non_trump_cards.begin(), non_trump_cards.end(), g);
+        for (int k = 0; k < num_non_trumps_needed; ++k) {
+            current_hand |= non_trump_cards[k];
+        }
+        generated_hands.push_back(current_hand);
+    }
+
+    return generated_hands;
+}
+
 
 int main() {
     jass::initialize_card_maps();

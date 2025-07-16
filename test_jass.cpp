@@ -100,6 +100,26 @@ void test_SolveDeal() {
     REQUIRE(jass::solve_deal(hands) == 83);
 }
 
+void test_GetStockBonus() {
+    jass::hand_t hand_with_stock = jass::c("KS,QS,AC,KD");
+    REQUIRE(jass::get_stock_bonus(hand_with_stock) == 20);
+
+    jass::hand_t hand_without_stock_king = jass::c("KS,AC,KD");
+    REQUIRE(jass::get_stock_bonus(hand_without_stock_king) == 0);
+
+    jass::hand_t hand_without_stock_queen = jass::c("QS,AC,KD");
+    REQUIRE(jass::get_stock_bonus(hand_without_stock_queen) == 0);
+
+    jass::hand_t hand_without_stock_other_suit = jass::c("KH,QH,AC,KD");
+    REQUIRE(jass::get_stock_bonus(hand_without_stock_other_suit) == 0);
+}
+
+void test_SolveDealWithFullStockGame() {
+    std::array<jass::hand_t, 4> hands;
+    hands = {jass::c("KS,QS,AS,10S,9S,JS,8S,7S,6S"), jass::c("AC,KC,QC,JC,10C,9C,8C,7C,6C"), jass::c("AH,KH,QH,JH,10H,9H,8H,7H,6H"), jass::c("AD,KD,QD,JD,10D,9D,8D,7D,6D")};
+    REQUIRE(jass::solve_deal(hands) == 177);
+}
+
 int main() {
     jass::initialize_card_maps();
     RUN_TEST(test_CardRepresentation);
@@ -107,6 +127,8 @@ int main() {
     RUN_TEST(test_TrickWinner);
     RUN_TEST(test_GetPlayableCards);
     RUN_TEST(test_SolveDeal);
+    RUN_TEST(test_GetStockBonus);
+    RUN_TEST(test_SolveDealWithFullStockGame);
     std::cout << "All tests passed!" << std::endl;
     return 0;
 }
