@@ -42,7 +42,7 @@ std::string hand_to_string(hand_t hand);
 
 int get_trick_points(card_t card1, card_t card2, card_t card3, card_t card4);
 int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4);
-hand_t get_playable_cards(card_t card1, hand_t hand);
+hand_t get_playable_cards(suit_t led_suit, hand_t hand);
 
 suit_t get_suit(card_t card);
 

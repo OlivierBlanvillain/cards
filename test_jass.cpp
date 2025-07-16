@@ -57,31 +57,18 @@ void test_TrickWinner() {
 }
 
 void test_GetPlayableCards() {
-    jass::hand_t hand;
-    hand = jass::c("KD,AC,JS");
-    REQUIRE(jass::get_playable_cards(jass::c("AD"), hand) == jass::c("KD,JS"));
-    hand = jass::c("KD,AS,JS");
-    REQUIRE(jass::get_playable_cards(jass::c("6S"), hand) == jass::c("AS,JS"));
-    hand = jass::c("KD,JS");
-    REQUIRE(jass::get_playable_cards(jass::c("6S"), hand) == jass::c("KD,JS"));
-    hand = jass::c("JS,7S,9C");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("JS,7S,9C"));
-    hand = jass::c("JS,8S,AC");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("JS,8S,AC"));
-    hand = jass::c("JS,QS");
-    REQUIRE(jass::get_playable_cards(jass::c("9C"), hand) == jass::c("JS,QS"));
-    hand = jass::c("9S,8S,AC");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("9S,8S,AC"));
-    hand = jass::c("QH,JS,AC");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("QH,JS"));
-    hand = jass::c("9S,AC,KC");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("9S,AC,KC"));
-    hand = jass::c("JH,9H,8C");
-    REQUIRE(jass::get_playable_cards(jass::c("AD"), hand) == jass::c("JH,9H,8C"));
-    hand = jass::c("JS,7S,AC");
-    REQUIRE(jass::get_playable_cards(jass::c("AH"), hand) == jass::c("JS,7S,AC"));
-    hand = jass::c("9S,8S,QH");
-    REQUIRE(jass::get_playable_cards(jass::c("10C"), hand) == jass::c("9S,8S,QH"));
+    REQUIRE(jass::get_playable_cards(jass::D, jass::c("KD,AC,JS")) == jass::c("KD,JS"));
+    REQUIRE(jass::get_playable_cards(jass::S, jass::c("KD,AS,JS")) == jass::c("AS,JS"));
+    REQUIRE(jass::get_playable_cards(jass::S, jass::c("KD,JS")) == jass::c("KD,JS"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("JS,7S,9C")) == jass::c("JS,7S,9C"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("JS,8S,AC")) == jass::c("JS,8S,AC"));
+    REQUIRE(jass::get_playable_cards(jass::C, jass::c("JS,QS")) == jass::c("JS,QS"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("9S,8S,AC")) == jass::c("9S,8S,AC"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("QH,JS,AC")) == jass::c("QH,JS"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("9S,AC,KC")) == jass::c("9S,AC,KC"));
+    REQUIRE(jass::get_playable_cards(jass::D, jass::c("JH,9H,8C")) == jass::c("JH,9H,8C"));
+    REQUIRE(jass::get_playable_cards(jass::H, jass::c("JS,7S,AC")) == jass::c("JS,7S,AC"));
+    REQUIRE(jass::get_playable_cards(jass::C, jass::c("9S,8S,QH")) == jass::c("9S,8S,QH"));
 }
 
 void test_SolveDeal() {

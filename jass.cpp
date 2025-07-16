@@ -154,10 +154,14 @@ int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4) {
     return 3;
 }
 
-hand_t get_playable_cards(card_t card1, hand_t hand) {
-    if (card1 == NOT_A_CARD) return hand;
-    hand_t follow = hand & FOLLOW_TABLE[std::bit_width(card1)];
-    if (follow) return follow | (hand & JACK_OF_TRUMP);
+hand_t get_playable_cards(suit_t led_suit, hand_t hand) {
+    hand_t follow = hand & led_suit;
+    if (follow == JACK_OF_TRUMP) {
+        return hand;
+    }
+    if (follow) {
+        return follow | (hand & JACK_OF_TRUMP);
+    }
     return hand;
 }
 
@@ -279,7 +283,7 @@ int solve1(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
@@ -362,7 +366,7 @@ int solve2(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
@@ -462,7 +466,7 @@ int solve3(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(card1, cards_in_hand[current_player]);
+    hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
