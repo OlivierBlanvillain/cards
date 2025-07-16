@@ -15,20 +15,20 @@
 
 namespace jass {
 
-const hand_t C = 0b000000000000000000000000000111111111;
-const hand_t D = 0b000000000000000000111111111000000000;
-const hand_t H = 0b000000000111111111000000000000000000;
-const hand_t S = 0b111111111000000000000000000000000000;
+const suit_t C(0b000000000000000000000000000111111111);
+const suit_t D(0b000000000000000000111111111000000000);
+const suit_t H(0b000000000111111111000000000000000000);
+const suit_t S(0b111111111000000000000000000000000000);
 
 const int FLAG_EXACT = 1 << 10;
 const int FLAG_LOWER_BOUND = 1 << 11;
 const int FLAG_UPPER_BOUND = 1 << 12;
 
 const int LAST_TRICK_BONUS = 5;
-const card_t NOT_A_CARD = 0;
+const card_t NOT_A_CARD(0);
 
-const card_t JACK_OF_TRUMP = (1ULL << 35);
-const hand_t F = S ^ JACK_OF_TRUMP;
+const card_t JACK_OF_TRUMP(1ULL << 35);
+const suit_t F = suit_t(static_cast<uint64_t>(S.get() ^ JACK_OF_TRUMP.get()));
 
 // 1-indexed by bit_length (0-36)
 const int POINTS_TABLE[37] = {
@@ -42,8 +42,8 @@ const int POINTS_TABLE[37] = {
 };
 
 // 1-indexed by bit_length (0-36)
-static const hand_t SUIT_TABLE[37] = {
-    0, // unused (index 0)
+static const suit_t SUIT_TABLE[37] = {
+    suit_t(0), // unused (index 0)
     C, C, C, C, C, C, C, C, C,
     D, D, D, D, D, D, D, D, D,
     H, H, H, H, H, H, H, H, H,
@@ -52,7 +52,7 @@ static const hand_t SUIT_TABLE[37] = {
 
 // 1-indexed by bit_length (0-36)
 static const suit_t FOLLOW_TABLE[37] = {
-    0, // unused (index 0)
+    suit_t(0), // unused (index 0)
     C, C, C, C, C, C, C, C, C,
     D, D, D, D, D, D, D, D, D,
     H, H, H, H, H, H, H, H, H,
@@ -63,7 +63,7 @@ std::map<std::pair<Suit, std::string>, int> CARD_TO_BIT;
 std::map<int, std::tuple<Suit, std::string, char>> BIT_TO_CARD;
 
 suit_t get_suit(card_t card) {
-    return SUIT_TABLE[std::bit_width(card)];
+    return SUIT_TABLE[card.bit_width()];
 }
 
 void initialize_card_maps() {
@@ -83,7 +83,7 @@ void initialize_card_maps() {
 }
 
 card_t c(const std::string& desc) {
-    card_t total = 0;
+    card_t total(0);
     if (desc.empty()) return total;
     size_t start = 0;
     size_t end = desc.find(',');
@@ -96,7 +96,7 @@ card_t c(const std::string& desc) {
         else if (suit_char == 'D') suit = DIAMONDS;
         else if (suit_char == 'H') suit = HEARTS;
         else suit = SPADES;
-        total |= 1ULL << CARD_TO_BIT.at({suit, rank});
+        total |= card_t(1ULL << CARD_TO_BIT.at({suit, rank}));
         start = end + 1;
         end = desc.find(',', start);
     }
@@ -108,13 +108,13 @@ card_t c(const std::string& desc) {
     else if (suit_char == 'D') suit = DIAMONDS;
     else if (suit_char == 'H') suit = HEARTS;
     else suit = SPADES;
-    total |= 1ULL << CARD_TO_BIT.at({suit, rank});
+    total |= card_t(1ULL << CARD_TO_BIT.at({suit, rank}));
     return total;
 }
 
 std::string d(card_t card_mask) {
-    if (card_mask == 0) return "";
-    int bit_pos = std::bit_width(card_mask); // This is 1-indexed bit_length (0-36)
+    if (card_mask == card_t(0)) return "";
+    int bit_pos = card_mask.bit_width(); // This is 1-indexed bit_length (0-36)
     if (bit_pos == 0) return ""; // Handle NOT_A_CARD case
     auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(bit_pos - 1); // Convert to 0-indexed for BIT_TO_CARD
     return rank + suit_char;
@@ -123,8 +123,8 @@ std::string d(card_t card_mask) {
 std::string hand_to_string(hand_t hand) {
     std::string s = "";
     for (int i = 0; i < 36; ++i) {
-        if ((hand >> i) & 1) {
-            s += d(1ULL << i) + ",";
+        if ((hand >> i) & 1ULL) {
+            s += d(card_t(1ULL << i)) + ",";
         }
     }
     if (!s.empty()) {
@@ -135,40 +135,40 @@ std::string hand_to_string(hand_t hand) {
 
 int get_trick_points(card_t card1, card_t card2, card_t card3, card_t card4) {
     int points = 0;
-    if (card1 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card1)];
-    if (card2 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card2)];
-    if (card3 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card3)];
-    if (card4 != NOT_A_CARD) points += POINTS_TABLE[std::bit_width(card4)];
+    if (card1 != NOT_A_CARD) points += POINTS_TABLE[card1.bit_width()];
+    if (card2 != NOT_A_CARD) points += POINTS_TABLE[card2.bit_width()];
+    if (card3 != NOT_A_CARD) points += POINTS_TABLE[card3.bit_width()];
+    if (card4 != NOT_A_CARD) points += POINTS_TABLE[card4.bit_width()];
     return points;
 }
 
 int trick_winner(card_t card1, card_t card2, card_t card3, card_t card4) {
-    hand_t led_suit = get_suit(card1);
-    suit_t led_mask = S | led_suit;
-    card2 &= led_mask;
-    card3 &= led_mask;
-    card4 &= led_mask;
-    if (card1 >= card2 && card1 >= card3 && card1 >= card4) return 0;
-    if (card2 >= card3 && card2 >= card4) return 1;
-    if (card3 >= card4) return 2;
+    suit_t led_suit = get_suit(card1);
+    suit_t led_mask = suit_t(S.get() | led_suit.get());
+    card2 = card_t(card2.get() & led_mask.get());
+    card3 = card_t(card3.get() & led_mask.get());
+    card4 = card_t(card4.get() & led_mask.get());
+    if (card1.get() >= card2.get() && card1.get() >= card3.get() && card1.get() >= card4.get()) return 0;
+    if (card2.get() >= card3.get() && card2.get() >= card4.get()) return 1;
+    if (card3.get() >= card4.get()) return 2;
     return 3;
 }
 
 hand_t get_playable_cards(suit_t led_suit, hand_t hand) {
-    hand_t follow = hand & led_suit;
-    if (follow == JACK_OF_TRUMP) {
+    hand_t follow = hand_t(hand.get() & led_suit.get());
+    if (follow.get() == JACK_OF_TRUMP.get()) {
         return hand;
     }
-    if (follow) {
-        return follow | (hand & JACK_OF_TRUMP);
+    if (follow.get()) {
+        return hand_t(follow.get() | (hand.get() & JACK_OF_TRUMP.get()));
     }
     return hand;
 }
 
 int solve0(
-    std::array<uint64_t, 4>& cards_in_hand,
+    std::array<hand_t, 4>& cards_in_hand,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -204,8 +204,8 @@ int solve0(
 
     hand_t playable_cards = cards_in_hand[current_player];
     while (playable_cards) {
-        card_t card = playable_cards & -playable_cards;
-        playable_cards ^= card;
+        card_t card = card_t(playable_cards.get() & ~playable_cards.get());
+        playable_cards = hand_t(playable_cards.get() ^ card.get());
 
         cards_in_hand[current_player] ^= card;
         int current_move_value = solve1(
@@ -250,10 +250,10 @@ int solve0(
 }
 
 int solve1(
-    uint64_t card1,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    std::array<hand_t, 4>& cards_in_hand,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -285,25 +285,24 @@ int solve1(
 
     hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
-        card_t card = playable_cards & -playable_cards;
-        playable_cards ^= card;
+        card_t card = card_t(playable_cards.get() & ~playable_cards.get());
+        playable_cards = hand_t(playable_cards.get() ^ card.get());
 
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[current_player] = hand_t(cards_in_hand[current_player].get() ^ card.get());
         int current_move_value = solve2(
             card1,
             card,
             cards_in_hand,
-            (current_player + 1) % 4,
-            remaining_cards ^ card,
+            hand_t(remaining_cards.get() ^ card.get()),
             alpha,
             beta,
             transposition_table,
             trick_led_card,
-            trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
+            trick_points_so_far + POINTS_TABLE[card.bit_width()],
             (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_led_card : card,
             (trick_winner(trick_led_card, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_winner_idx_in_trick : (current_player + 1) % 4
         );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[current_player] = hand_t(cards_in_hand[current_player].get() ^ card.get());
 
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
@@ -332,11 +331,11 @@ int solve1(
 }
 
 int solve2(
-    uint64_t card1,
-    uint64_t card2,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    card_t card2,
+    std::array<hand_t, 4>& cards_in_hand,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -368,10 +367,10 @@ int solve2(
 
     hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
-        card_t card = playable_cards & -playable_cards;
-        playable_cards ^= card;
+        card_t card = card_t(playable_cards.get() & ~playable_cards.get());
+        playable_cards = hand_t(playable_cards.get() ^ card.get());
 
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[current_player] = hand_t(cards_in_hand[current_player].get() ^ card.get());
         int current_trick_winner_idx_in_trick_local = trick_winner(trick_led_card, card2, card, NOT_A_CARD);
         card_t new_trick_winning_card;
         int new_trick_winner_idx_in_trick_local;
@@ -393,16 +392,16 @@ int solve2(
             card,
             cards_in_hand,
             (current_player + 1) % 4,
-            remaining_cards ^ card,
+            hand_t(remaining_cards.get() ^ card.get()),
             alpha,
             beta,
             transposition_table,
             trick_led_card,
-            trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
+            trick_points_so_far + POINTS_TABLE[card.bit_width()],
             new_trick_winning_card,
             new_trick_winner_idx_in_trick_local
         );
-        cards_in_hand[current_player] ^= card;
+        cards_in_hand[current_player] = hand_t(cards_in_hand[current_player].get() ^ card.get());
 
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
@@ -431,12 +430,12 @@ int solve2(
 }
 
 int solve3(
-    uint64_t card1,
-    uint64_t card2,
-    uint64_t card3,
-    std::array<uint64_t, 4>& cards_in_hand,
+    card_t card1,
+    card_t card2,
+    card_t card3,
+    std::array<hand_t, 4>& cards_in_hand,
     int current_player,
-    uint64_t remaining_cards,
+    hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
@@ -468,14 +467,14 @@ int solve3(
 
     hand_t playable_cards = get_playable_cards(get_suit(card1), cards_in_hand[current_player]);
     while (playable_cards) {
-        card_t card = playable_cards & -playable_cards;
-        playable_cards ^= card;
+        card_t card = card_t(playable_cards.get() & ~playable_cards.get());
+        playable_cards = hand_t(playable_cards.get() ^ card.get());
 
         int current_move_value;
         int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
         int winner_player = (current_player + winner_idx_in_trick + 1) % 4;
         int points = get_trick_points(card1, card2, card3, card);
-        if (remaining_cards == card) {
+        if (remaining_cards.get() == card.get()) {
             points += LAST_TRICK_BONUS;
         }
         int points_this_trick = 0;
@@ -489,7 +488,7 @@ int solve3(
         int sub_game_value = solve0(
             cards_in_hand,
             winner_player,
-            remaining_cards ^ card,
+            hand_t(remaining_cards.get() ^ card.get()),
             new_alpha,
             new_beta,
             transposition_table,
@@ -528,19 +527,19 @@ int solve3(
     return best_score;
 }
 
-uint64_t transposition_key(uint64_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card) {
+uint64_t transposition_key(hand_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card) {
     uint64_t key = 0;
     key |= (remaining_cards << 28); // 36 bits for remaining_cards (up to 2^36-1)
     key |= (static_cast<uint64_t>(current_player) << 26); // 2 bits for current_player (0-3)
-    key |= (static_cast<uint64_t>(std::bit_width(trick_led_card)) << 20); // 6 bits for trick_led_card (0-36)
+    key |= (static_cast<uint64_t>(trick_led_card.bit_width()) << 20); // 6 bits for trick_led_card (0-36)
     key |= (static_cast<uint64_t>(trick_points_so_far) << 14); // 6 bits for trick_points_so_far (0-63)
-    key |= (static_cast<uint64_t>(std::bit_width(trick_winning_card)) << 8); // 6 bits for trick_winning_card (0-36)
+    key |= (static_cast<uint64_t>(trick_winning_card.bit_width()) << 8); // 6 bits for trick_winning_card (0-36)
     return key;
 }
 
 int get_stock_bonus(hand_t hand) {
-    const card_t KING_OF_TRUMP = (1ULL << 32); // King of Spades
-    const card_t QUEEN_OF_TRUMP = (1ULL << 31); // Queen of Spades
+    const card_t KING_OF_TRUMP(1ULL << 32); // King of Spades
+    const card_t QUEEN_OF_TRUMP(1ULL << 31); // Queen of Spades
     if ((hand & KING_OF_TRUMP) && (hand & QUEEN_OF_TRUMP)) {
         return 20;
     }
@@ -556,7 +555,7 @@ int solve_deal(std::array<hand_t, 4>& hands) {
         }
     }
     boost::unordered_flat_map<uint64_t, int> transposition_table;
-    hand_t remaining_cards = std::accumulate(hands.begin(), hands.end(), (hand_t)0);
+    hand_t remaining_cards = std::accumulate(hands.begin(), hands.end(), hand_t(0));
 
     int final_score = solve0(
         hands,
