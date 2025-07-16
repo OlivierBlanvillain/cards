@@ -74,16 +74,36 @@ void test_GetPlayableCards() {
 void test_SolveDeal() {
     std::array<jass::hand_t, 4> hands;
 
-    hands = {jass::c("10H,JS,7C,AD"), jass::c("JH,KS,QC,8D"), jass::c("AH,9S,8C,KD"), jass::c("QS,8S,AC,10D")};
+    hands = {
+        jass::c("10H,JS,7C,AD"),
+        jass::c("JH,KS,QC,8D"),
+        jass::c("AH,9S,8C,KD"),
+        jass::c("QS,8S,AC,10D")
+    };
     REQUIRE(jass::solve_deal(hands) == 94);
 
-    hands = {jass::c("10H,JS,7C,AD"), jass::c("JH,QC,KS,8D"), jass::c("9S,AH,7H,10C"), jass::c("QS,AC,8S,10D")};
+    hands = {
+        jass::c("10H,JS,7C,AD"),
+        jass::c("JH,QC,KS,8D"),
+        jass::c("9S,AH,7H,10C"),
+        jass::c("QS,AC,8S,10D")
+    };
     REQUIRE(jass::solve_deal(hands) == 100);
 
-    hands = {jass::c("8C,JS,QS,AS,JD,8H,AH,10H"), jass::c("JC,8S,KS,9S,QD,QH,7H,JH"), jass::c("KC,10S,7C,9H,9D,KD,AC,10C"), jass::c("9C,7S,AD,KH,10D,7D,QC,8D")};
+    hands = {
+        jass::c("8C,JS,QS,AS,JD,8H,AH,10H"),
+        jass::c("JC,8S,KS,9S,QD,QH,7H,JH"),
+        jass::c("KC,10S,7C,9H,9D,KD,AC,10C"),
+        jass::c("9C,7S,AD,KH,10D,7D,QC,8D")
+    };
     REQUIRE(jass::solve_deal(hands) == 112);
 
-    hands = {jass::c("9S,QS,8S,6S,AH,8H,8D,7D"), jass::c("AS,10S,KH,KC,10C,8C,KD,JD"), jass::c("6H,AC,QC,JC,6C,QD,10D,9D"), jass::c("QH,JH,9H,7H,9C,7C,AD,6D")};
+    hands = {
+        jass::c("9S,QS,8S,6S,AH,8H,8D,7D"),
+        jass::c("AS,10S,KH,KC,10C,8C,KD,JD"),
+        jass::c("6H,AC,QC,JC,6C,QD,10D,9D"),
+        jass::c("QH,JH,9H,7H,9C,7C,AD,6D")
+};
     REQUIRE(jass::solve_deal(hands) == 83);
 }
 
