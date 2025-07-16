@@ -174,6 +174,10 @@ int solve0(
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table
 ) {
+    if (remaining_cards == 0) {
+        return 0;
+    }
+
     int initial_alpha = alpha;
     uint64_t state_key = transposition_key(remaining_cards, current_player, NOT_A_SUIT, 0, NOT_A_CARD);
     auto it = transposition_table.find(state_key);
@@ -192,10 +196,6 @@ int solve0(
         }
     }
 
-    if (remaining_cards == 0) {
-        return 0;
-    }
-
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
@@ -206,17 +206,16 @@ int solve0(
 
         hands[current_player] ^= card;
         int current_move_value = solve1(
-            card,
             hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
             alpha,
             beta,
             transposition_table,
+            get_suit(card),
+            POINTS_TABLE[std::bit_width(card)],
             card,
-            0,
-            card,
-            0
+            current_player
         );
         hands[current_player] ^= card;
 
@@ -247,7 +246,6 @@ int solve0(
 }
 
 int solve1(
-    card_t card1,
     std::array<card_t, 4>& hands,
     int current_player,
     hand_t remaining_cards,
@@ -280,15 +278,21 @@ int solve1(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
+    hand_t playable_cards = get_playable_cards(trick_led_suite, hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
+        int new_points_so_far = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
+        card_t new_winning_card = trick_winning_card;
+        int new_winner_idx_in_trick = trick_winner_idx_in_trick;
+        if ((card & (trick_led_suite | S)) > trick_winning_card) {
+            new_winning_card = card;
+            new_winner_idx_in_trick = current_player;
+        }
+
         hands[current_player] ^= card;
         int current_move_value = solve2(
-            card1,
-            card,
             hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
@@ -296,9 +300,9 @@ int solve1(
             beta,
             transposition_table,
             trick_led_suite,
-            trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
-            (trick_winner(trick_led_suite, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_led_suite : card,
-            (trick_winner(trick_led_suite, card, NOT_A_CARD, NOT_A_CARD) == 0) ? trick_winner_idx_in_trick : (current_player + 1) % 4
+            new_points_so_far,
+            new_winning_card,
+            new_winner_idx_in_trick
         );
         hands[current_player] ^= card;
 
@@ -329,8 +333,6 @@ int solve1(
 }
 
 int solve2(
-    card_t card1,
-    card_t card2,
     std::array<card_t, 4>& hands,
     int current_player,
     hand_t remaining_cards,
@@ -363,31 +365,21 @@ int solve2(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
+    hand_t playable_cards = get_playable_cards(trick_led_suite, hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        hands[current_player] ^= card;
-        int current_trick_winner_idx_in_trick_local = trick_winner(trick_led_suite, card2, card, NOT_A_CARD);
-        card_t new_trick_winning_card;
-        int new_trick_winner_idx_in_trick_local;
-
-        if (current_trick_winner_idx_in_trick_local == 0) { // trick_led_suite is winning
-            new_trick_winning_card = trick_winning_card;
-            new_trick_winner_idx_in_trick_local = trick_winner_idx_in_trick;
-        } else if (current_trick_winner_idx_in_trick_local == 1) { // card2 is winning
-            new_trick_winning_card = card2;
-            new_trick_winner_idx_in_trick_local = (trick_winner_idx_in_trick + 1) % 4;
-        } else { // card is winning
-            new_trick_winning_card = card;
-            new_trick_winner_idx_in_trick_local = (trick_winner_idx_in_trick + 2) % 4;
+        int new_points_so_far = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
+        card_t new_winning_card = trick_winning_card;
+        int new_winner_idx_in_trick = trick_winner_idx_in_trick;
+        if ((card & (trick_led_suite | S)) > trick_winning_card) {
+            new_winning_card = card;
+            new_winner_idx_in_trick = current_player;
         }
 
+        hands[current_player] ^= card;
         int current_move_value = solve3(
-            card1,
-            card2,
-            card,
             hands,
             (current_player + 1) % 4,
             remaining_cards ^ card,
@@ -395,9 +387,9 @@ int solve2(
             beta,
             transposition_table,
             trick_led_suite,
-            trick_points_so_far + POINTS_TABLE[std::bit_width(card)],
-            new_trick_winning_card,
-            new_trick_winner_idx_in_trick_local
+            new_points_so_far,
+            new_winning_card,
+            new_winner_idx_in_trick
         );
         hands[current_player] ^= card;
 
@@ -428,9 +420,6 @@ int solve2(
 }
 
 int solve3(
-    card_t card1,
-    card_t card2,
-    card_t card3,
     std::array<card_t, 4>& hands,
     int current_player,
     hand_t remaining_cards,
@@ -463,24 +452,26 @@ int solve3(
     bool is_maximizing_player = (current_player % 2 == 0);
     int best_score = is_maximizing_player ? -999 : 999;
 
-    hand_t playable_cards = get_playable_cards(get_suit(card1), hands[current_player]);
+    hand_t playable_cards = get_playable_cards(trick_led_suite, hands[current_player]);
     while (playable_cards) {
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        int current_move_value;
-        int winner_idx_in_trick = trick_winner(card1, card2, card3, card);
+        int winner_idx_in_trick = trick_winner_idx_in_trick;
+        if ((card & (trick_led_suite | S)) > trick_winning_card) {
+            winner_idx_in_trick = current_player;
+        }
         int winner_player = (current_player + winner_idx_in_trick + 1) % 4;
-        int points = get_trick_points(card1, card2, card3, card);
+
+        int trick_points = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
         if (remaining_cards == card) {
-            points += LAST_TRICK_BONUS;
+            trick_points += LAST_TRICK_BONUS;
         }
-        int points_this_trick = 0;
-        if (winner_player % 2 == 0) {
-            points_this_trick = points;
+        if (winner_player % 2 != 0) {
+            trick_points = 0;
         }
-        int new_alpha = alpha - points_this_trick;
-        int new_beta = beta - points_this_trick;
+        int new_alpha = alpha - trick_points;
+        int new_beta = beta - trick_points;
 
         hands[current_player] ^= card;
         int sub_game_value = solve0(
@@ -493,8 +484,7 @@ int solve3(
         );
         hands[current_player] ^= card;
 
-        current_move_value = points_this_trick + sub_game_value;
-
+        int current_move_value = trick_points + sub_game_value;
         if (is_maximizing_player) {
             best_score = std::max(best_score, current_move_value);
             alpha = std::max(alpha, best_score);
