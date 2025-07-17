@@ -1,8 +1,6 @@
 #include "jass.h"
 #include <cassert>
 #include <iostream>
-#include <vector>
-#include <numeric>
 
 // Helper for printing test results
 #define RUN_TEST(test_func) \

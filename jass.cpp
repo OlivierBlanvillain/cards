@@ -31,10 +31,6 @@ static const hand_t SUIT_TABLE[37] = {
 std::map<std::pair<Suit, std::string>, int> CARD_TO_BIT;
 std::map<int, std::tuple<Suit, std::string, char>> BIT_TO_CARD;
 
-suit_t get_suit(card_t card) {
-    return SUIT_TABLE[std::bit_width(card)];
-}
-
 void initialize_card_maps() {
     const char* RANKS_TRUMP[] = {"J", "9", "A", "K", "Q", "10", "8", "7", "6"};
     const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
@@ -179,7 +175,7 @@ int solve_trick(
             int new_points_so_far = POINTS_TABLE[std::bit_width(card)];
             card_t new_winning_card = card;
             int new_winner_player = CURRENT_PLAYER;
-            suit_t new_trick_led_suit = get_suit(card);
+            suit_t new_trick_led_suit = SUIT_TABLE[std::bit_width(card)];
             if (new_trick_led_suit == C) {
                 current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4, C>(hands, remaining_cards ^ card, alpha, beta, transposition_table, new_points_so_far, new_winning_card, new_winner_player);
             } else if (new_trick_led_suit == D) {
