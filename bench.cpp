@@ -15,11 +15,12 @@ void run_benchmark_full_game() {
         jass::c("6C,QS,8S,7S,AD,QD,JC,9C,8C"),
     };
 
-    int num_trials = 1000;
+    int num_trials = 100;
     std::vector<double> times;
     times.reserve(num_trials);
 
     for (int i = 0; i < num_trials; ++i) {
+        std::cout << i << std::endl;
         auto start = std::chrono::high_resolution_clock::now();
         jass::solve_deal(hands);
         auto end = std::chrono::high_resolution_clock::now();
