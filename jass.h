@@ -44,15 +44,13 @@ hand_t get_playable_cards(suit_t led_suit, hand_t hand);
 
 suit_t get_suit(card_t card);
 
-// The four solveN functions have been replaced by a single templated function.
-template <int TRICK_DEPTH, int CURRENT_PLAYER>
+template <int TRICK_DEPTH, int CURRENT_PLAYER, suit_t TRICK_LED_SUIT>
 int solve_trick(
     std::array<card_t, 4>& hands,
     hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
     int trick_winner_player
