@@ -43,13 +43,14 @@ std::string hand_to_string(hand_t hand);
 
 hand_t get_playable_cards(suit_t led_suit, hand_t hand);
 
-template <int TRICK_DEPTH, int CURRENT_PLAYER, suit_t TRICK_LED_SUIT>
+template <int TRICK_DEPTH, int CURRENT_PLAYER>
 int solve_trick(
     std::array<card_t, 4>& hands,
     hand_t remaining_cards,
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
+    suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,
     int trick_winner_player
