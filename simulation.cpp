@@ -388,8 +388,32 @@ std::vector<jass::hand_t> generate_all_trump_hands() {
 
 
 int main() {
-    jass::initialize_card_maps();
-    initialize_swap_maps();
-    find_best_trump();
+    auto samples = generate_all_trump_hands();
+    for (auto bidder_hand : samples) {
+        std::array<jass::hand_t, 4> hands = shuffle_other_hands(bidder_hand, 0);
+
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        int score = jass::solve_deal(hands);
+        std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
+
+        std::bitset<36> p0_bits(hands[0]);
+        std::bitset<36> p1_bits(hands[1]);
+        std::bitset<36> p2_bits(hands[2]);
+        std::bitset<36> p3_bits(hands[3]);
+        std::bitset<9> trump_cards_bits(bidder_hand >> 9 * 3);
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+        std::cout
+            << trump_cards_bits
+            << "," << score
+            << "," << elapsed << "ms"
+            << "," << p0_bits
+            << "," << p1_bits
+            << "," << p2_bits
+            << "," << p3_bits
+            << std::endl;
+    }
+    // jass::initialize_card_maps();
+    // initialize_swap_maps();
+    // find_best_trump();
     return 0;
 }
