@@ -28,7 +28,6 @@ void test_CardRepresentation() {
     REQUIRE(jass::c("AH") > jass::c("KH"));
     REQUIRE(jass::c("6C") == (1ULL << 0));
     REQUIRE(jass::c("JS") == (1ULL << 35));
-    REQUIRE(jass::F == (jass::S ^ (1ULL << 35)));
 }
 
 void test_GetPoints() {
@@ -42,18 +41,6 @@ void test_GetPoints() {
     REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("7C"))] == 0);
     REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("JS"))] == 20);
     REQUIRE(jass::POINTS_TABLE[std::bit_width(jass::c("9S"))] == 14);
-}
-
-void test_TrickWinner() {
-    REQUIRE(jass::trick_winner(jass::c("AH"), jass::c("7S"), jass::c("QH"), jass::c("10H")) == 1);
-    REQUIRE(jass::trick_winner(jass::c("AH"), jass::c("KH"), jass::c("7S"), jass::c("10H")) == 2);
-    REQUIRE(jass::trick_winner(jass::c("AH"), jass::c("KH"), jass::c("QH"), jass::c("7S")) == 3);
-    REQUIRE(jass::trick_winner(jass::c("AH"), jass::c("7S"), jass::c("8S"), jass::c("10H")) == 2);
-    REQUIRE(jass::trick_winner(jass::c("AH"), jass::c("8S"), jass::c("7S"), jass::c("10H")) == 1);
-    REQUIRE(jass::trick_winner(jass::c("7S"), jass::c("8S"), jass::c("9S"), jass::c("JS")) == 3);
-    REQUIRE(jass::trick_winner(jass::c("JS"), jass::c("9S"), jass::c("8S"), jass::c("7S")) == 0);
-    REQUIRE(jass::trick_winner(jass::c("7H"), jass::c("8H"), jass::c("9H"), jass::c("10H")) == 3);
-    REQUIRE(jass::trick_winner(jass::c("7H"), jass::c("8H"), jass::c("10H"), jass::c("JH")) == 3);
 }
 
 void test_GetPlayableCards() {
@@ -131,7 +118,6 @@ int main() {
     jass::initialize_card_maps();
     RUN_TEST(test_CardRepresentation);
     RUN_TEST(test_GetPoints);
-    RUN_TEST(test_TrickWinner);
     RUN_TEST(test_GetPlayableCards);
     RUN_TEST(test_SolveDeal);
     RUN_TEST(test_GetStockBonus);

@@ -17,19 +17,22 @@ enum Suit {
     SPADES,
 };
 
-extern const suit_t C;
-extern const suit_t D;
-extern const suit_t H;
-extern const suit_t S;
-extern const suit_t F;
+constexpr hand_t C = 0b000000000000000000000000000111111111;
+constexpr hand_t D = 0b000000000000000000111111111000000000;
+constexpr hand_t H = 0b000000000111111111000000000000000000;
+constexpr hand_t S = 0b111111111000000000000000000000000000;
 
-extern const int FLAG_EXACT;
-extern const int FLAG_LOWER_BOUND;
-extern const int FLAG_UPPER_BOUND;
+constexpr int FLAG_EXACT = 1 << 10;
+constexpr int FLAG_LOWER_BOUND = 1 << 11;
+constexpr int FLAG_UPPER_BOUND = 1 << 12;
 
-extern const int LAST_TRICK_BONUS;
-extern const card_t NOT_A_CARD;
-extern const suit_t NOT_A_SUIT;
+constexpr int LAST_TRICK_BONUS = 5;
+constexpr card_t NOT_A_CARD = 0;
+constexpr suit_t NOT_A_SUIT = 0;
+
+constexpr card_t JACK_OF_TRUMP = (1ULL << 35);
+constexpr card_t KING_OF_TRUMP = (1ULL << 32);
+constexpr card_t QUEEN_OF_TRUMP = (1ULL << 31);
 
 extern const int POINTS_TABLE[37];
 
@@ -55,9 +58,6 @@ int solve_trick(
     card_t trick_winning_card,
     int trick_winner_player
 );
-
-
-uint64_t transposition_key(hand_t remaining_cards, int current_player, card_t trick_led_card, int trick_points_so_far, card_t trick_winning_card);
 
 int get_stock_bonus(hand_t hand);
 
