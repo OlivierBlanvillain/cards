@@ -255,7 +255,7 @@ int solve1(
     suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
-    int trick_winner_idx_in_trick
+    int trick_winner_player
 ){
     int initial_alpha = alpha;
     uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
@@ -285,10 +285,10 @@ int solve1(
 
         int new_points_so_far = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
         card_t new_winning_card = trick_winning_card;
-        int new_winner_idx_in_trick = trick_winner_idx_in_trick;
+        int new_winner_player = trick_winner_player;
         if ((card & (trick_led_suite | S)) > trick_winning_card) {
             new_winning_card = card;
-            new_winner_idx_in_trick = current_player;
+            new_winner_player = current_player;
         }
 
         hands[current_player] ^= card;
@@ -302,7 +302,7 @@ int solve1(
             trick_led_suite,
             new_points_so_far,
             new_winning_card,
-            new_winner_idx_in_trick
+            new_winner_player
         );
         hands[current_player] ^= card;
 
@@ -342,7 +342,7 @@ int solve2(
     suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
-    int trick_winner_idx_in_trick
+    int trick_winner_player
 ) {
     int initial_alpha = alpha;
     uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
@@ -372,10 +372,10 @@ int solve2(
 
         int new_points_so_far = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
         card_t new_winning_card = trick_winning_card;
-        int new_winner_idx_in_trick = trick_winner_idx_in_trick;
+        int new_winner_player = trick_winner_player;
         if ((card & (trick_led_suite | S)) > trick_winning_card) {
             new_winning_card = card;
-            new_winner_idx_in_trick = current_player;
+            new_winner_player = current_player;
         }
 
         hands[current_player] ^= card;
@@ -389,7 +389,7 @@ int solve2(
             trick_led_suite,
             new_points_so_far,
             new_winning_card,
-            new_winner_idx_in_trick
+            new_winner_player
         );
         hands[current_player] ^= card;
 
@@ -429,7 +429,7 @@ int solve3(
     suit_t trick_led_suite,
     int trick_points_so_far,
     card_t trick_winning_card,
-    int trick_winner_idx_in_trick
+    int trick_winner_player
 ) {
     int initial_alpha = alpha;
     uint64_t state_key = transposition_key(remaining_cards, current_player, trick_led_suite, trick_points_so_far, trick_winning_card);
@@ -457,11 +457,10 @@ int solve3(
         card_t card = playable_cards & -playable_cards;
         playable_cards ^= card;
 
-        int winner_idx_in_trick = trick_winner_idx_in_trick;
+        int winner_player = trick_winner_player;
         if ((card & (trick_led_suite | S)) > trick_winning_card) {
-            winner_idx_in_trick = current_player;
+            winner_player = current_player;
         }
-        int winner_player = (current_player + winner_idx_in_trick + 1) % 4;
 
         int trick_points = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
         if (remaining_cards == card) {
