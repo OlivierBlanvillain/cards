@@ -49,7 +49,7 @@ int solve_trick(
     hand_t remaining_cards,
     int alpha,
     int beta,
-    boost::unordered_flat_map<uint64_t, int>& transposition_table,
+    boost::unordered_flat_map<uint32_t, int>& transposition_table,
     suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,

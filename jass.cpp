@@ -115,7 +115,7 @@ int solve_trick(
     hand_t remaining_cards,
     int alpha,
     int beta,
-    std::array<boost::unordered_flat_map<uint64_t, int>, 4>& transposition_tables,
+    std::array<std::array<boost::unordered_flat_map<uint32_t, int>, 16>, 4>& transposition_tables,
     suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,
@@ -131,13 +131,14 @@ int solve_trick(
     }
 
     // --- Transposition Table Lookup ---
-    uint64_t state_key;  // +36 bits
+    
     int initial_alpha;
     if constexpr (TRICK_DEPTH == 0) {
         initial_alpha = alpha;
-        state_key = remaining_cards;  // +36 bits
-        auto it = transposition_tables[CURRENT_PLAYER].find(state_key);
-        if (it != transposition_tables[CURRENT_PLAYER].end()) {
+        uint32_t table_index = (remaining_cards >> 32) & 0xF; // Extract first 4 bits
+        uint32_t state_key = remaining_cards & 0xFFFFFFFF; // Use remaining 32 bits
+        auto it = transposition_tables[CURRENT_PLAYER][table_index].find(state_key);
+        if (it != transposition_tables[CURRENT_PLAYER][table_index].end()) {
             int entry = it->second;
             if (entry & FLAG_EXACT) {
                 return entry ^ FLAG_EXACT;
@@ -255,7 +256,9 @@ int solve_trick(
         } else {
             flag = FLAG_EXACT;
         }
-        transposition_tables[CURRENT_PLAYER][state_key] = best_score | flag;
+        uint32_t table_index = (remaining_cards >> 32) & 0xF;
+        uint32_t state_key = remaining_cards & 0xFFFFFFFF;
+        transposition_tables[CURRENT_PLAYER][table_index][state_key] = best_score | flag;
     }
 
     return best_score;
@@ -276,7 +279,7 @@ std::pair<int, long long> solve_deal(std::array<hand_t, 4>& hands) {
             }
         }
     }
-    std::array<boost::unordered_flat_map<uint64_t, int>, 4> transposition_tables;
+    std::array<std::array<boost::unordered_flat_map<uint32_t, int>, 16>, 4> transposition_tables;
     hand_t remaining_cards = std::accumulate(hands.begin(), hands.end(), (hand_t)0);
     long long visited_nodes = 0;
 
