@@ -15,7 +15,7 @@ void run_benchmark_full_game() {
         jass::c("6C,QS,8S,7S,AD,QD,JC,9C,8C"),
     };
 
-    int num_trials = 100;
+    int num_trials = 10;
     std::vector<double> times;
     times.reserve(num_trials);
 
