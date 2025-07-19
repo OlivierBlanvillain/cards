@@ -119,8 +119,10 @@ int solve_trick(
     suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,
-    int trick_winner_player
+    int trick_winner_player,
+    long long& visited_nodes
 ) {
+    visited_nodes++;
     // Base case for the entire game (only checked at the start of a trick)
     if constexpr (TRICK_DEPTH == 0) {
         if (remaining_cards == 0) {
@@ -177,7 +179,7 @@ int solve_trick(
             card_t new_winning_card = card;
             int new_winner_player = CURRENT_PLAYER;
             suit_t new_trick_led_suit = SUIT_TABLE[std::bit_width(card)];
-            current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4>(hands, remaining_cards ^ card, alpha, beta, transposition_table, new_trick_led_suit, new_points_so_far, new_winning_card, new_winner_player);
+            current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4>(hands, remaining_cards ^ card, alpha, beta, transposition_table, new_trick_led_suit, new_points_so_far, new_winning_card, new_winner_player, visited_nodes);
         } else if constexpr (TRICK_DEPTH < 3) {
             // Continuing a trick
             int new_points_so_far = trick_points_so_far + POINTS_TABLE[std::bit_width(card)];
@@ -187,7 +189,7 @@ int solve_trick(
                 new_winning_card = card;
                 new_winner_player = CURRENT_PLAYER;
             }
-            current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4>(hands, remaining_cards ^ card, alpha, beta, transposition_table, trick_led_suit, new_points_so_far, new_winning_card, new_winner_player);
+            current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4>(hands, remaining_cards ^ card, alpha, beta, transposition_table, trick_led_suit, new_points_so_far, new_winning_card, new_winner_player, visited_nodes);
         } else { // TRICK_DEPTH == 3
             // Finishing a trick
             int winner_player_final = trick_winner_player;
@@ -211,16 +213,16 @@ int solve_trick(
             int sub_game_value;
             switch (winner_player_final) {
                 case 0:
-                    sub_game_value = solve_trick<0, 0>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1);
+                    sub_game_value = solve_trick<0, 0>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1, visited_nodes);
                     break;
                 case 1:
-                    sub_game_value = solve_trick<0, 1>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1);
+                    sub_game_value = solve_trick<0, 1>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1, visited_nodes);
                     break;
                 case 2:
-                    sub_game_value = solve_trick<0, 2>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1);
+                    sub_game_value = solve_trick<0, 2>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1, visited_nodes);
                     break;
                 default: // 3
-                    sub_game_value = solve_trick<0, 3>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1);
+                    sub_game_value = solve_trick<0, 3>(hands, remaining_cards ^ card, new_alpha, new_beta, transposition_table, NOT_A_SUIT, 0, NOT_A_CARD, -1, visited_nodes);
                     break;
             }
 
@@ -274,7 +276,7 @@ int get_stock_bonus(hand_t hand) {
     return 0;
 }
 
-int solve_deal(std::array<hand_t, 4>& hands) {
+std::pair<int, long long> solve_deal(std::array<hand_t, 4>& hands) {
     for (size_t i = 0; i < hands.size(); ++i) {
         for (size_t j = 0; j < i; ++j) {
             if (hands[i] & hands[j]) {
@@ -284,6 +286,7 @@ int solve_deal(std::array<hand_t, 4>& hands) {
     }
     boost::unordered_flat_map<uint64_t, int> transposition_table;
     hand_t remaining_cards = std::accumulate(hands.begin(), hands.end(), (hand_t)0);
+    long long visited_nodes = 0;
 
     // Initial call to solve_trick starts with NOT_A_SUIT as the led suit.
     int final_score = solve_trick<0, 0>(
@@ -295,11 +298,12 @@ int solve_deal(std::array<hand_t, 4>& hands) {
         NOT_A_SUIT,
         0,
         NOT_A_CARD,
-        -1
+        -1,
+        visited_nodes
     );
     final_score += get_stock_bonus(hands[0]); // Add bonus for player 0
     final_score += get_stock_bonus(hands[2]); // Add bonus for player 2
-    return final_score;
+    return {final_score, visited_nodes};
 }
 
 } // namespace jass

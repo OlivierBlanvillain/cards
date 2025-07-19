@@ -65,7 +65,9 @@ void test_SolveDeal() {
         jass::c("AH,9S,8C,KD"),
         jass::c("QS,8S,AC,10D")
     };
-    REQUIRE(jass::solve_deal(hands) == 94);
+    auto result = jass::solve_deal(hands);
+    REQUIRE(result.first == 94);
+    REQUIRE(result.second == 603);
 
     hands = {
         jass::c("10H,JS,7C,AD"),
@@ -73,7 +75,9 @@ void test_SolveDeal() {
         jass::c("9S,AH,7H,10C"),
         jass::c("QS,AC,8S,10D")
     };
-    REQUIRE(jass::solve_deal(hands) == 100);
+    result = jass::solve_deal(hands);
+    REQUIRE(result.first == 100);
+    REQUIRE(result.second == 1370);
 
     hands = {
         jass::c("8C,JS,QS,AS,JD,8H,AH,10H"),
@@ -81,15 +85,19 @@ void test_SolveDeal() {
         jass::c("KC,10S,7C,9H,9D,KD,AC,10C"),
         jass::c("9C,7S,AD,KH,10D,7D,QC,8D")
     };
-    REQUIRE(jass::solve_deal(hands) == 112);
+    result = jass::solve_deal(hands);
+    REQUIRE(result.first == 112);
+    REQUIRE(result.second == 16087201);
 
     hands = {
         jass::c("9S,QS,8S,6S,AH,8H,8D,7D"),
         jass::c("AS,10S,KH,KC,10C,8C,KD,JD"),
         jass::c("6H,AC,QC,JC,6C,QD,10D,9D"),
         jass::c("QH,JH,9H,7H,9C,7C,AD,6D")
-};
-    REQUIRE(jass::solve_deal(hands) == 83);
+    };
+    result = jass::solve_deal(hands);
+    REQUIRE(result.first == 83);
+    REQUIRE(result.second == 34548088);
 }
 
 void test_GetStockBonus() {
@@ -109,7 +117,7 @@ void test_GetStockBonus() {
 void test_SolveDealWithFullStockGame() {
     std::array<jass::hand_t, 4> hands;
     hands = {jass::c("KS,QS,AS,10S,9S,JS,8S,7S,6S"), jass::c("AC,KC,QC,JC,10C,9C,8C,7C,6C"), jass::c("AH,KH,QH,JH,10H,9H,8H,7H,6H"), jass::c("AD,KD,QD,JD,10D,9D,8D,7D,6D")};
-    REQUIRE(jass::solve_deal(hands) == 177);
+    REQUIRE(jass::solve_deal(hands).first == 177);
 }
 
 int main() {

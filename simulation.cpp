@@ -209,7 +209,7 @@ struct MoveResult {
 double run_one_experiment(jass::hand_t declarer_hand, jass::hand_t trump_suit_mask) {
     std::array<jass::hand_t, 4> hands = shuffle_other_hands(declarer_hand, 0);
     hands = swap_trump(hands, trump_suit_mask);
-    return static_cast<double>(jass::solve_deal(hands));
+    return static_cast<double>(jass::solve_deal(hands).first);
 }
 
 // Calculates the 95% Confidence Interval for a single mean
@@ -392,7 +392,7 @@ int main() {
         std::cout << p1_bits << "," << p2_bits << "," << p3_bits << "," << p4_bits << std::flush;
 
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-        int score = jass::solve_deal(hands);
+        int score = jass::solve_deal(hands).first;
         std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
 
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();

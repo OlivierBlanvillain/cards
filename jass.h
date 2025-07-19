@@ -53,11 +53,12 @@ int solve_trick(
     suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,
-    int trick_winner_player
+    int trick_winner_player,
+    long long& visited_nodes
 );
 
 int get_stock_bonus(hand_t hand);
 
-int solve_deal(std::array<hand_t, 4>& hands);
+std::pair<int, long long> solve_deal(std::array<hand_t, 4>& hands);
 
 } // namespace jass
