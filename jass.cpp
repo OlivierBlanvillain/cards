@@ -262,16 +262,6 @@ int solve_trick(
     return best_score;
 }
 
-uint64_t transposition_key(hand_t remaining_cards, int current_player, suit_t trick_led_suite, int trick_points_so_far, card_t trick_winning_card) {
-    uint64_t key = 0;
-    key |= (remaining_cards << 28); // 36 bits for remaining_cards (up to 2^36-1)
-    key |= (static_cast<uint64_t>(current_player) << 26); // 2 bits for current_player (0-3)
-    key |= (static_cast<uint64_t>(std::bit_width(trick_led_suite)) << 20); // 6 bits for trick_led_suite (0-36)
-    key |= (static_cast<uint64_t>(trick_points_so_far) << 14); // 6 bits for trick_points_so_far (0-63)
-    key |= (static_cast<uint64_t>(std::bit_width(trick_winning_card)) << 8); // 6 bits for trick_winning_card (0-36)
-    return key;
-}
-
 int get_stock_bonus(hand_t hand) {
     if ((hand & KING_OF_TRUMP) && (hand & QUEEN_OF_TRUMP)) {
         return 20;
