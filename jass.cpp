@@ -116,7 +116,6 @@ int solve_trick(
     int alpha,
     int beta,
     boost::unordered_flat_map<uint64_t, int>& transposition_table,
-    // boost::unordered_flat_map<uint64_t, int>& trick_table,
     suit_t trick_led_suit,
     int trick_points_so_far,
     card_t trick_winning_card,
@@ -137,12 +136,8 @@ int solve_trick(
     if constexpr (TRICK_DEPTH == 0) {
         initial_alpha = alpha;
         state_key = remaining_cards;  // +36 bits
-        state_key |= (static_cast<uint64_t>(trick_points_so_far) << 36); // +8 bits
-        state_key |= (static_cast<uint64_t>(std::bit_width(trick_winning_card)) << 44); // +6 bits
         state_key |= (static_cast<uint64_t>(CURRENT_PLAYER) << 50); // +2 bits
-        state_key |= (static_cast<uint64_t>(std::bit_width(trick_led_suit)) << 52); // +6 bits
-        boost::unordered::detail::foa::table_iterator<boost::unordered::detail::foa::flat_map_types<long unsigned int, int>, boost::unordered::detail::foa::group15<boost::unordered::detail::foa::plain_integral>, false> it;
-        it = transposition_table.find(state_key);
+        auto it = transposition_table.find(state_key);
         if (it != transposition_table.end()) {
             int entry = it->second;
             if (entry & FLAG_EXACT) {
@@ -157,8 +152,6 @@ int solve_trick(
                 if (alpha >= beta) return score;
             }
         }
-    } else {
-        // it = trick_table.find(state_key);
     }
 
     // --- Alpha-Beta Initialization ---
@@ -187,7 +180,6 @@ int solve_trick(
             card_t new_winning_card = card;
             int new_winner_player = CURRENT_PLAYER;
             suit_t new_trick_led_suit = SUIT_TABLE[std::bit_width(card)];
-            // boost::unordered_flat_map<uint64_t, int> next_trick_table;
             current_move_value = solve_trick<TRICK_DEPTH + 1, (CURRENT_PLAYER + 1) % 4>(hands, remaining_cards ^ card, alpha, beta, transposition_table,  new_trick_led_suit, new_points_so_far, new_winning_card, new_winner_player, visited_nodes);
         } else if constexpr (TRICK_DEPTH < 3) {
             // Continuing a trick
@@ -265,8 +257,6 @@ int solve_trick(
             flag = FLAG_EXACT;
         }
         transposition_table[state_key] = best_score | flag;
-    } else {
-        // trick_table[state_key] = best_score | flag;
     }
 
     return best_score;
@@ -297,7 +287,6 @@ std::pair<int, long long> solve_deal(std::array<hand_t, 4>& hands) {
             }
         }
     }
-    // boost::unordered_flat_map<uint64_t, int> trick_table;
     boost::unordered_flat_map<uint64_t, int> transposition_table;
     hand_t remaining_cards = std::accumulate(hands.begin(), hands.end(), (hand_t)0);
     long long visited_nodes = 0;
@@ -309,7 +298,6 @@ std::pair<int, long long> solve_deal(std::array<hand_t, 4>& hands) {
         -999,
         999,
         transposition_table,
-        // trick_table,
         NOT_A_SUIT,
         0,
         NOT_A_CARD,
