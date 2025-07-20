@@ -1,17 +1,6 @@
-img.card {
-	width: 70px;
-}
-
-
-
-/*
- * A fanned hand.  Only the last card is entirely visible.
- */
 .fan {
 	position: relative;
-	padding-bottom: 1em;
 }
 .fan img.card { 
 	position: absolute;
-	width: 90px;
 }

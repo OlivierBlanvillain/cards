@@ -3,13 +3,53 @@
   <head>
     <meta charset="utf-8">
     <title>Tu Chibres Ou Bien ?</title>
-    <link href="cards.css" rel="stylesheet" type="text/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+    <style>
+      .dm-mono-regular {
+        font-family: "DM Mono", monospace;
+        font-weight: 400;
+        font-style: normal;
+      }
+      body {
+        background: #113f67;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      header h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-family: "DM Mono", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+      }
+      .fan {
+      	position: relative;
+        width: 557px;
+        height: 310px;
+      }
+      .fan img.card { 
+      	position: absolute;
+      }
+    </style>
     <script type="text/javascript" src="https://livejs.com/live.js"></script>
-    
-    <script type="text/javascript" src="cards.js"></script>
   </head>
   <body>
-    <div class='fan' data-fan='spacing: 0.2; width: 200; radius: 400; cards: AS,KS,QS,10S,9H,3H,JC,9C,AD'>
+    <header>
+      <h1>tu chibres ou bien?</h1>
+    </header>
+    <div class="fan">
+      <img class="card" src="cards/KS.svg" style="left: 83px; top: 18px; transform: rotate(343deg);">
+      <img class="card" src="cards/QS.svg" style="left: 122px; top: 8px; transform: rotate(349deg);">
+      <img class="card" src="cards/10S.svg" style="left: 161px; top: 2px; transform: rotate(354deg);">
+      <img class="card" src="cards/9H.svg" style="left: 201px; top: 0px; transform: rotate(360deg);">
+      <img class="card" src="cards/3H.svg" style="left: 241px; top: 2px; transform: rotate(366deg);">
+      <img class="card" src="cards/JC.svg" style="left: 280px; top: 8px; transform: rotate(371deg);">
+      <img class="card" src="cards/9C.svg" style="left: 319px; top: 18px; transform: rotate(377deg);">
+      <img class="card" src="cards/AD.svg" style="left: 357px; top: 31px; transform: rotate(383deg);">
     </div>
   </body>
 </html>

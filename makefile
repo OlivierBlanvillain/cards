@@ -21,7 +21,17 @@ venv:
 	python3 -m venv venv
 
 deps: venv
-	./venv/bin/pip install selenium Pillow numpy
+	@if [ ! -f ./venv/bin/pip ]; then \
+		echo "venv/bin/pip not found, recreating venv"; \
+		rm -rf venv; \
+		python3 -m venv venv; \
+	fi
+	@if ! ./venv/bin/pip show selenium > /dev/null 2>&1; then \
+		echo "Installing Python dependencies..."; \
+		./venv/bin/pip install selenium Pillow numpy; \
+	else \
+		echo "Python dependencies already installed."; \
+	fi
 
 build/%: build/jass.o build/%.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ 
