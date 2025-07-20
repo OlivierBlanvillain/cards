@@ -389,14 +389,13 @@ int main() {
         std::bitset<36> p2_bits(hands[1]);
         std::bitset<36> p3_bits(hands[2]);
         std::bitset<36> p4_bits(hands[3]);
-        std::cout << p1_bits << "," << p2_bits << "," << p3_bits << "," << p4_bits << std::flush;
 
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         int score = jass::solve_deal(hands).first;
         std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
 
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-        std::cout << "," << score << "," << elapsed << "ms" << std::endl;
+        std::cout << p1_bits << "," << p2_bits << "," << p3_bits << "," << p4_bits << "," << score << "," << elapsed << "ms" << std::endl;
     }
 
     // jass::initialize_card_maps();
