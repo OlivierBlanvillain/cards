@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, -W003 */
-/*globals window, document, define, exports, module, require */
+/*globals window, document */
 
 var cardsScript = document.currentScript;
 
@@ -8,17 +8,17 @@ var cardsScript = document.currentScript;
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['jquery'], factory);
+        define([], factory);
     } else if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory(require('jquery'));
+        module.exports = factory();
     } else {
         // Browser globals (root is window)
-        root.cards = factory(root.jQuery);
+        root.cards = factory();
     }
-}(this, function ($) {
+}(this, function () {
     'use strict';
 
     var module = {
@@ -32,88 +32,92 @@ var cardsScript = document.currentScript;
 
         // Gets the ID of the card, e.g. "KS" for the king of spades.
         cid: function (card) {
-            var s = card.attr('src');
+            var s = card.src;
             return s.substring(s.length - 6, s.length - 4);
         },
 
         // Play is called whenever a card in an hand is clicked.  If the hand is active
         // then playCard is called.
         play: function (card) {
-            if (card.parents(".active-hand").length > 0) {
+            if (card.closest(".active-hand")) {
                 this.playCard(card);
             }
         },
 
         // Remove a card from the hand.
         remove: function (card) {
-            var hand = card.parent();
-            card.remove();
+            var hand = card.parentNode;
+            hand.removeChild(card);
 
             // New layout if card removed from a "fan".
-            if (hand.hasClass("fan")) {
+            if (hand.classList.contains("fan")) {
                 this.fan(hand);
             }
         },
 
         fan: function (hand, cfg) {
-            var options = $.extend({}, this.options),
-                cards;
+            var options = { ...this.options };
 
-            options = $.extend(options, readOptions(hand, 'fan'));
+            options = { ...options, ...readOptions(hand, 'fan') };
             if (cfg) {
-                options = $.extend(options, cfg);
+                options = { ...options, ...cfg };
             }
-            hand.data("fan", 'radius: ' + options.radius + '; spacing: ' + options.spacing);
+            hand.dataset.fan = 'radius: ' + options.radius + '; spacing: ' + options.spacing;
             addCardImages(hand, options.cards);
 
-            cards = hand.find("img.card");
+            var cards = hand.querySelectorAll("img.card");
             if (cards.length === 0) {
                 return;
             }
             if (options.width) {
-                cards.width(options.width);
+                cards.forEach(card => card.style.width = options.width + 'px');
             }
             fanCards(cards, this, options);
         },
 
-        hand: function ($hand, cfg) {
-            var options = $.extend({}, this.options),
-                cards,
-                width,
-                height;
-            options = $.extend(options, readOptions($hand, 'hand'));
+        hand: function (hand, cfg) {
+            var options = { ...this.options };
+            var cards;
+            var width;
+            var height;
+
+            options = { ...options, ...readOptions(hand, 'hand') };
             if (cfg) {
-                options = $.extend(options, cfg);
+                options = { ...options, ...cfg };
             }
-            $hand.data("hand", 'flow: ' + options.direction + ';');
-            $hand.removeClass('hhand fan hhand vhand vhand-compact hhand-compact');
+            hand.dataset.hand = 'flow: ' + options.direction + ';';
+            hand.classList.remove('hhand', 'fan', 'hhand', 'vhand', 'vhand-compact', 'hhand-compact');
             if (options.flow === 'vertical' && options.spacing >= 1.0) {
-                $hand.addClass('vhand');
+                hand.classList.add('vhand');
             } else if (options.flow === 'horizontal' && options.spacing >= 1.0) {
-                $hand.addClass('hhand');
+                hand.classList.add('hhand');
             } else if (options.flow === 'vertical') {
-                $hand.addClass('vhand-compact');
+                hand.classList.add('vhand-compact');
             } else {
-                $hand.addClass('hhand-compact');
+                hand.classList.add('hhand-compact');
             }
 
-            addCardImages($hand, options.cards);
+            addCardImages(hand, options.cards);
 
-            cards = $hand.find('img.card');
+            cards = hand.querySelectorAll('img.card');
             if (cards.length === 0) {
                 return;
             }
             if (options.width) {
-                cards.width(options.width);
+                cards.forEach(card => card.style.width = options.width + 'px');
             }
             width = options.width || cards[0].clientWidth || 70; // hack: for a hidden hand
             height = cards[0].clientHeight || Math.floor(width * 1.4); // hack: for a hidden hand
             if (options.flow === 'vertical' && options.spacing < 1.0) {
-                cards.slice(1).css('margin-top', -height * (1.0 - options.spacing));
-                cards.slice(1).css('margin-left', 0);
+                Array.from(cards).slice(1).forEach(card => {
+                    card.style.marginTop = -height * (1.0 - options.spacing) + 'px';
+                    card.style.marginLeft = '0';
+                });
             } else if (options.flow === 'horizontal' && options.spacing < 1.0) {
-                cards.slice(1).css('margin-left', -width * (1.0 - options.spacing));
-                cards.slice(1).css('margin-top', 0);
+                Array.from(cards).slice(1).forEach(card => {
+                    card.style.marginLeft = -width * (1.0 - options.spacing) + 'px';
+                    card.style.marginTop = '0';
+                });
             }
         },
 
@@ -122,9 +126,9 @@ var cardsScript = document.currentScript;
         },
 
         cardNames: function (cards) {
-            var i,
-                name,
-                names = [];
+            var i;
+            var name;
+            var names = [];
             if (typeof cards === 'string') {
                 cards = cards.split(' ');
             }
@@ -144,24 +148,27 @@ var cardsScript = document.currentScript;
     module.playCard = module.remove;
 
     function addCardImages(hand, cards) {
-        var i,
-            src;
+        var i;
+        var src;
         if (!cards) {
             return;
         }
         cards = module.cardNames(cards);
-        hand.empty();
+        hand.innerHTML = ''; // Equivalent to .empty()
         for (i = 0; i < cards.length; ++i) {
-            src = "src='" + module.options.imagesUrl + cards[i] + '.svg' + "'";
-            hand.append("<img class='card' " + src + ">");
+            src = module.options.imagesUrl + cards[i] + '.svg';
+            var img = document.createElement('img');
+            img.classList.add('card');
+            img.src = src;
+            hand.appendChild(img);
         }
     }
 
     // Parse the data-name attribute in HTML.
-    function readOptions($elem, name) {
+    function readOptions(elem, name) {
         var v, i, len, s, options, o = {};
 
-        options = $elem.data(name);
+        options = elem.dataset[name];
         options = (options || '').replace(/\s/g, '').split(';');
         for (i = 0, len = options.length; i < len; i++) {
             s = options[i].split(':');
@@ -186,9 +193,9 @@ var cardsScript = document.currentScript;
         var box = {};
         var coords = calculateCoords(n, options.radius, width, height, options.fanDirection, options.spacing, box);
 
-        var hand = $(cards[0]).parent();
-        hand.width(box.width);
-        hand.height(box.height);
+        var hand = cards[0].parentNode;
+        hand.style.width = box.width + 'px';
+        hand.style.height = box.height + 'px';
 
         var i = 0;
         coords.forEach(function (coord) {
@@ -206,6 +213,7 @@ var cardsScript = document.currentScript;
             prefixes.forEach(function (prefix) {
                 card.style[prefix + "Transform"] = "rotate(" + rotationAngle + "deg)" + " translateZ(0)";
             });
+            card.style.transform = "rotate(" + rotationAngle + "deg)" + " translateZ(0)"; // Standard property
         });
 
     }
@@ -285,21 +293,25 @@ var cardsScript = document.currentScript;
         return coords;
     }
 
-    // If loaded directly from a script, the do the jquery shuffle.
-    $(window).on('load', function () {
+    // If loaded directly from a script, the do the shuffle.
+    window.addEventListener('load', function () {
         // Adjust the cards in a fan, except ones using KO.
-        $(".fan:not([data-bind])").each(function () {
-            module.fan($(this));
+        document.querySelectorAll(".fan:not([data-bind])").forEach(function (hand) {
+            module.fan(hand);
         });
 
         // Process any data-hand attributes
-        $(".hand[data-hand]").each(function () {
-            module.hand($(this));
+        document.querySelectorAll(".hand[data-hand]").forEach(function (hand) {
+            module.hand(hand);
         });
 
         // Call cards.play, when a card is clicked in an active hand.
-        $(".hand").on("click", "img.card", function () {
-            module.play($(this));
+        document.querySelectorAll(".hand").forEach(function (hand) {
+            hand.addEventListener("click", function (event) {
+                if (event.target.classList.contains("card")) {
+                    module.play(event.target);
+                }
+            });
         });
     });
 
