@@ -6,6 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <style>
       body {
         background: #113f67;
@@ -17,7 +18,7 @@
         font-size: 3em;
         color: white;
       }
-      .fan {
+      .hand{
       	position: relative;
         width: 617px;
         height: 380px;
@@ -54,21 +55,24 @@
         background: #999;
       }
     </style>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/cardsJS/dist/cards.min.css" />
     <script type="text/javascript" src="https://livejs.com/live.js"></script>
   </head>
   <body>
     <h1>tu chibres ou&nbsp;bien?</h1>
-    <div class="fan">
-      <img src="http://localhost:9000/web/cards/AS.svg" style="left: 39px; top: 35px; transform: rotate(342deg);">
-      <img src="http://localhost:9000/web/cards/KS.svg" style="left: 77px; top: 24px; transform: rotate(346deg);">
-      <img src="http://localhost:9000/web/cards/QS.svg" style="left: 116px; top: 16px; transform: rotate(351deg);">
-      <img src="http://localhost:9000/web/cards/10S.svg" style="left: 156px; top: 12px; transform: rotate(355deg);">
-      <img src="http://localhost:9000/web/cards/9H.svg" style="left: 195px; top: 10px; transform: rotate(360deg);">
-      <img src="http://localhost:9000/web/cards/3H.svg" style="left: 235px; top: 12px; transform: rotate(365deg);">
-      <img src="http://localhost:9000/web/cards/JC.svg" style="left: 275px; top: 16px; transform: rotate(369deg);">
-      <img src="http://localhost:9000/web/cards/9C.svg" style="left: 314px; top: 24px; transform: rotate(374deg);">
-      <img src="http://localhost:9000/web/cards/AD.svg" style="left: 352px; top: 35px; transform: rotate(378deg);">
-    </div>
+<div class="hand active-hand"
+     data-hand="flow: horizontal; cards: AS,KS,QS,JS,10S,9H,3H">
+</div>
+    <!-- <p class="hand" data-hand="flow: fan; cards: AH,KH,QH,3H,2H,10S,JC,9C,AD"></p> -->
+      <!-- <img src="http://localhost:9000/web/cards/AS.svg" style="left: 39px; top: 35px; transform: rotate(342deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/KS.svg" style="left: 77px; top: 24px; transform: rotate(346deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/QS.svg" style="left: 116px; top: 16px; transform: rotate(351deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/10S.svg" style="left: 156px; top: 12px; transform: rotate(355deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/9H.svg" style="left: 195px; top: 10px; transform: rotate(360deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/3H.svg" style="left: 235px; top: 12px; transform: rotate(365deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/JC.svg" style="left: 275px; top: 16px; transform: rotate(369deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/9C.svg" style="left: 314px; top: 24px; transform: rotate(374deg);"> -->
+      <!-- <img src="http://localhost:9000/web/cards/AD.svg" style="left: 352px; top: 35px; transform: rotate(378deg);"> -->
     <div class="options">
       <button>♠</button>
       <button style="color: #d40000;">♥</button>
@@ -76,6 +80,7 @@
       <button style="color: #d40000;">♦</button>
       <button style="width: 450px;">chibre</button>
     </div>
+  <script src="cards.js"></script>
   </body>
 </html>
 

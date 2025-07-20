@@ -1,4 +1,5 @@
-
+/*jslint vars: true, plusplus: true, -W003 */
+/*globals window, document, define, exports, module, require */
 
 var cardsScript = document.currentScript;
 
@@ -7,65 +8,127 @@ var cardsScript = document.currentScript;
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define([], factory);
+        define(['jquery'], factory);
     } else if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory();
+        module.exports = factory(require('jquery'));
     } else {
         // Browser globals (root is window)
-        root.cards = factory();
+        root.cards = factory(root.jQuery);
     }
-}(this, function () {
+}(this, function ($) {
     'use strict';
 
     var module = {
         options: {
-            spacing: 0.20,
-            radius: 400,
-            flow: 'horizontal',
+            spacing: 0.20,  // How much to show between cards, expressed as percentage of textureWidth
+            radius: 400,    // This is the radius of the circle under the fan of cards and thus controls the overall curvature of the fan. Small values means higher curvature
+            flow: 'horizontal', // The layout direction (horizontal or vertical)
             fanDirection: "N",
-            imagesUrl: 'cards/'
+            imagesUrl: 'cards/' // The base URL for the card images, should end with a '/'.
         },
 
-        
+        // Gets the ID of the card, e.g. "KS" for the king of spades.
+        cid: function (card) {
+            var s = card.attr('src');
+            return s.substring(s.length - 6, s.length - 4);
+        },
 
-        
+        // Play is called whenever a card in an hand is clicked.  If the hand is active
+        // then playCard is called.
+        play: function (card) {
+            if (card.parents(".active-hand").length > 0) {
+                this.playCard(card);
+            }
+        },
 
-        
+        // Remove a card from the hand.
+        remove: function (card) {
+            var hand = card.parent();
+            card.remove();
+
+            // New layout if card removed from a "fan".
+            if (hand.hasClass("fan")) {
+                this.fan(hand);
+            }
+        },
 
         fan: function (hand, cfg) {
-            var options = { ...this.options };
+            var options = $.extend({}, this.options),
+                cards;
 
-            options = { ...options, ...readOptions(hand, 'fan') };
+            options = $.extend(options, readOptions(hand, 'fan'));
             if (cfg) {
-                options = { ...options, ...cfg };
+                options = $.extend(options, cfg);
             }
-            hand.dataset.fan = 'radius: ' + options.radius + '; spacing: ' + options.spacing;
+            hand.data("fan", 'radius: ' + options.radius + '; spacing: ' + options.spacing);
             addCardImages(hand, options.cards);
 
-            var cards = hand.querySelectorAll("img.card");
+            cards = hand.find("img.card");
             if (cards.length === 0) {
                 return;
             }
             if (options.width) {
-                cards.forEach(card => card.style.width = options.width + 'px');
+                cards.width(options.width);
             }
             fanCards(cards, this, options);
         },
 
-        
+        hand: function ($hand, cfg) {
+            var options = $.extend({}, this.options),
+                cards,
+                width,
+                height;
+            options = $.extend(options, readOptions($hand, 'hand'));
+            if (cfg) {
+                options = $.extend(options, cfg);
+            }
+            $hand.data("hand", 'flow: ' + options.direction + ';');
+            $hand.removeClass('hhand fan hhand vhand vhand-compact hhand-compact');
+            if (options.flow === 'vertical' && options.spacing >= 1.0) {
+                $hand.addClass('vhand');
+            } else if (options.flow === 'horizontal' && options.spacing >= 1.0) {
+                $hand.addClass('hhand');
+            } else if (options.flow === 'vertical') {
+                $hand.addClass('vhand-compact');
+            } else {
+                $hand.addClass('hhand-compact');
+            }
 
-        
+            addCardImages($hand, options.cards);
+
+            cards = $hand.find('img.card');
+            if (cards.length === 0) {
+                return;
+            }
+            if (options.width) {
+                cards.width(options.width);
+            }
+            width = options.width || cards[0].clientWidth || 70; // hack: for a hidden hand
+            height = cards[0].clientHeight || Math.floor(width * 1.4); // hack: for a hidden hand
+            if (options.flow === 'vertical' && options.spacing < 1.0) {
+                cards.slice(1).css('margin-top', -height * (1.0 - options.spacing));
+                cards.slice(1).css('margin-left', 0);
+            } else if (options.flow === 'horizontal' && options.spacing < 1.0) {
+                cards.slice(1).css('margin-left', -width * (1.0 - options.spacing));
+                cards.slice(1).css('margin-top', 0);
+            }
+        },
+
+        cardSetTop: function (card, top) {
+            card.style.top = top + "px";
+        },
 
         cardNames: function (cards) {
-            var i;
-            var name;
-            var names = [];
+            var i,
+                name,
+                names = [];
             if (typeof cards === 'string') {
                 cards = cards.split(' ');
             }
+            // Normalise the card names.
             for (i = 0; i < cards.length; ++i) {
                 if (cards[i]) {
                     name = cards[i].toString().toUpperCase();
@@ -77,29 +140,28 @@ var cardsScript = document.currentScript;
         }
     };
 
-    
+    // The default is to remove the card from the hand.
+    module.playCard = module.remove;
 
     function addCardImages(hand, cards) {
-        var i;
-        var src;
+        var i,
+            src;
         if (!cards) {
             return;
         }
         cards = module.cardNames(cards);
-        hand.innerHTML = '';
+        hand.empty();
         for (i = 0; i < cards.length; ++i) {
-            src = module.options.imagesUrl + cards[i] + '.svg';
-            var img = document.createElement('img');
-            img.classList.add('card');
-            img.src = src;
-            hand.appendChild(img);
+            src = "src='" + module.options.imagesUrl + cards[i] + '.svg' + "'";
+            hand.append("<img class='card' " + src + ">");
         }
     }
 
-    function readOptions(elem, name) {
+    // Parse the data-name attribute in HTML.
+    function readOptions($elem, name) {
         var v, i, len, s, options, o = {};
 
-        options = elem.dataset[name];
+        options = $elem.data(name);
         options = (options || '').replace(/\s/g, '').split(';');
         for (i = 0, len = options.length; i < len; i++) {
             s = options[i].split(':');
@@ -119,14 +181,14 @@ var cardsScript = document.currentScript;
             return;
         }
 
-        var width = options.width || cards[0].clientWidth || 90;
-        var height = cards[0].clientHeight || Math.floor(width * 1.4);
+        var width = options.width || cards[0].clientWidth || 90; // hack: for a hidden hand
+        var height = cards[0].clientHeight || Math.floor(width * 1.4); // hack: for a hidden hand
         var box = {};
         var coords = calculateCoords(n, options.radius, width, height, options.fanDirection, options.spacing, box);
 
-        var hand = cards[0].parentNode;
-        hand.style.width = box.width + 'px';
-        hand.style.height = box.height + 'px';
+        var hand = $(cards[0]).parent();
+        hand.width(box.width);
+        hand.height(box.height);
 
         var i = 0;
         coords.forEach(function (coord) {
@@ -140,13 +202,16 @@ var cardsScript = document.currentScript;
                 self.cardSetTop(card, coord.y);
             };
             var rotationAngle = Math.round(coord.angle);
-            card.style.transform = "rotate(" + rotationAngle + "deg)" + " translateZ(0)";
+            var prefixes = ["Webkit", "Moz", "O", "ms"];
+            prefixes.forEach(function (prefix) {
+                card.style[prefix + "Transform"] = "rotate(" + rotationAngle + "deg)" + " translateZ(0)";
+            });
         });
 
     }
 
     function calculateCoords(numCards, arcRadius, cardWidth, cardHeight, direction, cardSpacing, box) {
-        
+        // The separation between the cards, in terms of rotation around the circle's origin
         var anglePerCard = Math.radiansToDegrees(Math.atan(((cardWidth * cardSpacing) / arcRadius)));
 
         var angleOffset = ({ "N": 270, "S": 90, "E": 0, "W": 180 })[direction];
@@ -201,7 +266,7 @@ var cardsScript = document.currentScript;
 
             offsetX = (arcRadius) * -1;
             offsetX -= (cardHeight - Math.rotatePointInBox(0, 0, 270, cardWidth, cardHeight)[1]);
-            
+            //offsetX -= ?????;    // HELP! Needs to line up with yellow line!
         }
 
         coords.forEach(function (coord) {
@@ -220,32 +285,51 @@ var cardsScript = document.currentScript;
         return coords;
     }
 
-    window.addEventListener('load', function () {
-        document.querySelectorAll(".fan:not([data-bind])").forEach(function (hand) {
-            module.fan(hand);
+    // If loaded directly from a script, the do the jquery shuffle.
+    $(window).on('load', function () {
+        // Adjust the cards in a fan, except ones using KO.
+        $(".fan:not([data-bind])").each(function () {
+            module.fan($(this));
         });
 
-        
+        // Process any data-hand attributes
+        $(".hand[data-hand]").each(function () {
+            module.hand($(this));
+        });
+
+        // Call cards.play, when a card is clicked in an active hand.
+        $(".hand").on("click", "img.card", function () {
+            module.play($(this));
+        });
     });
 
+    // Default imagesUrl to a subfolder of the script source.
     if (cardsScript && cardsScript.src) {
         var path = cardsScript.src.substring(0, cardsScript.src.lastIndexOf('/')) + '/cards/';
         module.options.imagesUrl = path;
     }
 
+    // Just return a value to define the module export.
+    // This example returns an object, but the module
+    // can return a function as the exported value.
     return module;
 }));
 
-
-Math.degreesToRadians = function (degrees) {
+// Math Additions
+if (!Math.degreesToRadians) {
+    Math.degreesToRadians = function (degrees) {
         return degrees * (Math.PI / 180);
     };
+}
 
-Math.radiansToDegrees = function (radians) {
+if (!Math.radiansToDegrees) {
+    Math.radiansToDegrees = function (radians) {
         return radians * (180 / Math.PI);
     };
+}
 
-Math.getRotatedDimensions = function (angle_in_degrees, width, height) {
+if (!Math.getRotatedDimensions) {
+    Math.getRotatedDimensions = function (angle_in_degrees, width, height) {
         var angle = angle_in_degrees * Math.PI / 180,
             sin   = Math.sin(angle),
             cos   = Math.cos(angle);
@@ -262,8 +346,10 @@ Math.getRotatedDimensions = function (angle_in_degrees, width, height) {
 
         return [ Math.floor((maxX - minX)), Math.floor((maxY - minY)) ];
     };
+}
 
-Math.rotatePointInBox = function (x, y, angle, width, height) {
+if (!Math.rotatePointInBox) {
+    Math.rotatePointInBox = function (x, y, angle, width, height) {
         angle = Math.degreesToRadians(angle);
 
         var centerX = width / 2.0;
@@ -277,3 +363,4 @@ Math.rotatePointInBox = function (x, y, angle, width, height) {
 
         return [ dx2 + centerX, dy2 + centerY ];
     };
+}
