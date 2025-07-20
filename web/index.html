@@ -6,16 +6,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/keyboard-css@1.2.4/dist/css/main.min.css">
     <style>
       body {
         background: #113f67;
+        font-family: "DM Mono", "Ubuntu Mono", monospace;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
       }
       h1 {
         text-align: center;
         font-size: 3em;
-        font-family: "DM Mono", "Ubuntu Mono", monospace;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
         color: white;
       }
       .fan {
@@ -25,9 +24,8 @@
         margin: 40px auto;
       }
       .options {
-        width: 445px;
+        width: 450px;
         position: relative;
-        width: 445px;
         margin: 0 auto;
       }
       img { 
@@ -36,16 +34,16 @@
         user-select: none;
       }
       button {
-        width: 180px;
+        width: 85px;
         padding: 9px 20px 11px 20px;
-        margin: 0 20px;
+        margin: 10px 10px;
         color: #030303;
-        font-size: 2em;
-        font-family: "DM Mono", "Ubuntu Mono", monospace;
+        font-size: 3em;
+        font-family: inherit;
         cursor: pointer;
         text-align: center;
         position: relative;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        text-shadow: inherit;
         border-width: 0;
         border-radius: 40px;
       }
@@ -72,8 +70,11 @@
       <img src="http://localhost:9000/web/cards/AD.svg" style="left: 352px; top: 35px; transform: rotate(378deg);">
     </div>
     <div class="options">
-      <button>carreau</button>
-      <button>chibre</button>
+      <button>♠</button>
+      <button style="color: #d40000;">♥</button>
+      <button>♣</button>
+      <button style="color: #d40000;">♦</button>
+      <button style="width: 450px;">chibre</button>
     </div>
   </body>
 </html>
