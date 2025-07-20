@@ -1,43 +1,26 @@
+SHELL = /bin/bash
+.ONESHELL:
+.RECIPEPREFIX=-         
+
 CXX = g++
 CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3
 
-.PHONY: all test clean bench run regress venv deps
+.PHONY: test clean bench simulation
 
-all: test
+test: build/test
+- build/test
 
-test: build/test_jass
-	build/test_jass
+bench: build/bench
+- build/bench
 
-bench: build/bench_jass
-	build/bench_jass
-
-run: build/simulation
-	build/simulation
-
-regress: deps
-	./venv/bin/python screenshot_test_selenium.py
-
-venv: 
-	python3 -m venv venv
-
-deps: venv
-	@if [ ! -f ./venv/bin/pip ]; then \
-		echo "venv/bin/pip not found, recreating venv"; \
-		rm -rf venv; \
-		python3 -m venv venv; \
-	fi
-	@if ! ./venv/bin/pip show selenium > /dev/null 2>&1; then \
-		echo "Installing Python dependencies..."; \
-		./venv/bin/pip install selenium Pillow numpy; \
-	else \
-		echo "Python dependencies already installed."; \
-	fi
+simulation: build/simulation
+- build/simulation
 
 build/%: build/jass.o build/%.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ 
+- $(CXX) $(CXXFLAGS) -o $@ $^ 
 
 build/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+- $(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf build/* venv/
+- rm -rf build/*
