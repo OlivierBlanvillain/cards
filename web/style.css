@@ -1,0 +1,95 @@
+@media (max-width: 600px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+}
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+}
+.container {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 32px;
+    transform: translateY(0px);
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+body {
+    background: #113f67;
+    font-family: "DM Mono", "Ubuntu Mono", monospace;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+}
+h1 {
+    text-align: center;
+    font-size: 3em;
+    color: white;
+}
+.fan {
+    position: relative;
+    width: 700px;
+    height: 240px;
+    margin: 0 auto;
+}
+.options {
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
+    gap: 8px;
+}
+img {
+    width: 150px;
+   	position: absolute;
+    pointer-events: none;
+    user-select: none;
+}
+button {
+    width: 700px;
+    left: 0pt;
+    display: inline-flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    flex-direction: row;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    border-width: 0px;
+    border-style: none;
+    outline: none;
+    box-shadow: none;
+    text-decoration: none;
+    appearance: none;
+    transition-property: background;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0, 0, 1, 1);
+    cursor: pointer;
+    margin: 0px;
+    font-family: inherit;
+    font-size: 1.5em;
+    font-weight: 500;
+    line-height: 20px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: rgb(0, 0, 0);
+    background-color: rgb(243, 243, 243);
+}
+button:hover {
+    background-color: rgb(221, 221, 221);
+}
+button:active {
+    background-color: rgb(198, 198, 198);
+}
+.card1 { left: 0vh; }
+.card2 { left: 7vh; }
+.card3 { left: 14vh; }
+.card4 { left: 21vh; }
+.card5 { left: 28vh; }
+.card6 { left: 35vh; }
+.card7 { left: 42vh; }
+.card8 { left: 49vh; }
+.card9 { left: 55vh; }

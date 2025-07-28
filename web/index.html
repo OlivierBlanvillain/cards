@@ -1,86 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>tu chibres ou bien?</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <style>
-      body {
-        background: #113f67;
-        font-family: "DM Mono", "Ubuntu Mono", monospace;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-      }
-      h1 {
-        text-align: center;
-        font-size: 3em;
-        color: white;
-      }
-      .hand{
-      	position: relative;
-        width: 617px;
-        height: 380px;
-        margin: 40px auto;
-      }
-      .options {
-        width: 450px;
-        position: relative;
-        margin: 0 auto;
-      }
-      img { 
-      	position: absolute;
-        pointer-events: none;
-        user-select: none;
-      }
-      button {
-        width: 85px;
-        padding: 9px 20px 11px 20px;
-        margin: 10px 10px;
-        color: #030303;
-        font-size: 3em;
-        font-family: inherit;
-        cursor: pointer;
-        text-align: center;
-        position: relative;
-        text-shadow: inherit;
-        border-width: 0;
-        border-radius: 40px;
-      }
-      button:hover {
-        background: #bbb;
-      }
-      button:active {
-        background: #999;
-      }
-    </style>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/cardsJS/dist/cards.min.css" />
-    <script type="text/javascript" src="https://livejs.com/live.js"></script>
-  </head>
-  <body>
-    <h1>tu chibres ou&nbsp;bien?</h1>
-<div class="hand active-hand"
-     data-hand="flow: horizontal; cards: AS,KS,QS,JS,10S,9H,3H">
-</div>
-    <!-- <p class="hand" data-hand="flow: fan; cards: AH,KH,QH,3H,2H,10S,JC,9C,AD"></p> -->
-      <!-- <img src="http://localhost:9000/web/cards/AS.svg" style="left: 39px; top: 35px; transform: rotate(342deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/KS.svg" style="left: 77px; top: 24px; transform: rotate(346deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/QS.svg" style="left: 116px; top: 16px; transform: rotate(351deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/10S.svg" style="left: 156px; top: 12px; transform: rotate(355deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/9H.svg" style="left: 195px; top: 10px; transform: rotate(360deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/3H.svg" style="left: 235px; top: 12px; transform: rotate(365deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/JC.svg" style="left: 275px; top: 16px; transform: rotate(369deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/9C.svg" style="left: 314px; top: 24px; transform: rotate(374deg);"> -->
-      <!-- <img src="http://localhost:9000/web/cards/AD.svg" style="left: 352px; top: 35px; transform: rotate(378deg);"> -->
-    <div class="options">
-      <button>♠</button>
-      <button style="color: #d40000;">♥</button>
-      <button>♣</button>
-      <button style="color: #d40000;">♦</button>
-      <button style="width: 450px;">chibre</button>
-    </div>
-  <script src="cards.js"></script>
-  </body>
+    <head>
+        <meta charset="utf-8">
+        <title>tu chibres ou bien?</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <script type="text/javascript" src="https://livejs.com/live.js"></script>
+    </head>
+    <body>
+        <h1>tu chibres ou&nbsp;bien?</h1>
+        <div class="container">
+            <div class="fan">
+                <img class="card1" src="cards/AS.svg">
+                <img class="card2" src="cards/KS.svg">
+                <img class="card3" src="cards/QS.svg">
+                <img class="card4" src="cards/TS.svg">
+                <img class="card5" src="cards/9H.svg">
+                <img class="card6" src="cards/3H.svg">
+                <img class="card7" src="cards/JC.svg">
+                <img class="card8" src="cards/9C.svg">
+                <img class="card9" src="cards/AD.svg">
+            </div>
+            <div class="options">
+                <button>pique</button>
+                <button>coeur</button>
+                <button>trèfle</button>
+                <button>carreau</button>
+                <button>chibre!</button>
+            </div>
+        </div>
+    </body>
 </html>
-
