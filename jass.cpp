@@ -28,20 +28,20 @@ static const hand_t SUIT_TABLE[37] = {
     S, S, S, S, S, S, S, S, S,
 };
 
-std::map<std::pair<Suit, std::string>, int> CARD_TO_BIT;
-std::map<int, std::tuple<Suit, std::string, char>> BIT_TO_CARD;
+std::map<std::pair<suit_t, std::string>, int> CARD_TO_BIT;
+std::map<int, std::tuple<suit_t, std::string, char>> BIT_TO_CARD;
 
 void initialize_card_maps() {
     const char* RANKS_TRUMP[] = {"J", "9", "A", "K", "Q", "10", "8", "7", "6"};
     const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
 
     int bit = 35; // 0-indexed bit position
-    for (auto const& [suit_val, suit_name] : std::vector<std::pair<suit_t, Suit>>{{S, SPADES}, {H, HEARTS}, {D, DIAMONDS}, {C, CLUBS}}) {
+    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<suit_t, char>>{{S, 'S'}, {H, 'H'}, {D, 'D'}, {C, 'C'}}) {
         const char** ranks = (suit_val == S) ? RANKS_TRUMP : RANKS_PLAIN;
         int num_ranks = 9;
         for (int i = 0; i < num_ranks; ++i) {
-            CARD_TO_BIT[{suit_name, ranks[i]}] = bit;
-            BIT_TO_CARD[bit] = {suit_name, ranks[i], "CDHS"[static_cast<int>(suit_name)]};
+            CARD_TO_BIT[{suit_val, ranks[i]}] = bit;
+            BIT_TO_CARD[bit] = {suit_val, ranks[i], suit_char_val};
             bit--;
         }
     }
@@ -56,11 +56,11 @@ card_t c(const std::string& desc) {
         std::string token = desc.substr(start, end - start);
         std::string rank = token.substr(0, token.length() - 1);
         char suit_char = token.back();
-        Suit suit;
-        if (suit_char == 'C') suit = CLUBS;
-        else if (suit_char == 'D') suit = DIAMONDS;
-        else if (suit_char == 'H') suit = HEARTS;
-        else suit = SPADES;
+        suit_t suit;
+        if (suit_char == 'C') suit = C;
+        else if (suit_char == 'D') suit = D;
+        else if (suit_char == 'H') suit = H;
+        else suit = S;
         total |= 1ULL << CARD_TO_BIT.at({suit, rank});
         start = end + 1;
         end = desc.find(',', start);
@@ -68,11 +68,11 @@ card_t c(const std::string& desc) {
     std::string token = desc.substr(start);
     std::string rank = token.substr(0, token.length() - 1);
     char suit_char = token.back();
-    Suit suit;
-    if (suit_char == 'C') suit = CLUBS;
-    else if (suit_char == 'D') suit = DIAMONDS;
-    else if (suit_char == 'H') suit = HEARTS;
-    else suit = SPADES;
+    suit_t suit;
+    if (suit_char == 'C') suit = C;
+    else if (suit_char == 'D') suit = D;
+    else if (suit_char == 'H') suit = H;
+    else suit = S;
     total |= 1ULL << CARD_TO_BIT.at({suit, rank});
     return total;
 }

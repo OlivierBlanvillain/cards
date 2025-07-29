@@ -10,12 +10,7 @@ using card_t = uint64_t;
 using hand_t = uint64_t;
 using suit_t = uint64_t;
 
-enum Suit {
-    CLUBS,
-    DIAMONDS,
-    HEARTS,
-    SPADES,
-};
+
 
 constexpr hand_t C = 0b000000000000000000000000000111111111;
 constexpr hand_t D = 0b000000000000000000111111111000000000;

@@ -25,7 +25,7 @@ const std::vector<jass::card_t> CARD_LIST = []() {
 }();
 const jass::hand_t ALL_CARDS = std::accumulate(CARD_LIST.begin(), CARD_LIST.end(), (jass::hand_t)0);
 
-std::map<jass::hand_t, int> SUIT_BIT_START;
+std::map<jass::suit_t, int> SUIT_BIT_START;
 
 // Helper to iterate over set bits in a hand
 std::vector<jass::card_t> iter_bits(jass::hand_t hand) {
@@ -43,31 +43,24 @@ std::random_device rd;
 std::mt19937 gen(rd());
 
 // Forward declarations for swap maps
-std::map<jass::hand_t, std::map<jass::card_t, jass::card_t>> T_TO_S;
-std::map<jass::hand_t, std::map<jass::card_t, jass::card_t>> S_TO_T;
+std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> T_TO_S;
+std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> S_TO_T;
 
 void initialize_swap_maps() {
-    SUIT_BIT_START[jass::CLUBS] = 0;
-    SUIT_BIT_START[jass::DIAMONDS] = 9;
-    SUIT_BIT_START[jass::HEARTS] = 18;
-    SUIT_BIT_START[jass::SPADES] = 27;
+    SUIT_BIT_START[jass::C] = 0;
+    SUIT_BIT_START[jass::D] = 9;
+    SUIT_BIT_START[jass::H] = 18;
+    SUIT_BIT_START[jass::S] = 27;
 
     std::map<int, int> ti_to_si = {
         {0, 0}, {1, 1}, {2, 2}, {3, 7}, {4, 3}, {5, 8}, {6, 4}, {7, 5}, {8, 6}
     };
 
-    for (auto const& [t_suit_enum, t_start_bit] : SUIT_BIT_START) {
-        jass::hand_t t_suit_mask;
-        if (t_suit_enum == jass::CLUBS) t_suit_mask = jass::C;
-        else if (t_suit_enum == jass::DIAMONDS) t_suit_mask = jass::D;
-        else if (t_suit_enum == jass::HEARTS) t_suit_mask = jass::H;
-        else if (t_suit_enum == jass::SPADES) t_suit_mask = jass::S;
-        else continue; // Should not happen
-
+    for (auto const& [t_suit_mask, t_start_bit] : SUIT_BIT_START) {
         T_TO_S[t_suit_mask] = {};
         S_TO_T[t_suit_mask] = {};
 
-        int s_start_bit = SUIT_BIT_START[jass::SPADES];
+        int s_start_bit = SUIT_BIT_START[jass::S];
 
         for (auto const& [ti, si] : ti_to_si) {
             jass::card_t t_card = 1ULL << (t_start_bit + ti);
