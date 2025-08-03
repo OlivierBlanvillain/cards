@@ -159,7 +159,6 @@ void test_BestTrump() {
 }
 
 int main() {
-    simulation::initialize_swap_maps();
     jass::initialize_card_maps();
     RUN_TEST(test_CardRepresentation);
     RUN_TEST(test_GetPoints);
