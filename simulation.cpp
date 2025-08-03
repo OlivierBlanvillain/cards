@@ -6,9 +6,11 @@
 #include <algorithm>
 #include <map>
 #include <chrono>
-#include <cmath> // For std::round
+#include <cmath> // For std::round, std::sqrt
 #include <bitset>
 #include <assert.h>
+#include <iomanip> // For std::fixed, std::setprecision
+#include <tuple>   // For std::tuple
 
 namespace simulation {
 
@@ -324,8 +326,36 @@ jass::suit_t best_trump_quick_eval(jass::hand_t hand) {
     }
 }
 
+std::tuple<double, double, double> calculate_stats(const std::vector<int>& scores, int iterations) {
+    double sum = std::accumulate(scores.begin(), scores.end(), 0.0);
+    double average = sum / iterations;
+
+    double sq_diff_sum = 0.0;
+    for (int score : scores) {
+        sq_diff_sum += (score - average) * (score - average);
+    }
+
+    double std_dev = 0.0;
+    if (iterations > 1) {
+        std_dev = std::sqrt(sq_diff_sum / (iterations - 1));
+    }
+
+    double sem = std_dev / std::sqrt(iterations);
+    double z_score = 1.96; // For 95% confidence interval
+
+    double margin_of_error = z_score * sem;
+
+    return std::make_tuple(average, average - margin_of_error, average + margin_of_error);
+}
+
+void print_stats(const std::string& name, const std::vector<int>& scores, int iterations) {
+    auto [avg, lower_ci, upper_ci] = calculate_stats(scores, iterations);
+    std::cout << name << ": " << avg << " (95% CI: " << lower_ci << " - " << upper_ci << ")" << std::endl;
+}
+
 void run(int iterations) {
     jass::hand_t the_hand = shuffle_one_hand();
+    std::cout << "Hand:       " << hand_to_string(the_hand) << std::endl;
     std::map<jass::suit_t, std::vector<int>> suit_scores;
     std::vector<int> chibre_scores;
     std::array<jass::suit_t, 4> suits = {jass::S, jass::H, jass::D, jass::C};
@@ -343,21 +373,14 @@ void run(int iterations) {
             }
         }
     }
-    auto S_avg = accumulate(suit_scores[jass::S].begin(), suit_scores[jass::S].end(), 0) / suit_scores[jass::S].size();
-    auto H_avg = accumulate(suit_scores[jass::H].begin(), suit_scores[jass::H].end(), 0) / suit_scores[jass::H].size();
-    auto D_avg = accumulate(suit_scores[jass::D].begin(), suit_scores[jass::D].end(), 0) / suit_scores[jass::D].size();
-    auto C_avg = accumulate(suit_scores[jass::C].begin(), suit_scores[jass::C].end(), 0) / suit_scores[jass::C].size();
-    auto chibre_avg = accumulate(chibre_scores.begin(), chibre_scores.end(), 0) / chibre_scores.size();
-    // std::cout << "hand:       " << hand_to_string(010000100011001000000000001010001100) << std::endl;
-    std::cout << "S_avg:      " << S_avg << std::endl;
-    std::cout << "H_avg:      " << H_avg << std::endl;
-    std::cout << "D_avg:      " << D_avg << std::endl;
-    std::cout << "C_avg:      " << C_avg << std::endl;
-    std::cout << "chibre_avg: " << chibre_avg << std::endl;
+
+    std::cout << std::fixed << std::setprecision(2);
+
+    print_stats("S_avg", suit_scores[jass::S], iterations);
+    print_stats("H_avg", suit_scores[jass::H], iterations);
+    print_stats("D_avg", suit_scores[jass::D], iterations);
+    print_stats("C_avg", suit_scores[jass::C], iterations);
+    print_stats("chibre_avg", chibre_scores, iterations);
 }
 
 } // namespace simulation
-
-int main () {
-    simulation::run(20);
-}
