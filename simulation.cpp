@@ -132,175 +132,6 @@ std::array<jass::hand_t, 4> shuffle_other_hands(jass::hand_t bidder_hand, int bi
     return hands;
 }
 
-std::string pretty_print_hand(jass::hand_t hand) {
-    std::string result = "";
-    std::vector<jass::card_t> cards = iter_bits(hand);
-    std::reverse(cards.begin(), cards.end()); // To match Python's reversed iteration
-    for (size_t i = 0; i < cards.size(); ++i) {
-        result += jass::d(cards[i]);
-        if (i < cards.size() - 1) {
-            result += ", ";
-        }
-    }
-    return result;
-}
-
-
-// A structure to hold the results for each potential move (trump suit)
-struct MoveResult {
-    char name;
-    jass::hand_t move_mask;
-    std::vector<double> scores{}; // Initialize scores
-    double mean = 0.0;
-    double std_dev = 0.0;
-    bool isActive = true;
-
-    void update_stats() {
-        if (scores.empty()) return;
-        double sum = std::accumulate(scores.begin(), scores.end(), 0.0);
-        mean = sum / static_cast<double>(scores.size());
-        if (scores.size() > 1) {
-            double sq_sum = 0.0;
-            for(double score : scores) sq_sum += (score - mean) * (score - mean);
-            std_dev = std::sqrt(sq_sum / (static_cast<double>(scores.size()) - 1.0));
-        } else {
-            std_dev = 0.0;
-        }
-    }
-};
-
-double run_one_experiment(jass::hand_t declarer_hand, jass::hand_t trump_suit_mask) {
-    std::array<jass::hand_t, 4> hands = shuffle_other_hands(declarer_hand, 0);
-    hands = swap_trump_many(hands, trump_suit_mask);
-    return static_cast<double>(jass::solve_deal(hands).first);
-}
-
-// Calculates the 95% Confidence Interval for a single mean
-std::pair<double, double> get_ci_for_mean(const MoveResult& res) {
-    if (res.scores.size() < 2) {
-        return {0.0, 0.0}; // Not enough data for a meaningful CI
-    }
-    double n = static_cast<double>(res.scores.size());
-    double mean = res.mean;
-    double se = res.std_dev / std::sqrt(n);
-    double margin_of_error = 1.96 * se; // Z-score for 95% CI
-    return {mean - margin_of_error, mean + margin_of_error};
-}
-
-// Calculates the 95% Confidence Interval for the difference of two means
-std::pair<double, double> get_ci_for_difference(const MoveResult& res1, const MoveResult& res2) {
-    double n1 = static_cast<double>(res1.scores.size()), n2 = static_cast<double>(res2.scores.size());
-    double mean1 = res1.mean, mean2 = res2.mean;
-    double std1 = res1.std_dev, std2 = res2.std_dev;
-    double diff_mean = mean1 - mean2;
-    double se_diff = std::sqrt((std1 * std1 / n1) + (std2 * std2 / n2));
-    double margin_of_error = 1.96 * se_diff; // Z-score for 95% CI
-    return {diff_mean - margin_of_error, diff_mean + margin_of_error};
-}
-
-void find_best_trump() {
-    const int N_MIN = 3;
-    const int BATCH_SIZE = 1;
-    const int MAX_N_PER_MOVE = 50;
-    const double INDIFFERENCE_THRESHOLD = 0.1;
-
-    jass::hand_t declarer_hand = shuffle_one_hand();
-    // jass::hand_t declarer_hand = jass::c("JS,9S,AH,10H,KH,QH,7D,8D,7C");
-    std::cout << "Declarer Hand: " << pretty_print_hand(declarer_hand) << std::endl;
-    std::cout << "Finding best trump suit...\n" << std::endl;
-
-    std::vector<MoveResult> results = {
-        {'S', jass::S}, {'H', jass::H}, {'D', jass::D}, {'C', jass::C}
-    };
-
-    for (int i = 0; i < N_MIN; ++i) {
-        for (auto& res : results) {
-            res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
-        }
-    }
-
-    while (true) {
-        // --- 1. Update stats and identify active contenders ---
-        std::vector<MoveResult*> active_contenders;
-        for (auto& res : results) {
-            if (res.isActive) {
-                res.update_stats();
-                active_contenders.push_back(&res);
-            }
-        }
-
-        // --- 2. Check for a single winner ---
-        if (active_contenders.size() <= 1) {
-            std::cout << "\n--- Conclusion: Found a Single Best Move! ---" << std::endl;
-            if (!active_contenders.empty()) {
-                std::cout << "Trump " << active_contenders[0]->name << " is the winner with EV: " << active_contenders[0]->mean << std::endl;
-            } else {
-                std::cout << "Error: No active contenders left." << std::endl;
-            }
-            return;
-        }
-
-        // --- 3. Sort active contenders by mean score ---
-        std::sort(active_contenders.begin(), active_contenders.end(), [](const auto* a, const auto* b) {
-            return a->mean > b->mean;
-        });
-
-        MoveResult* best_move = active_contenders[0];
-        MoveResult* second_best_move = active_contenders[1];
-
-        // --- 4. Pruning Phase: Compare best against all other active challengers ---
-        for (size_t i = 1; i < active_contenders.size(); ++i) {
-            MoveResult* challenger = active_contenders[i];
-            auto ci_prune = get_ci_for_difference(*best_move, *challenger);
-            if (ci_prune.first > 0) {
-                challenger->isActive = false;
-                std::cout << "    -> Pruning move " << challenger->name << " (EV " << challenger->mean
-                          << "). Confident it's worse than " << best_move->name << " (EV " << best_move->mean << ")." << std::endl;
-            }
-        }
-
-        // --- 5. Status Report & Main Stopping Conditions ---
-        auto ci_main = get_ci_for_difference(*best_move, *second_best_move);
-        auto ci_best = get_ci_for_mean(*best_move);
-        auto ci_second = get_ci_for_mean(*second_best_move);
-
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << "N(" << best_move->name << ")=" << std::setw(4) << best_move->scores.size()
-                  << " | Best: " << best_move->name << " (" << best_move->mean << " CI: [" << ci_best.first << ", " << ci_best.second << "])"
-                  << " | 2nd: " << second_best_move->name << " (" << second_best_move->mean << " CI: [" << ci_second.first << ", " << ci_second.second << "])"
-                  << " | 95% CI for Diff: [" << std::setw(6) << ci_main.first << ", " << std::setw(6) << ci_main.second << "]" << std::endl;
-
-        if (ci_main.first > 0 && second_best_move->isActive) {
-            throw std::invalid_argument("unreachable");
-            std::cout << "\n--- Conclusion: Found a Confident Winner! ---" << std::endl;
-            std::cout << "Trump " << best_move->name << " is significantly better than " << second_best_move->name << "." << std::endl;
-            return;
-        }
-
-        if ((ci_main.second - ci_main.first) < INDIFFERENCE_THRESHOLD) {
-            std::cout << "\n--- Conclusion: Moves are Practically Equivalent ---" << std::endl;
-            std::cout << "Difference between " << best_move->name << " and " << second_best_move->name
-                      << " is smaller than the threshold of " << INDIFFERENCE_THRESHOLD << " pts." << std::endl;
-            return;
-        }
-
-        // --- 6. Check max simulations for the leading contender ---
-        if (best_move->scores.size() >= MAX_N_PER_MOVE) {
-            std::cout << "\n--- Conclusion: Reached Max Simulations (" << MAX_N_PER_MOVE << ") ---" << std::endl;
-            std::cout << "Result is inconclusive for top contenders." << std::endl;
-            return;
-        }
-
-        // --- 7. Run next batch ONLY for active moves ---
-        for (auto& res : results) {
-            if (res.isActive) {
-                for (int i = 0; i < BATCH_SIZE; ++i) {
-                    res.scores.push_back(run_one_experiment(declarer_hand, res.move_mask));
-                }
-            }
-        }
-    }
-}
 
 std::vector<jass::hand_t> generate_all_trump_hands() {
     std::vector<jass::card_t> trump_cards;
@@ -363,11 +194,11 @@ int sampling_all_trump_hands() {
 
     // jass::initialize_card_maps();
     // initialize_swap_maps();
-    // find_best_trump();
+    // find_best_trump_quick_eval();
     return 0;
 }
 
-jass::suit_t best_trump(jass::hand_t hand) {
+jass::suit_t best_trump_quick_eval(jass::hand_t hand) {
     auto s_bits = hand >> 27;
     auto h_bits = swap_trump_one(hand, jass::H) >> 27;
     auto d_bits = swap_trump_one(hand, jass::D) >> 27;

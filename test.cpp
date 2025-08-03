@@ -142,20 +142,20 @@ void test_SwapTrumpOne() {
 }
 
 void test_BestTrump() {
-    REQUIRE(simulation::best_trump(jass::c("10S,9H,9D,KD,AC,10C,KC,7C,6C")) == jass::C);
-    REQUIRE(simulation::best_trump(jass::c("6C,7D,8D,6H,7H,8H,JH,6S,KS")) == jass::H);
-    REQUIRE(simulation::best_trump(jass::c("8C,10C,6D,9H,JH,AH,6S,8S,KS")) == jass::H);
-    REQUIRE(simulation::best_trump(jass::c("6C,QC,10D,KD,AD,QH,6S,QS,KS")) == jass::S); //?!
-    REQUIRE(simulation::best_trump(jass::c("QC,6D,7D,QD,10H,7S,10S,QS,KS")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("6C,7C,10H,6S,7S,8S,10S,QS,KS")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("9C,AC,7D,QD,KD,AD,AH,QS,AS")) == jass::D);
-    REQUIRE(simulation::best_trump(jass::c("KC,8D,6H,9H,6S,7S,8S,QS,9S")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("AC,8D,9D,10H,KH,7S,QS,AS,9S")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("6C,KC,JD,8S,6H,7H,8H,QH,JH")) == jass::H);
-    REQUIRE(simulation::best_trump(jass::c("7D,KD,8H,KH,AH,8S,QS,KS,JS")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("KC,6H,KH,6D,7D,8D,QD,KD,JD")) == jass::D);
-    REQUIRE(simulation::best_trump(jass::c("KC,7D,10D,AD,6S,10S,QS,KS,JS")) == jass::S);
-    REQUIRE(simulation::best_trump(jass::c("8C,KC,KD,AD,AH,6S,QS,AS,JS")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("10S,9H,9D,KD,AC,10C,KC,7C,6C")) == jass::C);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("6C,7D,8D,6H,7H,8H,JH,6S,KS")) == jass::H);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("8C,10C,6D,9H,JH,AH,6S,8S,KS")) == jass::H);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("6C,QC,10D,KD,AD,QH,6S,QS,KS")) == jass::S); //?!
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("QC,6D,7D,QD,10H,7S,10S,QS,KS")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("6C,7C,10H,6S,7S,8S,10S,QS,KS")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("9C,AC,7D,QD,KD,AD,AH,QS,AS")) == jass::D);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("KC,8D,6H,9H,6S,7S,8S,QS,9S")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("AC,8D,9D,10H,KH,7S,QS,AS,9S")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("6C,KC,JD,8S,6H,7H,8H,QH,JH")) == jass::H);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("7D,KD,8H,KH,AH,8S,QS,KS,JS")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("KC,6H,KH,6D,7D,8D,QD,KD,JD")) == jass::D);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("KC,7D,10D,AD,6S,10S,QS,KS,JS")) == jass::S);
+    REQUIRE(simulation::best_trump_quick_eval(jass::c("8C,KC,KD,AD,AH,6S,QS,AS,JS")) == jass::S);
 }
 
 int main() {
