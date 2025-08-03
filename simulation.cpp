@@ -208,7 +208,6 @@ int sampling_all_trump_hands() {
         std::cout << p1_bits << "," << p2_bits << "," << p3_bits << "," << p4_bits << "," << score << "," << elapsed << "ms" << std::endl;
     }
 
-    // jass::initialize_card_maps();
     // find_best_trump_quick_eval();
     return 0;
 }

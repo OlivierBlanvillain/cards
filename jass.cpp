@@ -28,76 +28,6 @@ static const hand_t SUIT_TABLE[37] = {
     S, S, S, S, S, S, S, S, S,
 };
 
-std::map<std::pair<suit_t, std::string>, int> CARD_TO_BIT;
-std::map<int, std::tuple<suit_t, std::string, char>> BIT_TO_CARD;
-
-void initialize_card_maps() {
-    const char* RANKS_TRUMP[] = {"J", "9", "A", "K", "Q", "10", "8", "7", "6"};
-    const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
-
-    int bit = 35; // 0-indexed bit position
-    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<suit_t, char>>{{S, 'S'}, {H, 'H'}, {D, 'D'}, {C, 'C'}}) {
-        const char** ranks = (suit_val == S) ? RANKS_TRUMP : RANKS_PLAIN;
-        int num_ranks = 9;
-        for (int i = 0; i < num_ranks; ++i) {
-            CARD_TO_BIT[{suit_val, ranks[i]}] = bit;
-            BIT_TO_CARD[bit] = {suit_val, ranks[i], suit_char_val};
-            bit--;
-        }
-    }
-}
-
-card_t c(const std::string& desc) {
-    card_t total = 0;
-    if (desc.empty()) return total;
-    size_t start = 0;
-    size_t end = desc.find(',');
-    while (end != std::string::npos) {
-        std::string token = desc.substr(start, end - start);
-        std::string rank = token.substr(0, token.length() - 1);
-        char suit_char = token.back();
-        suit_t suit;
-        if (suit_char == 'C') suit = C;
-        else if (suit_char == 'D') suit = D;
-        else if (suit_char == 'H') suit = H;
-        else suit = S;
-        total |= 1ULL << CARD_TO_BIT.at({suit, rank});
-        start = end + 1;
-        end = desc.find(',', start);
-    }
-    std::string token = desc.substr(start);
-    std::string rank = token.substr(0, token.length() - 1);
-    char suit_char = token.back();
-    suit_t suit;
-    if (suit_char == 'C') suit = C;
-    else if (suit_char == 'D') suit = D;
-    else if (suit_char == 'H') suit = H;
-    else suit = S;
-    total |= 1ULL << CARD_TO_BIT.at({suit, rank});
-    return total;
-}
-
-std::string d(card_t card_mask) {
-    if (card_mask == 0) return "";
-    int bit_pos = std::bit_width(card_mask); // This is 1-indexed bit_length (0-36)
-    if (bit_pos == 0) return ""; // Handle NOT_A_CARD case
-    auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(bit_pos - 1); // Convert to 0-indexed for BIT_TO_CARD
-    return rank + suit_char;
-}
-
-std::string hand_to_string(hand_t hand) {
-    std::string s = "";
-    for (int i = 0; i < 36; ++i) {
-        if ((hand >> i) & 1) {
-            s += d(1ULL << i) + ",";
-        }
-    }
-    if (!s.empty()) {
-        s.pop_back(); // Remove trailing comma
-    }
-    return s;
-}
-
 hand_t get_playable_cards(suit_t led_suit, hand_t hand) {
     hand_t follow = hand & led_suit;
     if (follow == JACK_OF_TRUMP) {
@@ -131,7 +61,7 @@ int solve_trick(
     }
 
     // --- Transposition Table Lookup ---
-    
+
     int initial_alpha;
     if constexpr (TRICK_DEPTH == 0) {
         initial_alpha = alpha;

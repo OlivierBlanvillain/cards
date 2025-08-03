@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wunreachable-code -Wno-unused-parameter -O3
+CXXFLAGS = -std=c++20 -O3 -Wall -Wextra -pedantic -I.
 .ONESHELL:
 .PHONY: test clean bench simulation
 

@@ -29,11 +29,6 @@ constexpr card_t QUEEN_OF_TRUMP = (1ULL << 31);
 
 extern const int POINTS_TABLE[37];
 
-void initialize_card_maps();
-card_t c(const std::string& desc);
-std::string d(card_t card_mask);
-std::string hand_to_string(hand_t hand);
-
 hand_t get_playable_cards(suit_t led_suit, hand_t hand);
 
 template <int TRICK_DEPTH, int CURRENT_PLAYER>
