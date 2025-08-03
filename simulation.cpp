@@ -201,7 +201,7 @@ int sampling_all_trump_hands() {
         std::bitset<36> p4_bits(hands[3]);
 
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-        int score = jass::solve_deal(hands).first;
+        int score = jass::solve_deal(hands);
         std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
 
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
