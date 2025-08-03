@@ -1,6 +1,6 @@
 #include "simulation.h"
 
 int main() {
-    simulation::run(10);
+    simulation::run(100);
     return 0;
 }

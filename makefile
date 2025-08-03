@@ -1,24 +1,24 @@
 CXX = g++
 CXXFLAGS = -std=c++20 -O3 -Wall -Wextra -pedantic -I.
 .ONESHELL:
-.PHONY: test clean bench run sims simulator
+.PHONY: test run puzzles clean
 
 test: build/test
 	build/test
 
-bench: build/bench
-	build/bench
+run: build/main
+	build/main
 
-run: build/simulator
-	build/simulator
+puzzles: build/main
+	seq 1000 | xargs -n1 -P12 bash -xc 'build/main | tee puzzles/$$(cat /dev/urandom | tr -dc A-Za-z0-9 | head -c8)'
 
-sims: build/simulator
-	seq 1000 | xargs -n1 -P12 bash -xc 'build/simulator | tee sims/$$(cat /dev/urandom | tr -dc A-Za-z0-9 /dev/urandom | head -c16)'
+# quick_eval: build/main
+# 	seq 1000 | xargs -n1 -P12 bash -xc 'build/main | tee quick_eval/$$(cat /dev/urandom | tr -dc A-Za-z0-9 /dev/urandom | head -c16)'
 
-build/test: build/jass.o build/test.o build/simulation.o
+build/test: build/jass.o build/simulation.o build/test.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-build/simulator: build/jass.o build/simulation.o build/main.o
+build/main: build/jass.o build/simulation.o build/main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 build/%.o: %.cpp

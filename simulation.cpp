@@ -348,14 +348,8 @@ std::tuple<double, double, double> calculate_stats(const std::vector<int>& score
     return std::make_tuple(average, average - margin_of_error, average + margin_of_error);
 }
 
-void print_stats(const std::string& name, const std::vector<int>& scores, int iterations) {
-    auto [avg, lower_ci, upper_ci] = calculate_stats(scores, iterations);
-    std::cout << name << ": " << avg << " (95% CI: " << lower_ci << " - " << upper_ci << ")" << std::endl;
-}
-
 void run(int iterations) {
     jass::hand_t the_hand = shuffle_one_hand();
-    std::cout << "Hand:       " << hand_to_string(the_hand) << std::endl;
     std::map<jass::suit_t, std::vector<int>> suit_scores;
     std::vector<int> chibre_scores;
     std::array<jass::suit_t, 4> suits = {jass::S, jass::H, jass::D, jass::C};
@@ -374,13 +368,19 @@ void run(int iterations) {
         }
     }
 
+    auto [s_avg, s_lo_ci, s_up_ci] = calculate_stats(suit_scores[jass::S], iterations);
+    auto [h_avg, h_lo_ci, h_up_ci] = calculate_stats(suit_scores[jass::H], iterations);
+    auto [d_avg, d_lo_ci, d_up_ci] = calculate_stats(suit_scores[jass::D], iterations);
+    auto [c_avg, c_lo_ci, c_up_ci] = calculate_stats(suit_scores[jass::C], iterations);
+    auto [p_avg, p_lo_ci, p_up_ci] = calculate_stats(chibre_scores, iterations);
     std::cout << std::fixed << std::setprecision(2);
-
-    print_stats("S_avg", suit_scores[jass::S], iterations);
-    print_stats("H_avg", suit_scores[jass::H], iterations);
-    print_stats("D_avg", suit_scores[jass::D], iterations);
-    print_stats("C_avg", suit_scores[jass::C], iterations);
-    print_stats("chibre_avg", chibre_scores, iterations);
+    std::cout << "Hand:  " << hand_to_string(the_hand) << " (" << iterations << "x)\n"
+              << "S_avg: " << s_avg << " (95% CI: " << s_lo_ci << "-" << s_up_ci << ")\n"
+              << "H_avg: " << h_avg << " (95% CI: " << h_lo_ci << "-" << h_up_ci << ")\n"
+              << "D_avg: " << d_avg << " (95% CI: " << d_lo_ci << "-" << d_up_ci << ")\n"
+              << "C_avg: " << c_avg << " (95% CI: " << c_lo_ci << "-" << c_up_ci << ")\n"
+              << "P_avg: " << p_avg << " (95% CI: " << p_lo_ci << "-" << p_up_ci << ")\n"
+              << std::endl;
 }
 
 } // namespace simulation
