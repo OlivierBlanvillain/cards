@@ -93,7 +93,7 @@ std::string d(jass::card_t card_mask) {
 
 std::string hand_to_string(jass::hand_t hand) {
     std::string s = "";
-    for (int i = 0; i < 36; ++i) {
+    for (int i = 35; i >= 0; --i) { // Iterate from highest bit to lowest
         if ((hand >> i) & 1) {
             s += d(1ULL << i) + ",";
         }

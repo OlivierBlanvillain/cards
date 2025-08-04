@@ -153,6 +153,23 @@ void test_BestTrump() {
     REQUIRE(simulation::best_trump_quick_eval(simulation::c("8C,KC,KD,AD,AH,6S,QS,AS,JS")) == jass::S);
 }
 
+void test_CardRoundTrip() {
+    std::string card_str = "AS";
+    REQUIRE(simulation::d(simulation::c(card_str)) == card_str);
+
+    card_str = "10H";
+    REQUIRE(simulation::d(simulation::c(card_str)) == card_str);
+
+    card_str = "7C";
+    REQUIRE(simulation::d(simulation::c(card_str)) == card_str);
+
+    card_str = "JD";
+    REQUIRE(simulation::d(simulation::c(card_str)) == card_str);
+
+    card_str = "JS,9S,AS,KS,QS,10S,8S,7S,6S,AH,KH,QH,JH,10H,9H,8H,7H,6H,AD,KD,QD,JD,10D,9D,8D,7D,6D,AC,KC,QC,JC,10C,9C,8C,7C,6C";
+    REQUIRE(simulation::hand_to_string(simulation::c(card_str)) == card_str);
+}
+
 int main() {
     RUN_TEST(test_CardRepresentation);
     RUN_TEST(test_GetPoints);
@@ -162,6 +179,7 @@ int main() {
     RUN_TEST(test_SolveDealWithFullStockGame);
     RUN_TEST(test_SwapTrumpOne);
     RUN_TEST(test_BestTrump);
+    RUN_TEST(test_CardRoundTrip);
     std::cout << "All tests passed!" << std::endl;
     return 0;
 }
