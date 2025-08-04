@@ -1,21 +1,10 @@
-@media (max-width: 600px) {
-    .container {
-        display: flex;
-        flex-direction: column;
-    }
-}
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-}
 .container {
+    max-width: 70vw;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 32px;
     transform: translateY(0px);
     background: white;
     border-radius: 15px;
     padding: 30px;
-    max-width: 700px;
     margin: 0 auto;
 }
 body {
@@ -29,8 +18,8 @@ h1 {
     color: white;
 }
 .fan {
+    width: 70vw;
     position: relative;
-    width: 700px;
     height: 240px;
     margin: 0 auto;
 }
@@ -48,7 +37,7 @@ img {
     user-select: none;
 }
 button {
-    width: 700px;
+    width: 70vw;
     left: 0pt;
     display: inline-flex;
     -webkit-box-orient: horizontal;
@@ -84,12 +73,39 @@ button:hover {
 button:active {
     background-color: rgb(198, 198, 198);
 }
-.card1 { left: 0vh; }
-.card2 { left: 7vh; }
-.card3 { left: 14vh; }
-.card4 { left: 21vh; }
-.card5 { left: 28vh; }
-.card6 { left: 35vh; }
-.card7 { left: 42vh; }
-.card8 { left: 49vh; }
-.card9 { left: 55vh; }
+.card1 { left: calc(0vw); }
+.card2 { left: calc((70vw - 150px) * 1/8); }
+.card3 { left: calc((70vw - 150px) * 2/8); }
+.card4 { left: calc((70vw - 150px) * 3/8); }
+.card5 { left: calc((70vw - 150px) * 4/8); }
+.card6 { left: calc((70vw - 150px) * 5/8); }
+.card7 { left: calc((70vw - 150px) * 6/8); }
+.card8 { left: calc((70vw - 150px) * 7/8); }
+.card9 { left: calc(70vw - 150px); }
+
+.red { color:#D40000; }
+span {
+    font-size: 1.4em;
+    margin-right: 10px
+}
+
+@media (min-width: 840px) {
+    .card1 { left: calc(0vw); }
+    .card2 { left: calc((840px * 7/10 - 150px) * 1/8); }
+    .card3 { left: calc((840px * 7/10 - 150px) * 2/8); }
+    .card4 { left: calc((840px * 7/10 - 150px) * 3/8); }
+    .card5 { left: calc((840px * 7/10 - 150px) * 4/8); }
+    .card6 { left: calc((840px * 7/10 - 150px) * 5/8); }
+    .card7 { left: calc((840px * 7/10 - 150px) * 6/8); }
+    .card8 { left: calc((840px * 7/10 - 150px) * 7/8); }
+    .card9 { left: calc(840px * 7/10 - 150px); }
+    button {
+        width: 588px;
+    }
+    .fan {
+        width: 588px;
+    }
+    .container {
+        width: 588px;
+    }
+}

@@ -368,18 +368,18 @@ void run(int iterations) {
         }
     }
 
-    auto [s_avg, s_lo_ci, s_up_ci] = calculate_stats(suit_scores[jass::S], iterations);
-    auto [h_avg, h_lo_ci, h_up_ci] = calculate_stats(suit_scores[jass::H], iterations);
-    auto [d_avg, d_lo_ci, d_up_ci] = calculate_stats(suit_scores[jass::D], iterations);
-    auto [c_avg, c_lo_ci, c_up_ci] = calculate_stats(suit_scores[jass::C], iterations);
-    auto [p_avg, p_lo_ci, p_up_ci] = calculate_stats(chibre_scores, iterations);
+    auto [s_avg, s_lo, s_up] = calculate_stats(suit_scores[jass::S], iterations);
+    auto [h_avg, h_lo, h_up] = calculate_stats(suit_scores[jass::H], iterations);
+    auto [d_avg, d_lo, d_up] = calculate_stats(suit_scores[jass::D], iterations);
+    auto [c_avg, c_lo, c_up] = calculate_stats(suit_scores[jass::C], iterations);
+    auto [p_avg, p_lo, p_up] = calculate_stats(chibre_scores, iterations);
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "Hand:  " << hand_to_string(the_hand) << " (" << iterations << "x)\n"
-              << "S_avg: " << s_avg << " (95% CI: " << s_lo_ci << "-" << s_up_ci << ")\n"
-              << "H_avg: " << h_avg << " (95% CI: " << h_lo_ci << "-" << h_up_ci << ")\n"
-              << "D_avg: " << d_avg << " (95% CI: " << d_lo_ci << "-" << d_up_ci << ")\n"
-              << "C_avg: " << c_avg << " (95% CI: " << c_lo_ci << "-" << c_up_ci << ")\n"
-              << "P_avg: " << p_avg << " (95% CI: " << p_lo_ci << "-" << p_up_ci << ")\n"
+    std::cout << hand_to_string(the_hand) << " (" << iterations << "x)\n"
+              << "S : " << s_avg << " (95% ci: " << s_lo << "-" << s_up << ")\n"
+              << "H : " << h_avg << " (95% ci: " << h_lo << "-" << h_up << ")\n"
+              << "D : " << d_avg << " (95% ci: " << d_lo << "-" << d_up << ")\n"
+              << "C : " << c_avg << " (95% ci: " << c_lo << "-" << c_up << ")\n"
+              << "P : " << p_avg << " (95% ci: " << p_lo << "-" << p_up << ")\n"
               << std::endl;
 }
 
