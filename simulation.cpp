@@ -48,7 +48,7 @@ std::map<int, std::tuple<jass::suit_t, std::string, char>> BIT_TO_CARD = [](){
     return the_map;
 }();
 
-jass::card_t c(const std::string& desc) {
+jass::card_t string_to_hand(const std::string& desc) {
     jass::card_t total = 0;
     if (desc.empty()) return total;
     size_t start = 0;
@@ -83,19 +83,12 @@ jass::card_t c(const std::string& desc) {
     return total;
 }
 
-std::string d(jass::card_t card_mask) {
-    if (card_mask == 0) return "";
-    int bit_pos = std::bit_width(card_mask); // This is 1-indexed bit_length (0-36)
-    if (bit_pos == 0) return ""; // Handle NOT_A_CARD case
-    auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(bit_pos - 1); // Convert to 0-indexed for BIT_TO_CARD
-    return rank + suit_char;
-}
-
 std::string hand_to_string(jass::hand_t hand) {
     std::string s = "";
     for (int i = 35; i >= 0; --i) { // Iterate from highest bit to lowest
         if ((hand >> i) & 1) {
-            s += d(1ULL << i) + ",";
+            auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(i);
+            s += rank + suit_char + ",";
         }
     }
     if (!s.empty()) {
