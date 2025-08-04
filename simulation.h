@@ -10,6 +10,6 @@ std::array<jass::hand_t, 4> swap_trump_many(std::array<jass::hand_t, 4> hands, j
 jass::card_t c(const std::string& desc);
 std::string hand_to_string(jass::hand_t hand);
 void print_stats(const std::string& name, const std::vector<int>& scores, int iterations);
-void run(int iterations);
+void run(int iterations, jass::hand_t hand = 0);
 
 }

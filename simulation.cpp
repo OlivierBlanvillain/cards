@@ -348,8 +348,8 @@ std::tuple<double, double, double> calculate_stats(const std::vector<int>& score
     return std::make_tuple(average, average - margin_of_error, average + margin_of_error);
 }
 
-void run(int iterations) {
-    jass::hand_t the_hand = shuffle_one_hand();
+void run(int iterations, jass::hand_t hand) {
+    jass::hand_t the_hand = hand == 0 ? shuffle_one_hand() : hand;
     std::map<jass::suit_t, std::vector<int>> suit_scores;
     std::vector<int> chibre_scores;
     std::array<jass::suit_t, 4> suits = {jass::S, jass::H, jass::D, jass::C};
