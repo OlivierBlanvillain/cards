@@ -11,11 +11,11 @@ run: build/main
 
 puzzles: build/puzzles
 	mkdir -p puzzles
-	seq 1000 | xargs -n1 -P12 bash -xc 'build/puzzles | tee puzzles/$(cat /dev/urandom | tr -dc A-Za-z0-9 | head -c8)'
+	seq 1000 | xargs -n1 -P12 bash -xc 'build/puzzles 1000 | tee puzzles/$$(cat /dev/urandom | tr -dc A-Za-z0-9 | head -c8)'
 
 quick_eval: build/quick_eval
 	mkdir -p quick_eval
-	seq 1000 | xargs -n1 -P12 bash -xc 'build/quick_eval | tee quick_eval/$(cat /dev/urandom | tr -dc A-Za-z0-9 /dev/urandom | head -c16)'
+	seq 1000 | xargs -n1 -P12 bash -xc 'build/quick_eval | tee quick_eval/$$(cat /dev/urandom | tr -dc A-Za-z0-9 | head -c16)'
 
 build/test: build/jass.o build/simulation.o build/test.o
 	$(CXX) $(CXXFLAGS) -o $@ $^

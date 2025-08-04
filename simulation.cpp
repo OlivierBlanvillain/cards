@@ -275,7 +275,7 @@ std::vector<jass::hand_t> generate_all_trump_hands() {
 }
 
 
-int sampling_all_trump_hands() {
+int run_quick_eval() {
     std::vector<jass::hand_t> samples = generate_all_trump_hands();
     std::shuffle(samples.begin(), samples.end(), gen);
     for (jass::hand_t bidder_hand : samples) {
@@ -341,7 +341,7 @@ std::tuple<double, double, double> calculate_stats(const std::vector<int>& score
     return std::make_tuple(average, average - margin_of_error, average + margin_of_error);
 }
 
-void run(int iterations, jass::hand_t hand) {
+void run_puzzle(int iterations, jass::hand_t hand) {
     jass::hand_t the_hand = hand == 0 ? shuffle_one_hand() : hand;
     std::map<jass::suit_t, std::vector<int>> suit_scores;
     std::vector<int> chibre_scores;

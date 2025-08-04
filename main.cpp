@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
     if (argc > 2) {
         try {
-            hand = simulation::c(argv[2]);
+            hand = simulation::string_to_hand(argv[2]);
         } catch (const std::out_of_range& oor) {
             std::cerr << "Invalid hand string: " << oor.what() << std::endl;
             return 1;
