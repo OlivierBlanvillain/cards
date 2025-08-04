@@ -73,7 +73,7 @@ button:hover {
 button:active {
     background-color: rgb(198, 198, 198);
 }
-.card1 { left: calc(0vw); }
+.card1 { left: 0; }
 .card2 { left: calc((70vw - 150px) * 1/8); }
 .card3 { left: calc((70vw - 150px) * 2/8); }
 .card4 { left: calc((70vw - 150px) * 3/8); }
@@ -89,7 +89,7 @@ span {
     margin-right: 10px
 }
 
-@media (min-width: 840px) {
+@media screen and (min-width: 840px) {
     .card1 { left: calc(0vw); }
     .card2 { left: calc((840px * 7/10 - 150px) * 1/8); }
     .card3 { left: calc((840px * 7/10 - 150px) * 2/8); }
@@ -100,12 +100,12 @@ span {
     .card8 { left: calc((840px * 7/10 - 150px) * 7/8); }
     .card9 { left: calc(840px * 7/10 - 150px); }
     button {
-        width: 588px;
+        width: calc(840px * 7/10);
     }
     .fan {
-        width: 588px;
+        width: calc(840px * 7/10);
     }
     .container {
-        width: 588px;
+        width: calc(840px * 7/10);
     }
 }

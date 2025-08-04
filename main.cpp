@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 int main(int argc, char* argv[]) {
-    int iterations = 100; // Default iterations
+    int iterations = 1000; // Default iterations
     jass::hand_t hand = 0; // Default to random hand
 
     if (argc > 1) {
