@@ -43,14 +43,10 @@ img {
 button {
     width: 70vw;
     left: 0pt;
-    display: inline-flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
+    display: flex;
     flex-direction: row;
-    -webkit-box-align: center;
     align-items: center;
-    -webkit-box-pack: center;
-    justify-content: center;
+    justify-content: space-between; /* Changed to space-between */
     border-width: 0px;
     border-style: none;
     outline: none;
@@ -67,9 +63,17 @@ button {
     font-weight: 500;
     line-height: 20px;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 14px 16px; /* Default padding */
     color: rgb(0, 0, 0);
     background-color: rgb(243, 243, 243);
+    position: relative; /* For absolute positioning of solution number */
+}
+
+.button-text-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: center;
 }
 button:hover {
     background-color: rgb(221, 221, 221);
@@ -91,6 +95,15 @@ button:active {
 span {
     font-size: 33px;
     margin-right: 10px
+}
+
+.solution-number {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: inherit;
 }
 
 @media screen and (min-width: 840px) {
