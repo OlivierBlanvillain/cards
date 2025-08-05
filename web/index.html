@@ -22,27 +22,31 @@
             </div>
             <div class="options">
                 <button><span class="symbol">♠</span>pique<span class="ev"></span></button>
-                <button id="coeur-button"><span class="symbol red">♥</span>coeur<span class="ev"></span></button>
+                <button><span class="symbol red">♥</span>coeur<span class="ev"></span></button>
                 <button><span class="symbol">♣</span>trèfle<span class="ev"></span></button>
-                <button id="carreau-button"><span class="symbol red">♦</span>carreau<span class="ev"></span></button>
+                <button><span class="symbol red">♦</span>carreau<span class="ev"></span></button>
                 <button><span class="symbol">⇄</span>chibre!<span class="ev"></span></button>
             </div>
         </div>
         <script>
-            const coeurButton = document.getElementById('coeur-button');
-            const carreauButton = document.getElementById('carreau-button');
             const buttons = document.querySelectorAll('.options button');
             let clicked = false;
 
             buttons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (!clicked) {
-                        // Always make coeur green and remove red from its span
-                        coeurButton.style.backgroundColor = 'green';
-                        coeurButton.style.color = 'white';
-                        coeurButton.querySelector('.symbol').classList.remove('red');
+                        const coeurButton = Array.from(buttons).find(btn => btn.textContent.includes('coeur'));
 
-                        if (button.id !== 'coeur-button') {
+                        // Always make coeur green and remove red from its span
+                        if (coeurButton) {
+                            coeurButton.style.backgroundColor = 'green';
+                            coeurButton.style.color = 'white';
+                            coeurButton.querySelector('.symbol').classList.remove('red');
+                        }
+
+                        if (button.textContent.includes('coeur')) {
+                            // If coeur button is clicked, it's already handled above
+                        } else {
                             // If a non-coeur button is clicked, it turns red
                             button.style.backgroundColor = '#D40000';
                             button.style.color = 'white';
