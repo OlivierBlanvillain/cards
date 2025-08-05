@@ -22,11 +22,40 @@
             </div>
             <div class="options">
                 <button><span>♠</span>pique</button>
-                <button><span class="red">♥</span>coeur</button>
+                <button id="coeur-button"><span class="red">♥</span>coeur</button>
                 <button><span>♣</span>trèfle</button>
-                <button><span class="red">♦</span>carreau</button>
+                <button id="carreau-button"><span class="red">♦</span>carreau</button>
                 <button><span>⇄</span>chibre!</button>
             </div>
         </div>
+        <script>
+            const coeurButton = document.getElementById('coeur-button');
+            const carreauButton = document.getElementById('carreau-button');
+            const buttons = document.querySelectorAll('.options button');
+            let clicked = false;
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!clicked) {
+                        // Always make coeur green and remove red from its span
+                        coeurButton.style.backgroundColor = 'green';
+                        coeurButton.style.color = 'white';
+                        coeurButton.querySelector('span').classList.remove('red');
+
+                        if (button.id !== 'coeur-button') {
+                            // If a non-coeur button is clicked, it turns red
+                            button.style.backgroundColor = '#D40000';
+                            button.style.color = 'white';
+                            // And its own span should lose the red class if it has one
+                            const span = button.querySelector('span');
+                            if (span) {
+                                span.classList.remove('red');
+                            }
+                        }
+                        clicked = true;
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
