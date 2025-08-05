@@ -46,7 +46,7 @@ button {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between; /* Changed to space-between */
+    justify-content: center; /* Center the main content */
     border-width: 0px;
     border-style: none;
     outline: none;
@@ -64,17 +64,13 @@ button {
     line-height: 20px;
     border-radius: 8px;
     padding: 14px 16px; /* Default padding */
+    padding-right: 60px; /* Added space for the number */
     color: rgb(0, 0, 0);
     background-color: rgb(243, 243, 243);
     position: relative; /* For absolute positioning of solution number */
 }
 
-.button-text-wrapper {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    justify-content: center;
-}
+
 button:hover {
     background-color: rgb(221, 221, 221);
 }
@@ -97,7 +93,7 @@ span {
     margin-right: 10px
 }
 
-.solution-number {
+.ev {
     position: absolute;
     right: 14px;
     top: 50%;
