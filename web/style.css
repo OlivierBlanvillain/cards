@@ -64,7 +64,6 @@ button {
     line-height: 20px;
     border-radius: 8px;
     padding: 14px 16px; /* Default padding */
-    padding-right: 60px; /* Added space for the number */
     color: rgb(0, 0, 0);
     background-color: rgb(243, 243, 243);
     position: relative; /* For absolute positioning of solution number */
@@ -88,17 +87,15 @@ button:active {
 .card9 { left: calc(70vw - 150px); }
 
 .red { color:#D40000; }
-span {
-    font-size: 33px;
+.symbol {
+    font-size: 28.8px;
     margin-right: 10px
 }
-
 .ev {
     position: absolute;
     right: 14px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 24px;
     color: inherit;
 }
 
