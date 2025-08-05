@@ -1,11 +1,15 @@
+@font-face { font-family: 'DM Mono'; font-style: normal; font-weight: 400; font-display: block; src: url('./fonts/aFTU7PB1QTsUX8KYhh0.ttf') format('truetype'); }
+
 .container {
     max-width: 70vw;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 32px;
-    transform: translateY(0px);
     background: white;
     border-radius: 15px;
     padding: 30px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 body {
     background: #113f67;
@@ -14,24 +18,24 @@ body {
 }
 h1 {
     text-align: center;
-    font-size: 3em;
+    font-size: 48px;
+    min-height: 62px;
     color: white;
 }
 .fan {
     width: 70vw;
     position: relative;
-    height: 240px;
+    height: 210px;
     margin: 0 auto;
 }
 .options {
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
     flex-direction: column;
     gap: 8px;
 }
 img {
     width: 150px;
+    height: 210px;
    	position: absolute;
     pointer-events: none;
     user-select: none;
@@ -59,7 +63,7 @@ button {
     cursor: pointer;
     margin: 0px;
     font-family: inherit;
-    font-size: 1.5em;
+    font-size: 24px;
     font-weight: 500;
     line-height: 20px;
     border-radius: 8px;
@@ -85,7 +89,7 @@ button:active {
 
 .red { color:#D40000; }
 span {
-    font-size: 1.4em;
+    font-size: 33px;
     margin-right: 10px
 }
 
