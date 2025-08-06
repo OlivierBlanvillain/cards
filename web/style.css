@@ -1,5 +1,10 @@
-@font-face { font-family: 'DM Mono'; font-style: normal; font-weight: 400; font-display: block; src: url('./fonts/aFTU7PB1QTsUX8KYhh0.ttf') format('truetype'); }
-
+@font-face {
+    font-family: 'DM Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url('./fonts/aFTU7PB1QTsUX8KYhh0.ttf') format('truetype');
+}
 .container {
     max-width: 70vw;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 32px;
@@ -68,8 +73,6 @@ button {
     background-color: rgb(243, 243, 243);
     position: relative; /* For absolute positioning of solution number */
 }
-
-
 button:hover {
     background-color: rgb(221, 221, 221);
 }
@@ -85,7 +88,6 @@ button:active {
 .card7 { left: calc((70vw - 150px) * 6/8); }
 .card8 { left: calc((70vw - 150px) * 7/8); }
 .card9 { left: calc(70vw - 150px); }
-
 .red { color:#D40000; }
 .symbol {
     font-size: 28.8px;
@@ -98,7 +100,6 @@ button:active {
     transform: translateY(-50%);
     color: inherit;
 }
-
 @media screen and (min-width: 840px) {
     .card1 { left: calc(0vw); }
     .card2 { left: calc((840px * 7/10 - 150px) * 1/8); }
