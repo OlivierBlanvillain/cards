@@ -280,15 +280,14 @@ int run_quick_eval() {
     std::shuffle(samples.begin(), samples.end(), gen);
     for (jass::hand_t bidder_hand : samples) {
         std::array<jass::hand_t, 4> hands = shuffle_other_hands(bidder_hand, 0);
-        std::bitset<36> p1_bits(hands[0]);
-        std::bitset<36> p2_bits(hands[1]);
-        std::bitset<36> p3_bits(hands[2]);
-        std::bitset<36> p4_bits(hands[3]);
-
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         int score = jass::solve_deal(hands);
         std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
 
+        std::bitset<36> p1_bits(hands[0]);
+        std::bitset<36> p2_bits(hands[1]);
+        std::bitset<36> p3_bits(hands[2]);
+        std::bitset<36> p4_bits(hands[3]);
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         std::cout << p1_bits << "," << p2_bits << "," << p3_bits << "," << p4_bits << "," << score << "," << elapsed << "ms" << std::endl;
     }
@@ -352,13 +351,27 @@ void run_puzzle(int iterations, jass::hand_t hand) {
         jass::hand_t partner_hand = the_deal[2];
         jass::suit_t partner_suit = best_trump_quick_eval(partner_hand);
         for (jass::suit_t suit: suits) {
-            auto suit_deal = swap_trump_many(the_deal, suit);
+            std::array<jass::hand_t, 4> suit_deal = swap_trump_many(the_deal, suit);
             int suit_score = jass::solve_deal(suit_deal);
             suit_scores[suit].push_back(suit_score);
             if (suit == partner_suit) {
                 chibre_scores.push_back(suit_score);
             }
         }
+        std::bitset<36> p1_bits(the_deal[0]);
+        std::bitset<36> p2_bits(the_deal[1]);
+        std::bitset<36> p3_bits(the_deal[2]);
+        std::bitset<36> p4_bits(the_deal[3]);
+        std::cout << std::setw(31) << std::left << hand_to_string(the_deal[0])
+            << std::setw(31) << std::left << hand_to_string(the_deal[1])
+            << std::setw(31) << std::left << hand_to_string(the_deal[2])
+            << std::setw(31) << std::left << hand_to_string(the_deal[3])
+            << "S" << std::setw(5) << std::left << suit_scores[jass::S].back()
+            << "H" << std::setw(5) << std::left << suit_scores[jass::H].back()
+            << "D" << std::setw(5) << std::left << suit_scores[jass::D].back()
+            << "C" << std::setw(5) << std::left << suit_scores[jass::C].back()
+            << "P" << std::setw(5) << std::left << suit_scores[partner_suit].back()
+            << std::endl;
     }
 
     auto [s_avg, s_lo, s_up] = calculate_stats(suit_scores[jass::S], iterations);
@@ -367,7 +380,7 @@ void run_puzzle(int iterations, jass::hand_t hand) {
     auto [c_avg, c_lo, c_up] = calculate_stats(suit_scores[jass::C], iterations);
     auto [p_avg, p_lo, p_up] = calculate_stats(chibre_scores, iterations);
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << hand_to_string(the_hand) << " (" << iterations << "x)\n"
+    std::cout << "\n" << hand_to_string(the_hand) << " (" << iterations << "x)\n"
               << "S : " << s_avg << " (95% ci: " << s_lo << "-" << s_up << ")\n"
               << "H : " << h_avg << " (95% ci: " << h_lo << "-" << h_up << ")\n"
               << "D : " << d_avg << " (95% ci: " << d_lo << "-" << d_up << ")\n"

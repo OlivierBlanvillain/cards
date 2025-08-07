@@ -28,47 +28,47 @@
                 <button><span class="symbol">⇄</span>chibre!<span class="ev"></span></button>
             </div>
         </div>
-        <script>
-            const buttons = document.querySelectorAll('.options button');
-            let clicked = false;
-
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    if (!clicked) {
-                        const coeurButton = Array.from(buttons).find(btn => btn.textContent.includes('coeur'));
-
-                        // Always make coeur green and remove red from its span
-                        if (coeurButton) {
-                            coeurButton.style.backgroundColor = 'green';
-                            coeurButton.style.color = 'white';
-                            coeurButton.querySelector('.symbol').classList.remove('red');
-                        }
-
-                        if (button.textContent.includes('coeur')) {
-                            // If coeur button is clicked, it's already handled above
-                        } else {
-                            // If a non-coeur button is clicked, it turns red
-                            button.style.backgroundColor = '#D40000';
-                            button.style.color = 'white';
-                            // And its own span should lose the red class if it has one
-                            const span = button.querySelector('.symbol');
-                            if (span) {
-                                span.classList.remove('red');
-                            }
-                        }
-
-                        // Display 99.9 for all buttons
-                        buttons.forEach(btn => {
-                            const solutionSpan = btn.querySelector('.ev');
-                            if (solutionSpan) {
-                                solutionSpan.textContent = '99.9';
-                            }
-                        });
-
-                        clicked = true;
-                    }
-                });
-            });
-        </script>
     </body>
+    <script>
+        const buttons = document.querySelectorAll('.options button');
+        let clicked = false;
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (!clicked) {
+                    const coeurButton = Array.from(buttons).find(btn => btn.textContent.includes('coeur'));
+
+                    // Always make coeur green and remove red from its span
+                    if (coeurButton) {
+                        coeurButton.style.backgroundColor = 'green';
+                        coeurButton.style.color = 'white';
+                        coeurButton.querySelector('.symbol').classList.remove('red');
+                    }
+
+                    if (button.textContent.includes('coeur')) {
+                        // If coeur button is clicked, it's already handled above
+                    } else {
+                        // If a non-coeur button is clicked, it turns red
+                        button.style.backgroundColor = '#D40000';
+                        button.style.color = 'white';
+                        // And its own span should lose the red class if it has one
+                        const span = button.querySelector('.symbol');
+                        if (span) {
+                            span.classList.remove('red');
+                        }
+                    }
+
+                    // Display 99.9 for all buttons
+                    buttons.forEach(btn => {
+                        const solutionSpan = btn.querySelector('.ev');
+                        if (solutionSpan) {
+                            solutionSpan.textContent = '99.9';
+                        }
+                    });
+
+                    clicked = true;
+                }
+            });
+        });
+    </script>
 </html>

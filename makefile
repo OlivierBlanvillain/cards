@@ -6,8 +6,8 @@ CXXFLAGS = -std=c++20 -O3 -Wall -Wextra -pedantic -I.
 test: build/test
 	build/test
 
-run: build/main
-	build/main
+run: build/puzzles
+	build/puzzles 1000 7S,QH,10H,9H,8H,7H,QD,10D,AC
 
 puzzles: build/puzzles
 	mkdir -p puzzles
