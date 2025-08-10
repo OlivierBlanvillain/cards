@@ -20,7 +20,7 @@ std::map<std::pair<jass::suit_t, std::string>, int> CARD_TO_BIT = [](){
     const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
 
     int bit = 35; // 0-indexed bit position
-    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<jass::suit_t, char>>{{jass::S, 'S'}, {jass::H, 'H'}, {jass::D, 'D'}, {jass::C, 'C'}}) {
+    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<jass::suit_t, char>>{{jass::S, 'S'}, {jass::H, 'H'}, {jass::C, 'C'}, {jass::D, 'D'}}) {
         const char** ranks = (suit_val == jass::S) ? RANKS_TRUMP : RANKS_PLAIN;
         int num_ranks = 9;
         for (int i = 0; i < num_ranks; ++i) {
@@ -37,7 +37,7 @@ std::map<int, std::tuple<jass::suit_t, std::string, char>> BIT_TO_CARD = [](){
     const char* RANKS_PLAIN[] = {"A", "K", "Q", "J", "10", "9", "8", "7", "6"};
 
     int bit = 35; // 0-indexed bit position
-    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<jass::suit_t, char>>{{jass::S, 'S'}, {jass::H, 'H'}, {jass::D, 'D'}, {jass::C, 'C'}}) {
+    for (auto const& [suit_val, suit_char_val] : std::vector<std::pair<jass::suit_t, char>>{{jass::S, 'S'}, {jass::H, 'H'}, {jass::C, 'C'}, {jass::D, 'D'}}) {
         const char** ranks = (suit_val == jass::S) ? RANKS_TRUMP : RANKS_PLAIN;
         int num_ranks = 9;
         for (int i = 0; i < num_ranks; ++i) {
@@ -85,7 +85,7 @@ jass::card_t string_to_hand(const std::string& desc) {
 
 std::string hand_to_string(jass::hand_t hand) {
     std::string s = "";
-    for (int i = 35; i >= 0; --i) { // Iterate from highest bit to lowest
+    for (int i = 35; i >= 0; --i) {
         if ((hand >> i) & 1) {
             auto const& [suit, rank, suit_char] = BIT_TO_CARD.at(i);
             s += rank + suit_char + ",";
@@ -127,8 +127,8 @@ std::mt19937 gen(rd());
 
 std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> S_TO_T = []() {
     std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> the_map;
-    SUIT_BIT_START[jass::C] = 0;
-    SUIT_BIT_START[jass::D] = 9;
+    SUIT_BIT_START[jass::D] = 0;
+    SUIT_BIT_START[jass::C] = 9;
     SUIT_BIT_START[jass::H] = 18;
     SUIT_BIT_START[jass::S] = 27;
     std::map<int, int> ti_to_si = {
@@ -148,20 +148,16 @@ std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> S_TO_T = []() {
 
 std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> T_TO_S = []() {
     std::map<jass::suit_t, std::map<jass::card_t, jass::card_t>> the_map;
-    SUIT_BIT_START[jass::C] = 0;
-    SUIT_BIT_START[jass::D] = 9;
+    SUIT_BIT_START[jass::D] = 0;
+    SUIT_BIT_START[jass::C] = 9;
     SUIT_BIT_START[jass::H] = 18;
     SUIT_BIT_START[jass::S] = 27;
-
     std::map<int, int> ti_to_si = {
         {0, 0}, {1, 1}, {2, 2}, {3, 7}, {4, 3}, {5, 8}, {6, 4}, {7, 5}, {8, 6}
     };
-
     for (auto const& [t_suit_mask, t_start_bit] : SUIT_BIT_START) {
         the_map[t_suit_mask] = {};
-
         int s_start_bit = SUIT_BIT_START[jass::S];
-
         for (auto const& [ti, si] : ti_to_si) {
             jass::card_t t_card = 1ULL << (t_start_bit + ti);
             jass::card_t s_card = 1ULL << (s_start_bit + si);
@@ -297,12 +293,12 @@ int run_quick_eval() {
 jass::suit_t best_trump_quick_eval(jass::hand_t hand) {
     auto s_bits = hand >> 27;
     auto h_bits = swap_trump_one(hand, jass::H) >> 27;
-    auto d_bits = swap_trump_one(hand, jass::D) >> 27;
     auto c_bits = swap_trump_one(hand, jass::C) >> 27;
-    assert((s_bits & jass::C) == s_bits);
-    assert((h_bits & jass::C) == h_bits);
-    assert((d_bits & jass::C) == d_bits);
-    assert((c_bits & jass::C) == c_bits);
+    auto d_bits = swap_trump_one(hand, jass::D) >> 27;
+    assert((s_bits & 0x1FF) == s_bits);
+    assert((h_bits & 0x1FF) == h_bits);
+    assert((d_bits & 0x1FF) == d_bits);
+    assert((c_bits & 0x1FF) == c_bits);
     auto s_eval = quick_eval[s_bits];
     auto h_eval = quick_eval[h_bits];
     auto d_eval = quick_eval[d_bits];

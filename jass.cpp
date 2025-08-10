@@ -12,8 +12,8 @@ namespace jass {
 const int POINTS_TABLE[37] = {
     -1, // unused (index 0)
     // 6, 7, 8, 9, 10, J, Q, K, As
-    0, 0, 0, 0, 10, 2, 3, 4, 11, // Clubs (bit_length 1-9)
-    0, 0, 0, 0, 10, 2, 3, 4, 11, // Diamonds (bit_length 10-18)
+    0, 0, 0, 0, 10, 2, 3, 4, 11, // Diamonds (bit_length 1-9)
+    0, 0, 0, 0, 10, 2, 3, 4, 11, // Clubs (bit_length 10-18)
     0, 0, 0, 0, 10, 2, 3, 4, 11, // Hearts (bit_length 19-27)
     // 6, 7, 8, 10, Q, K, As, 9,  J
     0, 0, 0, 10, 3, 4, 11, 14, 20, // Spades (bit_length 28-36)
@@ -22,8 +22,8 @@ const int POINTS_TABLE[37] = {
 // 1-indexed by bit_length (0-36)
 static const hand_t SUIT_TABLE[37] = {
     0, // unused (index 0)
-    C, C, C, C, C, C, C, C, C,
     D, D, D, D, D, D, D, D, D,
+    C, C, C, C, C, C, C, C, C,
     H, H, H, H, H, H, H, H, H,
     S, S, S, S, S, S, S, S, S,
 };

@@ -26,7 +26,7 @@ void test_CardRepresentation() {
     REQUIRE(simulation::string_to_hand("8S") > simulation::string_to_hand("7S"));
     REQUIRE(simulation::string_to_hand("7S") > simulation::string_to_hand("6S"));
     REQUIRE(simulation::string_to_hand("AH") > simulation::string_to_hand("KH"));
-    REQUIRE(simulation::string_to_hand("6C") == (1ULL << 0));
+    REQUIRE(simulation::string_to_hand("6D") == (1ULL << 0));
     REQUIRE(simulation::string_to_hand("JS") == (1ULL << 35));
 }
 
@@ -166,7 +166,7 @@ void test_CardRoundTrip() {
     card_str = "JD";
     REQUIRE(simulation::hand_to_string(simulation::string_to_hand(card_str)) == card_str);
 
-    card_str = "JS,9S,AS,KS,QS,10S,8S,7S,6S,AH,KH,QH,JH,10H,9H,8H,7H,6H,AD,KD,QD,JD,10D,9D,8D,7D,6D,AC,KC,QC,JC,10C,9C,8C,7C,6C";
+    card_str = "JS,9S,AS,KS,QS,10S,8S,7S,6S,AH,KH,QH,JH,10H,9H,8H,7H,6H,AC,KC,QC,JC,10C,9C,8C,7C,6C,AD,KD,QD,JD,10D,9D,8D,7D,6D";
     REQUIRE(simulation::hand_to_string(simulation::string_to_hand(card_str)) == card_str);
 }
 
