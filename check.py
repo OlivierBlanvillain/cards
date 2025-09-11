@@ -1,17 +1,12 @@
 import re
 
 def should_pass(hand: list[str]) -> bool:
+    PASS = True
+    CALL = False
+    jack_cards = [card for card in hand if card.startswith("J")]
+    jack_count = len(jack_cards)
+
     suits = ['S', 'H', 'D', 'C']
-
-    for suit in suits:
-        trump_cards = [card for card in hand if card.endswith(suit)]
-        trump_count = len(trump_cards)
-
-        has_jack = f"J{suit}" in hand
-        has_nine = f"9{suit}" in hand
-
-        if has_jack and has_nine and trump_count >= 4:
-            return False
 
     specials = 0
     for suit in suits:
@@ -27,47 +22,59 @@ def should_pass(hand: list[str]) -> bool:
         elif has_king and has_queen:
             specials += 1
 
+    trump_options = []
+    for suit in suits:
+        trumps = [card.removesuffix(suit) for card in hand if card.endswith(suit)]
+        trump_options.append(trumps)
+
+    def trump_matches(predicate):
+        return any(map(predicate, trump_options))
+
+    # 4xJ -> pass
+    if jack_count == 4:
+        return PASS
+
+    # J 9 3th -> call
+    if trump_matches(lambda trumps: 'J' in trumps and '9' in trumps and len(trumps) >= 3):
+        return CALL
+
+    # 4 specials -> pass
     if specials == 4:
-        return True
+        return PASS
 
-    for suit in suits:
-        trump_cards = [card for card in hand if card.endswith(suit)]
-        trump_count = len(trump_cards)
+    # J9 -> call
+    if trump_matches(lambda trumps: 'J' in trumps and '9' in trumps):
+        return CALL
 
-        has_jack = f"J{suit}" in hand
-        has_nine = f"9{suit}" in hand
-        has_king = f"K{suit}" in hand
-        has_queen = f"Q{suit}" in hand
+    # j4rd -> call
+    if trump_matches(lambda trumps: 'J' in trumps and len(trumps) >= 4):
+        return CALL
 
-        if has_jack and has_nine and trump_count >= 3:
-            return False
-        if has_jack and trump_count >= 4:
-            return False
-        if has_jack and has_king and has_queen:
-            return False
+    # JKQ -> call
+    if trump_matches(lambda trumps: 'J' in trumps and 'K' in trumps and 'Q' in trumps):
+        return CALL
 
+    # 3 specials -> pass
     if specials >= 3:
-        return True
+        return PASS
 
-    for suit in suits:
-        trump_cards = [card for card in hand if card.endswith(suit)]
-        trump_count = len(trump_cards)
+    # 96th -> call
+    if trump_matches(lambda trumps: '9' in trumps and len(trumps) >= 6):
+        return CALL
 
-        has_jack = f"J{suit}" in hand
-        has_nine = f"9{suit}" in hand
-        has_king = f"K{suit}" in hand
-        has_queen = f"Q{suit}" in hand
+    # 9QK4th -> call
+    if trump_matches(lambda trumps: '9' in trumps and 'K' in trumps and 'Q' in trumps and len(trumps) >= 4):
+        return CALL
 
-        if has_jack and has_nine:
-            return False
-        if has_jack and trump_count >= 3:
-            return False
-        if has_nine and trump_count >= 6:
-            return False
-        if has_nine and has_king and has_queen and trump_count >= 4:
-            return False
+    # 2 specials -> pass
+    if specials >= 2:
+        return PASS
 
-    return True
+    # j3rd -> call
+    if trump_matches(lambda trumps: 'J' in trumps and len(trumps) >= 3):
+        return CALL
+
+    return PASS
 
 def parse_hand_and_best_move(file_path):
     with open(file_path, 'r') as file:
@@ -99,7 +106,8 @@ def parse_hand_and_best_move(file_path):
     best_ev = ev_values[best_suit]
     ai_passes = (best_suit == "P")
     if system_passes != ai_passes:
-        print(f"disagree on '{file_path}', {system_passes=}, {ai_passes=}, hand={hand_str}, {ev_values=}")
+        ev_diff = abs(best_ev - ev_values[sorted(ev_values, key=ev_values.get)[-2]])
+        print(f"ev_diff={ev_diff:05.2f} \t '{file_path[:16]}' \t system {'passes' if system_passes else 'calls'} \t hand={hand_str}")
 
 # Example usage
 if __name__ == "__main__":
