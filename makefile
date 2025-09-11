@@ -1,24 +1,24 @@
 CXX = g++
 CXXFLAGS = -std=c++20 -O3 -Wall -Wextra -pedantic -I.
 .ONESHELL:
-.PHONY: test run puzzles clean
+.PHONY: test run puzzles clean study
 
 test: build/test
 	build/test
 
-survey: build/puzzles
-	build/puzzles 1000 9S,7S,AH,8H,QC,7C,10D,QD,6D > survey/9-3nd&
-	build/puzzles 1000 9S,QS,8S,7S,AH,8H,QC,7C,6D > survey/9-4th&
-	build/puzzles 1000 9S,QS,10S,8S,7S,AH,8H,QC,6D > survey/9-5th&
-	build/puzzles 1000 9S,QS,10S,8S,7S,6S,AH,QC,6D > survey/9-6th&
-	build/puzzles 1000 JS,9S,7H,8H,10H,QH,QC,AC,AD > survey/solo-j-9&
-	build/puzzles 1000 9S,KS,QS,AH,8H,QC,7C,10D,6D > survey/9-3th-belote&
-	build/puzzles 1000 9S,KS,QS,7S,AH,8H,QC,7C,6D > survey/9-4th-belote&
-	build/puzzles 1000 9S,QS,10S,8S,7S,AH,AC,KC,AD > survey/9-5th-3-aces&
-	build/puzzles 1000 JS,QS,6S,QH,8H,AC,7C,AD,10D > survey/j-3rd&
-	build/puzzles 1000 JS,QS,6S,9H,QH,AC,7C,AD,10D > survey/j-3rd-9-2nd&
-	build/puzzles 1000 JS,QS,6S,9H,QH,AC,7C,9D,AD > survey/j-3rd-2x-9-2nd&
-	build/puzzles 1000 JS,QS,6S,9H,QH,9C,AC,9D,AD > survey/j-3rd-3x-9-2nd&
+study: build/puzzles
+	cp study/9KQ-0J2nd study/9KQ-0KQ
+	build/puzzles 1000 9S,KS,QS,KH,QH,7C,6C,7D,6D > study/9KQ-1KQ&
+	build/puzzles 1000 9S,KS,QS,KH,QH,KC,QC,7D,6D > study/9KQ-2KQ&
+	build/puzzles 1000 9S,KS,QS,KH,QH,KC,QC,KD,QD > study/9KQ-3KQ&
+	cp study/J3rd-0J2nd study/J3rd-0KQ
+	build/puzzles 1000 JS,7S,6S,KH,QH,7C,6C,7D,6D > study/J3rd-1KQ&
+	build/puzzles 1000 JS,7S,6S,KH,QH,KC,QC,7D,6D > study/J3rd-2KQ&
+	build/puzzles 1000 JS,7S,6S,KH,QH,KC,QC,KD,QD > study/J3rd-3KQ&
+	cp study/J93rd-0J2nd study/J93rd-0KQ
+	build/puzzles 1000 JS,9S,6S,KH,QH,7C,6C,7D,6D > study/J93rd-1KQ&
+	build/puzzles 1000 JS,9S,6S,KH,QH,KC,QC,7D,6D > study/J93rd-2KQ&
+	build/puzzles 1000 JS,9S,6S,KH,QH,KC,QC,KD,QD > study/J93rd-3KQ&
 
 puzzles: build/puzzles
 	mkdir -p puzzles
