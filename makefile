@@ -7,18 +7,18 @@ test: build/test
 	build/test
 
 study: build/puzzles
-	cp study/9KQ-0J2nd study/9KQ-0KQ
-	build/puzzles 1000 9S,KS,QS,KH,QH,7C,6C,7D,6D > study/9KQ-1KQ&
-	build/puzzles 1000 9S,KS,QS,KH,QH,KC,QC,7D,6D > study/9KQ-2KQ&
-	build/puzzles 1000 9S,KS,QS,KH,QH,KC,QC,KD,QD > study/9KQ-3KQ&
-	cp study/J3rd-0J2nd study/J3rd-0KQ
-	build/puzzles 1000 JS,7S,6S,KH,QH,7C,6C,7D,6D > study/J3rd-1KQ&
-	build/puzzles 1000 JS,7S,6S,KH,QH,KC,QC,7D,6D > study/J3rd-2KQ&
-	build/puzzles 1000 JS,7S,6S,KH,QH,KC,QC,KD,QD > study/J3rd-3KQ&
-	cp study/J93rd-0J2nd study/J93rd-0KQ
-	build/puzzles 1000 JS,9S,6S,KH,QH,7C,6C,7D,6D > study/J93rd-1KQ&
-	build/puzzles 1000 JS,9S,6S,KH,QH,KC,QC,7D,6D > study/J93rd-2KQ&
-	build/puzzles 1000 JS,9S,6S,KH,QH,KC,QC,KD,QD > study/J93rd-3KQ&
+	cp study/9KQ-0J2nd study/9KQ-0A
+	build/puzzles 1000 9S,KS,QS,AH,6H,7C,6C,7D,6D > study/9KQ-1A&
+	build/puzzles 1000 9S,KS,QS,AH,6H,AC,6C,7D,6D > study/9KQ-2A&
+	build/puzzles 1000 9S,KS,QS,AH,6H,AC,6C,AD,6D > study/9KQ-3A&
+	cp study/J3rd-0J2nd study/J3rd-0A
+	build/puzzles 1000 JS,7S,6S,AH,6H,7C,6C,7D,6D > study/J3rd-1A&
+	build/puzzles 1000 JS,7S,6S,AH,6H,AC,6C,7D,6D > study/J3rd-2A&
+	build/puzzles 1000 JS,7S,6S,AH,6H,AC,6C,AD,6D > study/J3rd-3A&
+	cp study/J93rd-0J2nd study/J93rd-0A
+	build/puzzles 1000 JS,9S,6S,AH,6H,7C,6C,7D,6D > study/J93rd-1A&
+	build/puzzles 1000 JS,9S,6S,AH,6H,AC,6C,7D,6D > study/J93rd-2A&
+	build/puzzles 1000 JS,9S,6S,AH,6H,AC,6C,AD,6D > study/J93rd-3A&
 
 puzzles: build/puzzles
 	mkdir -p puzzles
