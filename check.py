@@ -66,9 +66,9 @@ def should_pass(hand: list[str]) -> bool:
     if trump_matches(lambda trumps: '9' in trumps and 'K' in trumps and 'Q' in trumps and len(trumps) >= 4):
         return CALL
 
-    # 2 specials -> pass
-    if specials >= 2:
-        return PASS
+    # # 2 specials -> pass
+    # if specials >= 2:
+    #     return PASS
 
     # j3rd -> call
     if trump_matches(lambda trumps: 'J' in trumps and len(trumps) >= 3):
